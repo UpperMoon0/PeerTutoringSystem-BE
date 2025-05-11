@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace PeerTutoringSystem.Application.DTOs
@@ -13,8 +14,8 @@ namespace PeerTutoringSystem.Application.DTOs
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
         public string Password { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Anonymous name is required.")]
-        public string AnonymousName { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Full name is required.")]
+        public string FullName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Date of birth is required.")]
         public DateTime DateOfBirth { get; set; }
@@ -46,8 +47,8 @@ namespace PeerTutoringSystem.Application.DTOs
         [Required(ErrorMessage = "Google ID Token is required.")]
         public string IdToken { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Anonymous name is required.")]
-        public string AnonymousName { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Full name is required.")]
+        public string FullName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Date of birth is required.")]
         public DateTime DateOfBirth { get; set; }
@@ -73,7 +74,7 @@ namespace PeerTutoringSystem.Application.DTOs
     public class AuthResponseDto
     {
         public Guid UserID { get; set; }
-        public string AnonymousName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
         public string AccessToken { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
         public string AvatarUrl { get; set; } = string.Empty;

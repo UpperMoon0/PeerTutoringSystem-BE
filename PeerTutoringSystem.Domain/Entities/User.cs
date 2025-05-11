@@ -18,7 +18,7 @@ namespace PeerTutoringSystem.Domain.Entities
     public class User
     {
         public Guid UserID { get; set; }
-        public string AnonymousName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
         public string FirebaseUid { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;

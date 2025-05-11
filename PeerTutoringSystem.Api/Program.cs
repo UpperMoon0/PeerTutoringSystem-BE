@@ -1,4 +1,4 @@
-using FirebaseAdmin;
+﻿using FirebaseAdmin;
 using FirebaseAdmin.Auth;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +10,7 @@ using PeerTutoringSystem.Domain.Interfaces;
 using PeerTutoringSystem.Infrastructure.Data;
 using PeerTutoringSystem.Infrastructure.Repositories;
 using System.Text;
+using Microsoft.OpenApi.Models; // Thêm namespace này để dùng OpenApiSecurityScheme
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,7 +66,35 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "PeerTutoringSystem API", Version = "v1" });
+
+    // Thêm cấu hình để hỗ trợ JWT Authentication trong Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter the JWT token in the format 'Bearer {token}'",
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 
@@ -73,7 +102,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PeerTutoringSystem API V1");
+        // Tùy chọn: Nếu bạn muốn bật giao diện Swagger UI đẹp hơn
+        c.DisplayRequestDuration();
+    });
 }
 
 app.UseHttpsRedirection();

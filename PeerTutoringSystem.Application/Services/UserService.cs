@@ -27,7 +27,7 @@ namespace PeerTutoringSystem.Application.Services
             return new UserDto
             {
                 UserID = user.UserID,
-                AnonymousName = user.AnonymousName,
+                FullName = user.FullName,
                 Email = user.Email,
                 DateOfBirth = user.DateOfBirth,
                 PhoneNumber = user.PhoneNumber,
@@ -41,7 +41,6 @@ namespace PeerTutoringSystem.Application.Services
 
         public async Task UpdateUserAsync(Guid userId, UpdateUserDto dto)
         {
-            // Validate DTO
             ValidateDto(dto);
 
             var user = await _userRepository.GetByIdAsync(userId);
@@ -55,14 +54,14 @@ namespace PeerTutoringSystem.Application.Services
                     throw new ValidationException("Email already exists.");
             }
 
-            user.AnonymousName = dto.AnonymousName;
+            user.FullName = dto.FullName;
             user.Email = dto.Email;
             user.DateOfBirth = dto.DateOfBirth;
             user.PhoneNumber = dto.PhoneNumber;
             user.Gender = Enum.Parse<Gender>(dto.Gender, true);
             user.Hometown = dto.Hometown;
             user.AvatarUrl = dto.AvatarUrl;
-            await _userRepository.AddAsync(user);
+            await _userRepository.UpdateAsync(user); // Sửa từ AddAsync thành UpdateAsync
         }
 
         public async Task BanUserAsync(Guid userId)
@@ -77,7 +76,7 @@ namespace PeerTutoringSystem.Application.Services
             user.Status = UserStatus.Banned;
             user.IsOnline = false;
             user.LastActive = DateTime.UtcNow;
-            await _userRepository.AddAsync(user);
+            await _userRepository.UpdateAsync(user); // Sửa từ AddAsync thành UpdateAsync
         }
 
         public async Task<List<UserDto>> GetAllUsersAsync()
@@ -90,7 +89,7 @@ namespace PeerTutoringSystem.Application.Services
                 userDtos.Add(new UserDto
                 {
                     UserID = user.UserID,
-                    AnonymousName = user.AnonymousName,
+                    FullName = user.FullName,
                     Email = user.Email ?? user.FirebaseUid,
                     DateOfBirth = user.DateOfBirth,
                     PhoneNumber = user.PhoneNumber,
