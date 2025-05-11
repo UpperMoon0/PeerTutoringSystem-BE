@@ -28,9 +28,11 @@ namespace PeerTutoringSystem.Infrastructure.Data
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+            // Chỉ áp dụng chỉ mục duy nhất cho FirebaseUid khi nó không rỗng
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.FirebaseUid)
-                .IsUnique();
+                .IsUnique()
+                .HasFilter("[FirebaseUid] IS NOT NULL AND [FirebaseUid] != ''");
             modelBuilder.Entity<User>()
                 .Property(u => u.Gender)
                 .HasConversion<string>();

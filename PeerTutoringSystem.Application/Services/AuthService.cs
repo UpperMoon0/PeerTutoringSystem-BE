@@ -1,46 +1,53 @@
 ﻿using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using PeerTutoringSystem.Application.DTOs;
 using PeerTutoringSystem.Application.Interfaces;
 using PeerTutoringSystem.Domain.Entities;
 using PeerTutoringSystem.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
+using PeerTutoringSystem.Infrastructure.Data;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Application.Services
+public class AuthService : IAuthService
 {
-    public class AuthService : IAuthService
+    private readonly IUserRepository _userRepository;
+    private readonly IUserTokenRepository _userTokenRepository;
+    private readonly IConfiguration _configuration;
+    private readonly PasswordHasher<User> _passwordHasher;
+    private readonly AppDbContext _context;
+    private readonly ILogger<AuthService> _logger;
+
+    public AuthService(
+        IUserRepository userRepository,
+        IUserTokenRepository userTokenRepository,
+        IConfiguration configuration,
+        AppDbContext context,
+        ILogger<AuthService> logger)
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IUserTokenRepository _userTokenRepository;
-        private readonly IConfiguration _configuration;
-        private readonly PasswordHasher<User> _passwordHasher;
+        _userRepository = userRepository;
+        _userTokenRepository = userTokenRepository;
+        _configuration = configuration;
+        _passwordHasher = new PasswordHasher<User>();
+        _context = context;
+        _logger = logger;
+    }
 
-        public AuthService(IUserRepository userRepository, IUserTokenRepository userTokenRepository, IConfiguration configuration)
+    public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
+    {
+        ValidateDto(dto);
+
+        if (!IsOver14(dto.DateOfBirth))
+            throw new ValidationException("You must be over 14 years old to register.");
+
+        using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        try
         {
-            _userRepository = userRepository;
-            _userTokenRepository = userTokenRepository;
-            _configuration = configuration;
-            _passwordHasher = new PasswordHasher<User>();
-        }
-
-        public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
-        {
-            // Validate DTO
-            ValidateDto(dto);
-
-            // Check age requirement
-            if (!IsOver14(dto.DateOfBirth))
-                throw new ValidationException("You must be over 14 years old to register.");
-
-            // Check for existing email
             var existingEmail = await _userRepository.GetByEmailAsync(dto.Email);
             if (existingEmail != null)
                 throw new ValidationException("Email is already registered.");
@@ -49,7 +56,7 @@ namespace PeerTutoringSystem.Application.Services
             {
                 UserID = Guid.NewGuid(),
                 Email = dto.Email,
-                AnonymousName = dto.AnonymousName,
+                FullName = dto.FullName,
                 DateOfBirth = dto.DateOfBirth,
                 PhoneNumber = dto.PhoneNumber,
                 Gender = ParseGender(dto.Gender),
@@ -65,66 +72,65 @@ namespace PeerTutoringSystem.Application.Services
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
             var createdUser = await _userRepository.AddAsync(user);
 
-            var (accessToken, refreshToken) = GenerateJwtToken(createdUser);
-            await StoreTokenAsync(createdUser.UserID, accessToken, refreshToken);
+            // Đảm bảo Role được tải sau khi thêm
+            var userWithRole = await _userRepository.GetByIdAsync(createdUser.UserID);
+            if (userWithRole == null || userWithRole.Role == null)
+                throw new Exception("Failed to load user role after registration.");
+
+            var (accessToken, refreshToken) = GenerateJwtToken(userWithRole);
+            await StoreTokenAsync(userWithRole.UserID, accessToken, refreshToken);
+
+            await transaction.CommitAsync();
 
             return new AuthResponseDto
             {
-                UserID = createdUser.UserID,
-                AnonymousName = createdUser.AnonymousName,
+                UserID = userWithRole.UserID,
+                FullName = userWithRole.FullName,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                AvatarUrl = createdUser.AvatarUrl,
-                Role = createdUser.Role.RoleName
+                AvatarUrl = userWithRole.AvatarUrl,
+                Role = userWithRole.Role.RoleName
             };
         }
-
-        public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
+        catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("unique constraint") == true)
         {
-            // Validate DTO
-            ValidateDto(dto);
+            _logger.LogError(ex, "Unique constraint violation during registration for email: {Email}", dto.Email);
+            await transaction.RollbackAsync();
+            throw new ValidationException("Email is already registered (race condition detected).", ex);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogError(ex, "Concurrency exception during registration for email: {Email}", dto.Email);
+            await transaction.RollbackAsync();
+            throw new ValidationException("A concurrency issue occurred. Please try again.", ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during registration for email: {Email}", dto.Email);
+            await transaction.RollbackAsync();
+            throw new Exception("An unexpected error occurred: " + ex.Message, ex);
+        }
+    }
 
-            var user = await _userRepository.GetByEmailAsync(dto.Email);
-            if (user == null || _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password) != PasswordVerificationResult.Success)
-                throw new ValidationException("Invalid email or password.");
+    public async Task<AuthResponseDto> GoogleLoginAsync(GoogleLoginDto dto)
+    {
+        ValidateDto(dto);
 
-            if (user.Status == UserStatus.Banned)
-                throw new ValidationException("Your account has been banned.");
-
-            user.LastActive = DateTime.UtcNow;
-            user.IsOnline = true;
-            await _userRepository.AddAsync(user);
-
-            var (accessToken, refreshToken) = GenerateJwtToken(user);
-            await StoreTokenAsync(user.UserID, accessToken, refreshToken);
-
-            return new AuthResponseDto
-            {
-                UserID = user.UserID,
-                AnonymousName = user.AnonymousName,
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-                AvatarUrl = user.AvatarUrl,
-                Role = user.Role.RoleName
-            };
+        FirebaseToken decodedToken;
+        try
+        {
+            decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(dto.IdToken);
+        }
+        catch
+        {
+            throw new ValidationException("Invalid Google ID Token.");
         }
 
-        public async Task<AuthResponseDto> GoogleLoginAsync(GoogleLoginDto dto)
+        string firebaseUid = decodedToken.Uid;
+
+        using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        try
         {
-            // Validate DTO
-            ValidateDto(dto);
-
-            FirebaseToken decodedToken;
-            try
-            {
-                decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(dto.IdToken);
-            }
-            catch
-            {
-                throw new ValidationException("Invalid Google ID Token.");
-            }
-
-            string firebaseUid = decodedToken.Uid;
             var user = await _userRepository.GetByFirebaseUidAsync(firebaseUid);
 
             if (user != null)
@@ -134,15 +140,17 @@ namespace PeerTutoringSystem.Application.Services
 
                 user.LastActive = DateTime.UtcNow;
                 user.IsOnline = true;
-                await _userRepository.AddAsync(user);
+                await _userRepository.UpdateAsync(user);
 
                 var (accessToken, refreshToken) = GenerateJwtToken(user);
                 await StoreTokenAsync(user.UserID, accessToken, refreshToken);
 
+                await transaction.CommitAsync();
+
                 return new AuthResponseDto
                 {
                     UserID = user.UserID,
-                    AnonymousName = user.AnonymousName,
+                    FullName = user.FullName,
                     AccessToken = accessToken,
                     RefreshToken = refreshToken,
                     AvatarUrl = user.AvatarUrl,
@@ -150,7 +158,6 @@ namespace PeerTutoringSystem.Application.Services
                 };
             }
 
-            // Check age requirement
             if (!IsOver14(dto.DateOfBirth))
                 throw new ValidationException("You must be over 14 years old to register.");
 
@@ -159,7 +166,7 @@ namespace PeerTutoringSystem.Application.Services
                 UserID = Guid.NewGuid(),
                 FirebaseUid = firebaseUid,
                 Email = decodedToken.Claims["email"]?.ToString() ?? string.Empty,
-                AnonymousName = dto.AnonymousName,
+                FullName = dto.FullName,
                 DateOfBirth = dto.DateOfBirth,
                 PhoneNumber = dto.PhoneNumber,
                 Gender = ParseGender(dto.Gender),
@@ -173,25 +180,127 @@ namespace PeerTutoringSystem.Application.Services
             };
 
             var createdUser = await _userRepository.AddAsync(user);
-            var (newAccessToken, newRefreshToken) = GenerateJwtToken(createdUser);
-            await StoreTokenAsync(createdUser.UserID, newAccessToken, newRefreshToken);
+
+            // Đảm bảo Role được tải sau khi thêm
+            var userWithRole = await _userRepository.GetByIdAsync(createdUser.UserID);
+            if (userWithRole == null || userWithRole.Role == null)
+                throw new Exception("Failed to load user role after Google login.");
+
+            var (newAccessToken, newRefreshToken) = GenerateJwtToken(userWithRole);
+            await StoreTokenAsync(userWithRole.UserID, newAccessToken, newRefreshToken);
+
+            await transaction.CommitAsync();
 
             return new AuthResponseDto
             {
-                UserID = createdUser.UserID,
-                AnonymousName = createdUser.AnonymousName,
+                UserID = userWithRole.UserID,
+                FullName = userWithRole.FullName,
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken,
-                AvatarUrl = createdUser.AvatarUrl,
-                Role = createdUser.Role.RoleName
+                AvatarUrl = userWithRole.AvatarUrl,
+                Role = userWithRole.Role.RoleName
             };
         }
-
-        public async Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
+        catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("unique constraint") == true)
         {
-            // Validate DTO
-            ValidateDto(dto);
+            _logger.LogError(ex, "Unique constraint violation during Google login for FirebaseUid: {FirebaseUid}", firebaseUid);
+            await transaction.RollbackAsync();
 
+            var existingUser = await _userRepository.GetByFirebaseUidAsync(firebaseUid);
+            if (existingUser != null)
+            {
+                if (existingUser.Status == UserStatus.Banned)
+                    throw new ValidationException("Your account has been banned.");
+
+                existingUser.LastActive = DateTime.UtcNow;
+                existingUser.IsOnline = true;
+                await _userRepository.UpdateAsync(existingUser);
+
+                var (accessToken, refreshToken) = GenerateJwtToken(existingUser);
+                await StoreTokenAsync(existingUser.UserID, accessToken, refreshToken);
+
+                return new AuthResponseDto
+                {
+                    UserID = existingUser.UserID,
+                    FullName = existingUser.FullName,
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    AvatarUrl = existingUser.AvatarUrl,
+                    Role = existingUser.Role.RoleName
+                };
+            }
+
+            throw new ValidationException("Failed to register user with FirebaseUid (race condition detected).", ex);
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogError(ex, "Concurrency exception during Google login for FirebaseUid: {FirebaseUid}", firebaseUid);
+            await transaction.RollbackAsync();
+            throw new ValidationException("A concurrency issue occurred. Please try again.", ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during Google login for FirebaseUid: {FirebaseUid}", firebaseUid);
+            await transaction.RollbackAsync();
+            throw new Exception("An unexpected error occurred: " + ex.Message, ex);
+        }
+    }
+
+    // Các phương thức khác (LoginAsync, RefreshTokenAsync, LogoutAsync) không thay đổi
+    public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
+    {
+        ValidateDto(dto);
+
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var user = await _userRepository.GetByEmailAsync(dto.Email);
+            if (user == null || _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password) != PasswordVerificationResult.Success)
+                throw new ValidationException("Invalid email or password.");
+
+            if (user.Status == UserStatus.Banned)
+                throw new ValidationException("Your account has been banned.");
+
+            user.LastActive = DateTime.UtcNow;
+            user.IsOnline = true;
+            await _userRepository.UpdateAsync(user);
+
+            var (accessToken, refreshToken) = GenerateJwtToken(user);
+            await StoreTokenAsync(user.UserID, accessToken, refreshToken);
+
+            await transaction.CommitAsync();
+
+            return new AuthResponseDto
+            {
+                UserID = user.UserID,
+                FullName = user.FullName,
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+                AvatarUrl = user.AvatarUrl,
+                Role = user.Role.RoleName
+            };
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogError(ex, "Concurrency exception during login for email: {Email}", dto.Email);
+            await transaction.RollbackAsync();
+            throw new ValidationException("A concurrency issue occurred. Please try again.", ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during login for email: {Email}", dto.Email);
+            await transaction.RollbackAsync();
+            throw new Exception("An unexpected error occurred: " + ex.Message, ex);
+        }
+    }
+
+    public async Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenDto dto)
+    {
+        ValidateDto(dto);
+
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
             var token = await _userTokenRepository.GetByRefreshTokenAsync(dto.RefreshToken);
             if (token == null || token.IsRevoked || token.ExpiresAt < DateTime.UtcNow)
                 throw new ValidationException("Invalid or expired refresh token.");
@@ -206,18 +315,36 @@ namespace PeerTutoringSystem.Application.Services
             token.IsRevoked = true;
             await _userTokenRepository.UpdateAsync(token);
 
+            await transaction.CommitAsync();
+
             return new AuthResponseDto
             {
                 UserID = user.UserID,
-                AnonymousName = user.AnonymousName,
+                FullName = user.FullName,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
                 AvatarUrl = user.AvatarUrl,
                 Role = user.Role.RoleName
             };
         }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogError(ex, "Concurrency exception during token refresh");
+            await transaction.RollbackAsync();
+            throw new ValidationException("A concurrency issue occurred. Please try again.", ex);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during token refresh");
+            await transaction.RollbackAsync();
+            throw new Exception("An unexpected error occurred: " + ex.Message, ex);
+        }
+    }
 
-        public async Task LogoutAsync(Guid userId, string accessToken)
+    public async Task LogoutAsync(Guid userId, string accessToken)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
@@ -225,7 +352,7 @@ namespace PeerTutoringSystem.Application.Services
 
             user.IsOnline = false;
             user.LastActive = DateTime.UtcNow;
-            await _userRepository.AddAsync(user);
+            await _userRepository.UpdateAsync(user);
 
             var token = await _userTokenRepository.GetByAccessTokenAsync(accessToken);
             if (token != null && !token.IsRevoked)
@@ -233,73 +360,87 @@ namespace PeerTutoringSystem.Application.Services
                 token.IsRevoked = true;
                 await _userTokenRepository.UpdateAsync(token);
             }
-        }
 
-        private (string accessToken, string refreshToken) GenerateJwtToken(User user)
+            await transaction.CommitAsync();
+        }
+        catch (DbUpdateConcurrencyException ex)
         {
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
-                new Claim(ClaimTypes.Email, user.Email ?? user.FirebaseUid),
-                new Claim(ClaimTypes.Role, user.Role.RoleName)
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(int.Parse(_configuration["Jwt:ExpiryInMinutes"])),
-                signingCredentials: creds);
-
-            var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
-            var refreshToken = Guid.NewGuid().ToString();
-
-            return (accessToken, refreshToken);
+            _logger.LogError(ex, "Concurrency exception during logout for userId: {UserId}", userId);
+            await transaction.RollbackAsync();
+            throw new ValidationException("A concurrency issue occurred. Please try again.", ex);
         }
-
-        private async Task StoreTokenAsync(Guid userId, string accessToken, string refreshToken)
+        catch (Exception ex)
         {
-            var token = new UserToken
-            {
-                TokenID = Guid.NewGuid(),
-                UserID = userId,
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-                IssuedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddHours(1),
-                IsRevoked = false
-            };
-
-            await _userTokenRepository.AddAsync(token);
+            _logger.LogError(ex, "Unexpected error during logout for userId: {UserId}", userId);
+            await transaction.RollbackAsync();
+            throw new Exception("An unexpected error occurred: " + ex.Message, ex);
         }
+    }
 
-        private void ValidateDto<T>(T dto)
+    private (string accessToken, string refreshToken) GenerateJwtToken(User user)
+    {
+        var claims = new[]
         {
-            var validationContext = new ValidationContext(dto);
-            var validationResults = new List<ValidationResult>();
-            if (!Validator.TryValidateObject(dto, validationContext, validationResults, true))
-            {
-                var errors = string.Join("; ", validationResults.Select(r => r.ErrorMessage));
-                throw new ValidationException(errors);
-            }
-        }
+            new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+            new Claim(ClaimTypes.Email, user.Email ?? user.FirebaseUid),
+            new Claim(ClaimTypes.Role, user.Role.RoleName)
+        };
 
-        private bool IsOver14(DateTime dateOfBirth)
-        {
-            var today = DateTime.UtcNow;
-            var age = today.Year - dateOfBirth.Year;
-            if (dateOfBirth > today.AddYears(-age)) age--;
-            return age >= 14;
-        }
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        private Gender ParseGender(string gender)
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.Now.AddMinutes(int.Parse(_configuration["Jwt:ExpiryInMinutes"])),
+            signingCredentials: creds);
+
+        var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
+        var refreshToken = Guid.NewGuid().ToString();
+
+        return (accessToken, refreshToken);
+    }
+
+    private async Task StoreTokenAsync(Guid userId, string accessToken, string refreshToken)
+    {
+        var token = new UserToken
         {
-            if (!Enum.TryParse<Gender>(gender, true, out var parsedGender))
-                throw new ValidationException("Gender must be 'Male', 'Female', or 'Other'.");
-            return parsedGender;
+            TokenID = Guid.NewGuid(),
+            UserID = userId,
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+            IssuedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            IsRevoked = false
+        };
+
+        await _userTokenRepository.AddAsync(token);
+    }
+
+    private void ValidateDto<T>(T dto)
+    {
+        var validationContext = new ValidationContext(dto);
+        var validationResults = new List<ValidationResult>();
+        if (!Validator.TryValidateObject(dto, validationContext, validationResults, true))
+        {
+            var errors = string.Join("; ", validationResults.Select(r => r.ErrorMessage));
+            throw new ValidationException(errors);
         }
+    }
+
+    private bool IsOver14(DateTime dateOfBirth)
+    {
+        var today = DateTime.UtcNow;
+        var age = today.Year - dateOfBirth.Year;
+        if (dateOfBirth > today.AddYears(-age)) age--;
+        return age >= 14;
+    }
+
+    private Gender ParseGender(string gender)
+    {
+        if (!Enum.TryParse<Gender>(gender, true, out var parsedGender))
+            throw new ValidationException("Gender must be 'Male', 'Female', or 'Other'.");
+        return parsedGender;
     }
 }

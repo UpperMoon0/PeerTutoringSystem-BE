@@ -6,7 +6,7 @@ namespace PeerTutoringSystem.Application.DTOs
     public class UserDto
     {
         public Guid UserID { get; set; }
-        public string AnonymousName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public DateTime DateOfBirth { get; set; }
         public string PhoneNumber { get; set; } = string.Empty;
@@ -19,8 +19,8 @@ namespace PeerTutoringSystem.Application.DTOs
 
     public class UpdateUserDto
     {
-        [Required(ErrorMessage = "Anonymous name is required.")]
-        public string AnonymousName { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Full name is required.")]
+        public string FullName { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email format.")]
