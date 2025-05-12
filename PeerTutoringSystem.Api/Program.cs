@@ -10,7 +10,7 @@ using PeerTutoringSystem.Domain.Interfaces;
 using PeerTutoringSystem.Infrastructure.Data;
 using PeerTutoringSystem.Infrastructure.Repositories;
 using System.Text;
-using Microsoft.OpenApi.Models; // Thêm namespace này để dùng OpenApiSecurityScheme
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +70,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "PeerTutoringSystem API", Version = "v1" });
 
-    // Thêm cấu hình để hỗ trợ JWT Authentication trong Swagger
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -105,11 +104,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "PeerTutoringSystem API V1");
-        // Tùy chọn: Nếu bạn muốn bật giao diện Swagger UI đẹp hơn
         c.DisplayRequestDuration();
     });
 }
 
+app.UseStaticFiles(); // Thêm dòng này để phục vụ tệp tĩnh từ wwwroot
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();
