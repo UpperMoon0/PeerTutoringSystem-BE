@@ -26,7 +26,8 @@ namespace PeerTutoringSystem.Domain.Entities.Authentication
         public string PhoneNumber { get; set; } = string.Empty;
         public Gender Gender { get; set; }
         public string Hometown { get; set; } = string.Empty;
-        public string AvatarUrl { get; set; } = string.Empty;
+        public string? School { get; set; }
+        public string? AvatarUrl { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime LastActive { get; set; }
         public bool IsOnline { get; set; }
