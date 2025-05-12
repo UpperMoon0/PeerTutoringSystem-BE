@@ -41,6 +41,14 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .HasConversion<string>()
                 .HasDefaultValue(UserStatus.Active);
             modelBuilder.Entity<User>()
+                .Property(u => u.School) 
+                .HasMaxLength(255)      
+                .IsRequired(false);     
+            modelBuilder.Entity<User>()
+                .Property(u => u.AvatarUrl) 
+                .HasMaxLength(255)          
+                .IsRequired(false);         
+            modelBuilder.Entity<User>()
                 .HasOne(u => u.Role)
                 .WithMany()
                 .HasForeignKey(u => u.RoleID);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace PeerTutoringSystem.Application.DTOs.Authentication
 {
@@ -12,7 +13,8 @@ namespace PeerTutoringSystem.Application.DTOs.Authentication
         public string PhoneNumber { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public string Hometown { get; set; } = string.Empty;
-        public string AvatarUrl { get; set; } = string.Empty;
+        public string? School { get; set; } 
+        public string? AvatarUrl { get; set; } = string.Empty; 
         public string Status { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
     }
@@ -40,6 +42,7 @@ namespace PeerTutoringSystem.Application.DTOs.Authentication
         [Required(ErrorMessage = "Hometown is required.")]
         public string Hometown { get; set; } = string.Empty;
 
-        public string AvatarUrl { get; set; } = string.Empty; // Optional
+        public string? School { get; set; } 
+        public IFormFile? Avatar { get; set; } 
     }
 }

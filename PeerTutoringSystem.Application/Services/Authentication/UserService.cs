@@ -5,6 +5,8 @@ using PeerTutoringSystem.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Services.Authentication
@@ -12,10 +14,14 @@ namespace PeerTutoringSystem.Application.Services.Authentication
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly string _avatarStoragePath;
 
         public UserService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
+            _avatarStoragePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
+            if (!Directory.Exists(_avatarStoragePath))
+                Directory.CreateDirectory(_avatarStoragePath);
         }
 
         public async Task<UserDto> GetUserByIdAsync(Guid userId)
@@ -33,50 +39,11 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 PhoneNumber = user.PhoneNumber,
                 Gender = user.Gender.ToString(),
                 Hometown = user.Hometown,
+                School = user.School, // Thêm trường School
                 AvatarUrl = user.AvatarUrl,
                 Status = user.Status.ToString(),
                 Role = user.Role.RoleName
             };
-        }
-
-        public async Task UpdateUserAsync(Guid userId, UpdateUserDto dto)
-        {
-            ValidateDto(dto);
-
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null || user.Status != UserStatus.Active)
-                throw new ValidationException("User not found or inactive.");
-
-            if (dto.Email != user.Email)
-            {
-                var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
-                if (existingUser != null)
-                    throw new ValidationException("Email already exists.");
-            }
-
-            user.FullName = dto.FullName;
-            user.Email = dto.Email;
-            user.DateOfBirth = dto.DateOfBirth;
-            user.PhoneNumber = dto.PhoneNumber;
-            user.Gender = Enum.Parse<Gender>(dto.Gender, true);
-            user.Hometown = dto.Hometown;
-            user.AvatarUrl = dto.AvatarUrl;
-            await _userRepository.UpdateAsync(user); // Sửa từ AddAsync thành UpdateAsync
-        }
-
-        public async Task BanUserAsync(Guid userId)
-        {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null)
-                throw new ValidationException("User not found.");
-
-            if (user.Status == UserStatus.Banned)
-                throw new ValidationException("User is already banned.");
-
-            user.Status = UserStatus.Banned;
-            user.IsOnline = false;
-            user.LastActive = DateTime.UtcNow;
-            await _userRepository.UpdateAsync(user); // Sửa từ AddAsync thành UpdateAsync
         }
 
         public async Task<List<UserDto>> GetAllUsersAsync()
@@ -95,6 +62,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                     PhoneNumber = user.PhoneNumber,
                     Gender = user.Gender.ToString(),
                     Hometown = user.Hometown,
+                    School = user.School, // Thêm trường School
                     AvatarUrl = user.AvatarUrl,
                     Status = user.Status.ToString(),
                     Role = user.Role.RoleName
@@ -102,6 +70,76 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             }
 
             return userDtos;
+        }
+
+        public async Task UpdateUserAsync(Guid userId, UpdateUserDto dto)
+        {
+            ValidateDto(dto);
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null || user.Status != UserStatus.Active)
+                throw new ValidationException("User not found or inactive.");
+
+            if (dto.Email != user.Email)
+            {
+                var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
+                if (existingUser != null)
+                    throw new ValidationException("Email already exists.");
+            }
+
+            // Cập nhật các trường cơ bản
+            user.FullName = dto.FullName;
+            user.Email = dto.Email;
+            user.DateOfBirth = dto.DateOfBirth;
+            user.PhoneNumber = dto.PhoneNumber;
+            user.Gender = Enum.Parse<Gender>(dto.Gender, true);
+            user.Hometown = dto.Hometown;
+            user.School = dto.School; // Cập nhật trường School (có thể null)
+
+            // Xử lý avatar nếu có file được gửi lên
+            if (dto.Avatar != null)
+            {
+                // Kiểm tra định dạng ảnh (JPG, PNG)
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+                var extension = Path.GetExtension(dto.Avatar.FileName).ToLower();
+                if (!allowedExtensions.Contains(extension))
+                    throw new ValidationException($"Invalid file format for avatar. Only JPG and PNG files are allowed.");
+
+                // Kiểm tra kích thước ảnh (tối đa 2MB)
+                var maxFileSize = 2 * 1024 * 1024; // 2MB
+                if (dto.Avatar.Length > maxFileSize)
+                    throw new ValidationException($"Avatar exceeds maximum size of 2MB.");
+
+                // Tạo tên file duy nhất
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(_avatarStoragePath, fileName);
+
+                // Lưu file
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.Avatar.CopyToAsync(stream);
+                }
+
+                // Cập nhật AvatarUrl
+                user.AvatarUrl = $"/avatars/{fileName}";
+            }
+
+            await _userRepository.UpdateAsync(user);
+        }
+
+        public async Task BanUserAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new ValidationException("User not found.");
+
+            if (user.Status == UserStatus.Banned)
+                throw new ValidationException("User is already banned.");
+
+            user.Status = UserStatus.Banned;
+            user.IsOnline = false;
+            user.LastActive = DateTime.UtcNow;
+            await _userRepository.UpdateAsync(user);
         }
 
         private void ValidateDto<T>(T dto)

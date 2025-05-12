@@ -68,7 +68,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         }
 
         [HttpPut("{userId:guid}")]
-        public async Task<IActionResult> UpdateUser(Guid userId, [FromBody] UpdateUserDto dto)
+        public async Task<IActionResult> UpdateUser(Guid userId, [FromForm] UpdateUserDto dto)
         {
             try
             {
