@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -20,7 +21,7 @@ namespace PeerTutoringSystem.Application.DTOs
 
         [Required(ErrorMessage = "At least one document is required.")]
         [MinLength(1, ErrorMessage = "At least one document is required.")]
-        public List<DocumentUploadDto> DocumentFiles { get; set; } = new();
+        public List<IFormFile> DocumentFiles { get; set; } = new();
     }
 
     public class DocumentUploadDto
