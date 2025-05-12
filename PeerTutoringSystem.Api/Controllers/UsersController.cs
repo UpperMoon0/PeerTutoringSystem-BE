@@ -111,7 +111,7 @@ namespace PeerTutoringSystem.Api.Controllers
 
         [HttpPost("{userId:guid}/request-tutor")]
         [Authorize(Roles = "Student")]
-        public async Task<IActionResult> RequestTutor(Guid userId, [FromForm] RequestTutorDto dto)
+        public async Task<IActionResult> RequestTutor(Guid userId, [FromBody] RequestTutorDto dto)
         {
             try
             {
