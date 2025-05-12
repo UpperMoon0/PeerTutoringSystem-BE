@@ -21,7 +21,7 @@ namespace PeerTutoringSystem.Application.DTOs
 
         [Required(ErrorMessage = "At least one document is required.")]
         [MinLength(1, ErrorMessage = "At least one document is required.")]
-        public List<IFormFile> DocumentFiles { get; set; } = new();
+        public List<DocumentUploadDto> Documents { get; set; } = new();
     }
 
     public class DocumentUploadDto
