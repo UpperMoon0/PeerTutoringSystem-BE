@@ -9,5 +9,6 @@ namespace PeerTutoringSystem.Domain.Interfaces
     {
         Task AddAsync(Document document);
         Task<IEnumerable<Document>> GetByVerificationIdAsync(Guid verificationId);
+        Task<Document> GetByIdAsync(Guid documentId);
     }
 }

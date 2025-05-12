@@ -29,5 +29,10 @@ namespace PeerTutoringSystem.Infrastructure.Repositories
                 .Where(d => d.VerificationID == verificationId)
                 .ToListAsync();
         }
+        public async Task<Document> GetByIdAsync(Guid documentId)
+        {
+            return await _context.Documents
+                .FirstOrDefaultAsync(d => d.DocumentID == documentId);
+        }
     }
 }
