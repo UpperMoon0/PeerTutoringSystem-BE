@@ -35,6 +35,14 @@ namespace PeerTutoringSystem.Application.DTOs
         [Required(ErrorMessage = "File size is required.")]
         [Range(1, int.MaxValue, ErrorMessage = "File size must be greater than 0.")]
         public int FileSize { get; set; }
+        public Guid UserID { get; set; }
+    }
+
+    public class DocumentResponseDto
+    {
+        public string DocumentPath { get; set; } = string.Empty;
+        public string DocumentType { get; set; } = string.Empty;
+        public int FileSize { get; set; }
     }
 
     public class TutorVerificationDto
