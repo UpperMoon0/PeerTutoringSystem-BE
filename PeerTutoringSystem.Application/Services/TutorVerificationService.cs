@@ -5,6 +5,7 @@ using PeerTutoringSystem.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,6 +16,7 @@ namespace PeerTutoringSystem.Application.Services
         private readonly ITutorVerificationRepository _tutorVerificationRepository;
         private readonly IDocumentRepository _documentRepository;
         private readonly IUserRepository _userRepository;
+        private readonly string _documentStoragePath;
 
         public TutorVerificationService(
             ITutorVerificationRepository tutorVerificationRepository,
@@ -24,6 +26,10 @@ namespace PeerTutoringSystem.Application.Services
             _tutorVerificationRepository = tutorVerificationRepository;
             _documentRepository = documentRepository;
             _userRepository = userRepository;
+            _documentStoragePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "documents");
+            // Đảm bảo thư mục tồn tại
+            if (!Directory.Exists(_documentStoragePath))
+                Directory.CreateDirectory(_documentStoragePath);
         }
 
         public async Task<Guid> RequestTutorAsync(Guid userId, RequestTutorDto dto)
@@ -31,12 +37,14 @@ namespace PeerTutoringSystem.Application.Services
             // Validate DTO
             ValidateDto(dto);
 
+            // Kiểm tra người dùng
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null || user.Status != UserStatus.Active)
                 throw new ValidationException("User not found or inactive.");
             if (user.Role.RoleName != "Student")
                 throw new ValidationException("Only students can request tutor role.");
 
+            // Tạo bản ghi TutorVerification
             var verification = new TutorVerification
             {
                 VerificationID = Guid.NewGuid(),
@@ -48,21 +56,40 @@ namespace PeerTutoringSystem.Application.Services
                 VerificationStatus = "Pending",
                 AccessLevel = "Tutor"
             };
-
             await _tutorVerificationRepository.AddAsync(verification);
 
-            foreach (var doc in dto.DocumentFiles)
+            // Xử lý tệp tài liệu
+            foreach (var file in dto.DocumentFiles)
             {
-                // Validate each document
-                ValidateDto(doc);
+                // Kiểm tra định dạng tệp (PDF hoặc Word)
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+                var extension = Path.GetExtension(file.FileName).ToLower();
+                if (!allowedExtensions.Contains(extension))
+                    throw new ValidationException($"Invalid file format for {file.FileName}. Only PDF and Word files are allowed.");
 
+                // Kiểm tra kích thước tệp (ví dụ: tối đa 5MB)
+                var maxFileSize = 5 * 1024 * 1024; // 5MB
+                if (file.Length > maxFileSize)
+                    throw new ValidationException($"File {file.FileName} exceeds maximum size of 5MB.");
+
+                // Tạo tên tệp duy nhất
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(_documentStoragePath, fileName);
+
+                // Lưu tệp vào thư mục
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Tạo bản ghi Document
                 var document = new Document
                 {
                     DocumentID = Guid.NewGuid(),
                     VerificationID = verification.VerificationID,
-                    DocumentType = doc.DocumentType,
-                    DocumentPath = doc.DocumentPath,
-                    FileSize = doc.FileSize,
+                    DocumentType = extension == ".pdf" ? "PDF" : "Word",
+                    DocumentPath = $"/documents/{fileName}", // Đường dẫn tương đối
+                    FileSize = (int)file.Length,
                     UploadDate = DateTime.UtcNow,
                     AccessLevel = "Tutor"
                 };
@@ -136,7 +163,6 @@ namespace PeerTutoringSystem.Application.Services
 
         public async Task UpdateVerificationAsync(Guid verificationId, UpdateTutorVerificationDto dto)
         {
-            // Validate DTO
             ValidateDto(dto);
 
             var verification = await _tutorVerificationRepository.GetByIdAsync(verificationId);
@@ -153,7 +179,7 @@ namespace PeerTutoringSystem.Application.Services
                 if (user != null)
                 {
                     user.RoleID = 2; // Tutor
-                    await _userRepository.AddAsync(user);
+                    await _userRepository.UpdateAsync(user);
                 }
             }
 
