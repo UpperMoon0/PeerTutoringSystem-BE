@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PeerTutoringSystem.Domain.Entities;
+using PeerTutoringSystem.Domain.Entities.Authentication;
 using System;
 
 namespace PeerTutoringSystem.Infrastructure.Data

@@ -4,13 +4,13 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PeerTutoringSystem.Application.Interfaces;
-using PeerTutoringSystem.Application.Services;
-using PeerTutoringSystem.Domain.Interfaces;
 using PeerTutoringSystem.Infrastructure.Data;
-using PeerTutoringSystem.Infrastructure.Repositories;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using PeerTutoringSystem.Application.Interfaces.Authentication;
+using PeerTutoringSystem.Application.Services.Authentication;
+using PeerTutoringSystem.Domain.Interfaces.Authentication;
+using PeerTutoringSystem.Infrastructure.Repositories.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
