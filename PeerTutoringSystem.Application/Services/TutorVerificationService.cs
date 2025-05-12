@@ -5,7 +5,6 @@ using PeerTutoringSystem.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,7 +15,6 @@ namespace PeerTutoringSystem.Application.Services
         private readonly ITutorVerificationRepository _tutorVerificationRepository;
         private readonly IDocumentRepository _documentRepository;
         private readonly IUserRepository _userRepository;
-        private readonly string _documentStoragePath;
 
         public TutorVerificationService(
             ITutorVerificationRepository tutorVerificationRepository,
@@ -26,10 +24,6 @@ namespace PeerTutoringSystem.Application.Services
             _tutorVerificationRepository = tutorVerificationRepository;
             _documentRepository = documentRepository;
             _userRepository = userRepository;
-            _documentStoragePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "documents");
-            // Đảm bảo thư mục tồn tại
-            if (!Directory.Exists(_documentStoragePath))
-                Directory.CreateDirectory(_documentStoragePath);
         }
 
         public async Task<Guid> RequestTutorAsync(Guid userId, RequestTutorDto dto)
@@ -58,38 +52,21 @@ namespace PeerTutoringSystem.Application.Services
             };
             await _tutorVerificationRepository.AddAsync(verification);
 
-            // Xử lý tệp tài liệu
-            foreach (var file in dto.DocumentFiles)
+            // Xử lý tài liệu (không cần lưu tệp, chỉ tạo bản ghi Document)
+            foreach (var doc in dto.Documents)
             {
-                // Kiểm tra định dạng tệp (PDF hoặc Word)
-                var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
-                var extension = Path.GetExtension(file.FileName).ToLower();
-                if (!allowedExtensions.Contains(extension))
-                    throw new ValidationException($"Invalid file format for {file.FileName}. Only PDF and Word files are allowed.");
+                // Kiểm tra DocumentPath tồn tại
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", doc.DocumentPath.TrimStart('/'));
+                if (!System.IO.File.Exists(filePath))
+                    throw new ValidationException($"Document at path {doc.DocumentPath} does not exist on server.");
 
-                // Kiểm tra kích thước tệp (ví dụ: tối đa 5MB)
-                var maxFileSize = 5 * 1024 * 1024; // 5MB
-                if (file.Length > maxFileSize)
-                    throw new ValidationException($"File {file.FileName} exceeds maximum size of 5MB.");
-
-                // Tạo tên tệp duy nhất
-                var fileName = $"{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(_documentStoragePath, fileName);
-
-                // Lưu tệp vào thư mục
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                // Tạo bản ghi Document
                 var document = new Document
                 {
                     DocumentID = Guid.NewGuid(),
                     VerificationID = verification.VerificationID,
-                    DocumentType = extension == ".pdf" ? "PDF" : "Word",
-                    DocumentPath = $"/documents/{fileName}", // Đường dẫn tương đối
-                    FileSize = (int)file.Length,
+                    DocumentType = doc.DocumentType,
+                    DocumentPath = doc.DocumentPath,
+                    FileSize = doc.FileSize,
                     UploadDate = DateTime.UtcNow,
                     AccessLevel = "Tutor"
                 };
@@ -99,6 +76,7 @@ namespace PeerTutoringSystem.Application.Services
             return verification.VerificationID;
         }
 
+        // Các phương thức khác giữ nguyên
         public async Task<IEnumerable<TutorVerificationDto>> GetAllVerificationsAsync()
         {
             var verifications = await _tutorVerificationRepository.GetAllAsync();
