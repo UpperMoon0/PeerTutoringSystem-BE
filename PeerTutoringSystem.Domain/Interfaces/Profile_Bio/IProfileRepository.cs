@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Domain.Interfaces
+namespace PeerTutoringSystem.Domain.Interfaces.Profile_Bio
 {
     public interface IProfileRepository
     {

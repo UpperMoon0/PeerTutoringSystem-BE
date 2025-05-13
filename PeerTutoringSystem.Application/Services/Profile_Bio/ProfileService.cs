@@ -1,7 +1,7 @@
 ﻿using PeerTutoringSystem.Application.DTOs.Profile_Bio;
 using PeerTutoringSystem.Application.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Domain.Entities.Profile_Bio;
-using PeerTutoringSystem.Domain.Interfaces;
+using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Infrastructure.Repositories;
 using System;
 using System.ComponentModel.DataAnnotations;
