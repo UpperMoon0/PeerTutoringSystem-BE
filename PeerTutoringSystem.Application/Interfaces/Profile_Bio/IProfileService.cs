@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Application.Interfaces
+namespace PeerTutoringSystem.Application.Interfaces.Profile_Bio
 {
     public interface IProfileService
     {

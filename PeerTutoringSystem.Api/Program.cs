@@ -11,10 +11,10 @@ using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Services.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using PeerTutoringSystem.Infrastructure.Repositories.Authentication;
-using PeerTutoringSystem.Application.Interfaces;
 using PeerTutoringSystem.Domain.Interfaces;
 using PeerTutoringSystem.Infrastructure.Repositories;
 using PeerTutoringSystem.Application.Services.Profile_Bio;
+using PeerTutoringSystem.Application.Interfaces.Profile_Bio;
 
 var builder = WebApplication.CreateBuilder(args);
 
