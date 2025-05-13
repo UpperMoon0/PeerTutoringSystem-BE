@@ -1,6 +1,6 @@
 # PeerTutoringSystem Backend
 
-Welcome to the backend of the **PeerTutoringSystem**, a platform designed to facilitate peer tutoring by managing user authentication, tutor verification, and document uploads. This project is built using **ASP.NET Core** with a layered architecture, integrating with **SQL Server** for data storage and **Firebase** for authentication.
+Welcome to the backend of the **PeerTutoringSystem**, a platform designed to facilitate peer tutoring by managing user authentication, tutor verification, document uploads, and tutor profiles. This project is built using **ASP.NET Core** with a layered architecture, integrating with **SQL Server** for data storage and **Firebase** for authentication.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -10,8 +10,10 @@ Welcome to the backend of the **PeerTutoringSystem**, a platform designed to fac
 - [Running the Application](#running-the-application)
 - [API Endpoints](#api-endpoints)
   - [Authentication & Authorization](#authentication--authorization)
+  - [Users](#users)
   - [Tutor Verifications](#tutor-verifications)
   - [Documents](#documents)
+  - [Profiles](#profiles)
 - [Usage](#usage)
 - [Testing](#testing)
 - [Links](#links)
@@ -33,7 +35,7 @@ The project follows a layered architecture with the following structure:
 ```
 PeerTutoringSystem
 ├── PeerTutoringSystem.Api
-│   ├── Controllers/                # API controllers (Auth, Users, TutorVerifications, Documents)
+│   ├── Controllers/                # API controllers (Auth, Users, TutorVerifications, Documents, Profiles)
 │   ├── Middleware/                 # Custom middleware (e.g., AuthorizeAdmin)
 │   ├── wwwroot/documents/          # Folder for storing uploaded documents
 │   ├── appsettings.json            # Configuration file
@@ -44,7 +46,7 @@ PeerTutoringSystem
 │   ├── Interfaces/                 # Service interfaces
 │   └── Services/                   # Business logic implementation
 ├── PeerTutoringSystem.Domain
-│   ├── Entities/                   # Domain entities (User, TutorVerification, Document, etc.)
+│   ├── Entities/                   # Domain entities (User, TutorVerification, Document, Profile, etc.)
 │   └── Interfaces/                 # Repository interfaces
 ├── PeerTutoringSystem.Infrastructure
 │   ├── Data/                       # DbContext (AppDbContext)
@@ -57,8 +59,8 @@ Follow these steps to set up the project locally:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-repo/PeerTutoringSystem.git
-   cd PeerTutoringSystem
+   git clone https://github.com/huy69185/PeerTutoringSystem-BE.git
+   cd PeerTutoringSystem-BE
    ```
 
 2. **Restore dependencies**:
@@ -72,7 +74,7 @@ Follow these steps to set up the project locally:
    - Update the connection string in `PeerTutoringSystem.Api/appsettings.json`:
      ```json
      "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost;Database=PeerTutoringSystemDb;Trusted_Connection=True;"
+       "DefaultConnection": "Server=localhost;Database=PeerTutoringSystem;Trusted_Connection=True;"
      }
      ```
    - Run migrations to create the database and tables:
@@ -100,7 +102,7 @@ Follow these steps to set up the project locally:
        "Audience": "PeerTutoringSystem"
      }
      ```
-   - Replace `"your-secure-jwt-key-here"` with a strong secret key.
+   - Replace `"your-secure-jwt-key-here"` with a strong secret key (at least 32 characters long).
 
 ## Configuration
 - **Document Storage**:
@@ -150,16 +152,16 @@ Follow these steps to set up the project locally:
 | POST   | `/api/auth/register`         | Register a new user (Student)     | Public                |
 | POST   | `/api/auth/login`            | Login with email and password     | Public                |
 | POST   | `/api/auth/login/google`     | Login with Google ID token        | Public                |
+| POST   | `/api/auth/login/microsoft`  | Login with Microsoft ID token     | Public                |
 | POST   | `/api/auth/refresh`          | Refresh access token              | Public                |
 | POST   | `/api/auth/logout`           | Logout and invalidate token       | Authenticated (JWT)   |
 
 ### Users
 | Method | Endpoint                     | Description                       | Authorization         |
 |--------|------------------------------|-----------------------------------|-----------------------|
-| GET    | `/api/users`                 | Get all users                     | Admin only            |
 | GET    | `/api/users/{userId}`        | Get user by ID                    | Self or Admin         |
 | PUT    | `/api/users/{userId}`        | Update user information           | Self or Admin         |
-| DELETE | `/api/users/{userId}`        | Ban a user                        | Admin only            |
+| DELETE | `/api/users/{userId}`        | Deactivate a user account         | Admin only            |
 | POST   | `/api/users/{userId}/request-tutor` | Request to become a Tutor  | Student only          |
 
 ### Tutor Verifications
@@ -175,6 +177,14 @@ Follow these steps to set up the project locally:
 | POST   | `/api/documents/upload`      | Upload a document (PDF/Word)      | Student only          |
 | GET    | `/api/documents/{documentId}`| Download a document               | Admin or Tutor        |
 
+### Profiles
+| Method | Endpoint                     | Description                       | Authorization         |
+|--------|------------------------------|-----------------------------------|-----------------------|
+| POST   | `/api/profiles`              | Create a tutor profile            | Tutor only            |
+| GET    | `/api/profiles/{profileId}`  | Get a tutor profile by ID         | Public                |
+| GET    | `/api/profiles/user/{userId}`| Get a tutor profile by user ID    | Authenticated (JWT)   |
+| PUT    | `/api/profiles/{profileId}`  | Update a tutor profile            | Self or Admin         |
+
 #### Notes:
 - **Document Upload**:
   - Documents must be in PDF or Word format (`.pdf`, `.doc`, `.docx`).
@@ -184,6 +194,11 @@ Follow these steps to set up the project locally:
 - **Access Control**:
   - Documents are accessible only to Admins and the Tutor who submitted the verification request.
   - Use the `/api/documents/{documentId}` endpoint to download documents securely.
+
+- **Profile Management**:
+  - Only Tutors can create and update their profiles.
+  - Profiles include `Bio`, `Experience`, `HourlyRate`, `Availability`, and optionally `School` (if available in the user’s record).
+  - The avatar is managed via the `/api/users/{userId}` endpoint (`AvatarUrl` field).
 
 ## Usage
 1. **Register a new user**:
@@ -199,7 +214,7 @@ Follow these steps to set up the project locally:
        "Hometown": "Hanoi"
      }
      ```
-   - Receive an `AccessToken` and `RefreshToken`.
+   - Receive an `AccessToken`, `RefreshToken`, `UserID`, and `Role`.
 
 2. **Login**:
    - Send a `POST` request to `/api/auth/login` with:
@@ -244,7 +259,34 @@ Follow these steps to set up the project locally:
      }
      ```
 
-5. **Admin Actions**:
+5. **Create a Tutor Profile**:
+   - After becoming a Tutor, send a `POST` request to `/api/profiles` with:
+     ```json
+     {
+       "HourlyRate": 50000,
+       "Bio": "I am a dedicated Math tutor with a passion for teaching.",
+       "Experience": "3 years of tutoring experience.",
+       "Availability": "{\"Monday\": \"9:00-12:00\", \"Tuesday\": \"14:00-17:00\"}"
+     }
+     ```
+   - Example response:
+     ```json
+     {
+       "ProfileID": 1,
+       "UserID": "guid-of-tutor",
+       "TutorName": "John Doe",
+       "Bio": "I am a dedicated Math tutor with a passion for teaching.",
+       "Experience": "3 years of tutoring experience.",
+       "HourlyRate": 50000,
+       "Availability": "{\"Monday\": \"9:00-12:00\", \"Tuesday\": \"14:00-17:00\"}",
+       "AvatarUrl": "/avatars/tutor-avatar.jpg",
+       "School": "Example University",
+       "CreatedDate": "2025-05-13T12:00:00Z",
+       "UpdatedDate": null
+     }
+     ```
+
+6. **Admin Actions**:
    - Use an Admin account to approve/reject tutor verification requests via `/api/tutor-verifications/{verificationId}`.
 
 ## Testing
@@ -254,7 +296,7 @@ Follow these steps to set up the project locally:
   - Import the API collection (if provided) or manually create requests based on the [API Endpoints](#api-endpoints) section.
 
 ## Links
-- **Repository**: [GitHub Repository](https://github.com/your-repo/PeerTutoringSystem) *(Update with your actual repository link)*
+- **Repository**: [GitHub Repository](https://github.com/huy69185/PeerTutoringSystem-BE)
 - **API Documentation**: Available via Swagger UI at `/swagger` when running the application.
 - **Firebase Console**: [Firebase Console](https://console.firebase.google.com/) for managing authentication settings.
 - **Database Schema**: *(Add a link to a schema diagram or documentation if available)*
