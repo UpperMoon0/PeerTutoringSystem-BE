@@ -39,8 +39,8 @@ BEGIN
         Hometown NVARCHAR(255) NOT NULL,
         School NVARCHAR(255) NULL, -- Thêm cột School, không bắt buộc
         AvatarUrl NVARCHAR(255) NULL, -- Đường dẫn ảnh đại diện, không bắt buộc
-        CreatedDate DATETIME NOT NULL,
-        LastActive DATETIME NOT NULL,
+        CreatedDate DATETIME NOT NULL DEFAULT GETUTCDATE(),
+        LastActive DATETIME NOT NULL DEFAULT GETUTCDATE(),
         IsOnline BIT NOT NULL DEFAULT 0,
         Status NVARCHAR(20) NOT NULL DEFAULT 'Active' CHECK (Status IN ('Active', 'Banned')),
         RoleID INT NOT NULL,
@@ -60,11 +60,14 @@ BEGIN
         UserID UNIQUEIDENTIFIER NOT NULL,
         AccessToken NVARCHAR(MAX) NOT NULL,
         RefreshToken NVARCHAR(255) NOT NULL,
-        IssuedAt DATETIME NOT NULL,
-        ExpiresAt DATETIME NOT NULL,
+        IssuedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+        ExpiresAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
         IsRevoked BIT NOT NULL DEFAULT 0,
         CONSTRAINT FK_UserTokens_Users FOREIGN KEY (UserID) REFERENCES Users(UserID)
     );
+
+    -- Thêm chỉ mục cho UserID
+    CREATE NONCLUSTERED INDEX IX_UserTokens_UserID ON UserTokens(UserID);
 END;
 GO
 
@@ -79,11 +82,14 @@ BEGIN
         University NVARCHAR(255) NOT NULL,
         Major NVARCHAR(255) NOT NULL,
         VerificationStatus NVARCHAR(20) NOT NULL CHECK (VerificationStatus IN ('Pending', 'Approved', 'Rejected')),
-        VerificationDate DATETIME NULL,
+        VerificationDate DATETIME NULL DEFAULT GETUTCDATE(),
         AdminNotes NVARCHAR(MAX) NULL,
         AccessLevel NVARCHAR(50) NOT NULL,
         CONSTRAINT FK_TutorVerifications_Users FOREIGN KEY (UserID) REFERENCES Users(UserID)
     );
+
+    -- Thêm chỉ mục cho VerificationStatus
+    CREATE NONCLUSTERED INDEX IX_TutorVerifications_VerificationStatus ON TutorVerifications(VerificationStatus);
 END;
 GO
 
@@ -95,11 +101,34 @@ BEGIN
         VerificationID UNIQUEIDENTIFIER NOT NULL,
         DocumentType NVARCHAR(50) NOT NULL,
         DocumentPath NVARCHAR(255) NOT NULL,
-        UploadDate DATETIME NOT NULL,
+        UploadDate DATETIME NOT NULL DEFAULT GETUTCDATE(),
         FileSize INT NOT NULL,
         AccessLevel NVARCHAR(50) NOT NULL,
         CONSTRAINT FK_Documents_TutorVerifications FOREIGN KEY (VerificationID) REFERENCES TutorVerifications(VerificationID)
     );
+
+    -- Thêm chỉ mục cho VerificationID
+    CREATE NONCLUSTERED INDEX IX_Documents_VerificationID ON Documents(VerificationID);
+END;
+GO
+
+-- Create Profiles Table (For Tutors only)
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Profiles')
+BEGIN
+    CREATE TABLE Profiles (
+        ProfileID INT IDENTITY(1,1) PRIMARY KEY,
+        UserID UNIQUEIDENTIFIER NOT NULL UNIQUE, -- Mỗi Tutor chỉ có 1 hồ sơ
+        Bio NVARCHAR(MAX) NULL, -- Tiểu sử giới thiệu
+        Experience NVARCHAR(MAX) NULL, -- Kinh nghiệm
+        HourlyRate DECIMAL(18,2) NOT NULL DEFAULT 0.00, -- Mức học phí mỗi giờ
+        Availability NVARCHAR(MAX) NULL, -- Thời gian rảnh (có thể lưu dưới dạng JSON string)
+        CreatedDate DATETIME NOT NULL DEFAULT GETUTCDATE(),
+        UpdatedDate DATETIME NULL,
+        CONSTRAINT FK_Profiles_Users FOREIGN KEY (UserID) REFERENCES Users(UserID)
+    );
+
+    -- Thêm chỉ mục cho UserID
+    CREATE NONCLUSTERED INDEX IX_Profiles_UserID ON Profiles(UserID);
 END;
 GO
 
