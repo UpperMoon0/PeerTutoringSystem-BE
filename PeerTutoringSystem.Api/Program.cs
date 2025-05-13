@@ -11,6 +11,10 @@ using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Services.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using PeerTutoringSystem.Infrastructure.Repositories.Authentication;
+using PeerTutoringSystem.Application.Interfaces;
+using PeerTutoringSystem.Domain.Interfaces;
+using PeerTutoringSystem.Infrastructure.Repositories;
+using PeerTutoringSystem.Application.Services.Profile_Bio;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +60,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
 builder.Services.AddScoped<ITutorVerificationRepository, TutorVerificationRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>

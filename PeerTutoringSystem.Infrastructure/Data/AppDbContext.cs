@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PeerTutoringSystem.Domain.Entities;
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using System;
 
@@ -15,6 +16,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
         public DbSet<UserToken> UserTokens { get; set; }
         public DbSet<TutorVerification> TutorVerifications { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<Profile> Profiles { get; set; } // Thêm DbSet cho Profile
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,7 +30,6 @@ namespace PeerTutoringSystem.Infrastructure.Data
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
-            // Chỉ áp dụng chỉ mục duy nhất cho FirebaseUid khi nó không rỗng
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.FirebaseUid)
                 .IsUnique()
@@ -39,15 +40,15 @@ namespace PeerTutoringSystem.Infrastructure.Data
             modelBuilder.Entity<User>()
                 .Property(u => u.Status)
                 .HasConversion<string>()
-                .HasDefaultValue(UserStatus.Active);
+                .HasDefaultValue(UserStatus.Active); // Giả định UserStatus đã được định nghĩa
             modelBuilder.Entity<User>()
-                .Property(u => u.School) 
-                .HasMaxLength(255)      
-                .IsRequired(false);     
+                .Property(u => u.School)
+                .HasMaxLength(255)
+                .IsRequired(false);
             modelBuilder.Entity<User>()
-                .Property(u => u.AvatarUrl) 
-                .HasMaxLength(255)          
-                .IsRequired(false);         
+                .Property(u => u.AvatarUrl)
+                .HasMaxLength(255)
+                .IsRequired(false);
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Role)
                 .WithMany()
@@ -98,6 +99,29 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .HasOne(d => d.TutorVerification)
                 .WithMany()
                 .HasForeignKey(d => d.VerificationID);
+
+            // Profiles
+            modelBuilder.Entity<Profile>()
+                .HasKey(p => p.ProfileID);
+            modelBuilder.Entity<Profile>()
+                .Property(p => p.HourlyRate)
+                .HasColumnType("DECIMAL(18,2)")
+                .HasDefaultValue(0.00);
+            modelBuilder.Entity<Profile>()
+                .Property(p => p.Bio)
+                .IsRequired(false); 
+            modelBuilder.Entity<Profile>()
+                .Property(p => p.Experience)
+                .IsRequired(false); 
+            modelBuilder.Entity<Profile>()
+                .Property(p => p.Availability)
+                .IsRequired(false);
+            modelBuilder.Entity<Profile>()
+                .HasOne(p => p.User)
+                .WithOne()
+                .HasForeignKey<Profile>(p => p.UserID)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
         }
     }
 }
