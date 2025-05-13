@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Api.Middleware;
-using PeerTutoringSystem.Application.DTOs;
+using PeerTutoringSystem.Application.DTOs.Profile_Bio;
 using PeerTutoringSystem.Application.Interfaces;
 using System;
 using System.ComponentModel.DataAnnotations;

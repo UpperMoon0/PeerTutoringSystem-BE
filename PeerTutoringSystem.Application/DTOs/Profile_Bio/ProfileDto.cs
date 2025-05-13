@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace PeerTutoringSystem.Application.DTOs
+namespace PeerTutoringSystem.Application.DTOs.Profile_Bio
 {
     public class ProfileDto
     {
@@ -13,7 +13,7 @@ namespace PeerTutoringSystem.Application.DTOs
         public decimal HourlyRate { get; set; }
         public string Availability { get; set; } = string.Empty;
         public string AvatarUrl { get; set; } = string.Empty;
-        public string? School { get; set; } 
+        public string? School { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
     }

@@ -1,4 +1,4 @@
-﻿using PeerTutoringSystem.Application.DTOs;
+﻿using PeerTutoringSystem.Application.DTOs.Profile_Bio;
 using PeerTutoringSystem.Application.Interfaces;
 using PeerTutoringSystem.Domain.Entities;
 using PeerTutoringSystem.Domain.Interfaces;

@@ -1,4 +1,4 @@
-﻿using PeerTutoringSystem.Application.DTOs;
+﻿using PeerTutoringSystem.Application.DTOs.Profile_Bio;
 using System;
 using System.Threading.Tasks;
 
