@@ -5,7 +5,7 @@ using PeerTutoringSystem.Infrastructure.Data;
 using System;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Infrastructure.Repositories
+namespace PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio
 {
     public class ProfileRepository : IProfileRepository
     {
