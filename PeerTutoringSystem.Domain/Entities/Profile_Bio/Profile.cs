@@ -1,7 +1,7 @@
 ﻿using PeerTutoringSystem.Domain.Entities.Authentication;
 using System;
 
-namespace PeerTutoringSystem.Domain.Entities
+namespace PeerTutoringSystem.Domain.Entities.Profile_Bio
 {
     public class Profile
     {

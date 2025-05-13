@@ -1,4 +1,4 @@
-﻿using PeerTutoringSystem.Domain.Entities;
+﻿using PeerTutoringSystem.Domain.Entities.Profile_Bio;
 using System;
 using System.Collections.Generic;
 using System.Linq;

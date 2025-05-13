@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PeerTutoringSystem.Domain.Entities;
+using PeerTutoringSystem.Domain.Entities.Profile_Bio;
 using PeerTutoringSystem.Domain.Interfaces;
 using PeerTutoringSystem.Infrastructure.Data;
 using System;
