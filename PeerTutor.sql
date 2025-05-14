@@ -61,7 +61,8 @@ BEGIN
         AccessToken NVARCHAR(MAX) NOT NULL,
         RefreshToken NVARCHAR(255) NOT NULL,
         IssuedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
-        ExpiresAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+        ExpiresAt DATETIME NOT NULL, -- Thời gian hết hạn của AccessToken
+        RefreshTokenExpiresAt DATETIME NOT NULL, -- Thời gian hết hạn của RefreshToken
         IsRevoked BIT NOT NULL DEFAULT 0,
         CONSTRAINT FK_UserTokens_Users FOREIGN KEY (UserID) REFERENCES Users(UserID)
     );

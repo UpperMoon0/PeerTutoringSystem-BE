@@ -14,6 +14,8 @@ using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 public class AuthService : IAuthService
 {
@@ -73,7 +75,6 @@ public class AuthService : IAuthService
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
             var createdUser = await _userRepository.AddAsync(user);
 
-            // Đảm bảo Role được tải sau khi thêm
             var userWithRole = await _userRepository.GetByIdAsync(createdUser.UserID);
             if (userWithRole == null || userWithRole.Role == null)
                 throw new Exception("Failed to load user role after registration.");
@@ -182,7 +183,6 @@ public class AuthService : IAuthService
 
             var createdUser = await _userRepository.AddAsync(user);
 
-            // Đảm bảo Role được tải sau khi thêm
             var userWithRole = await _userRepository.GetByIdAsync(createdUser.UserID);
             if (userWithRole == null || userWithRole.Role == null)
                 throw new Exception("Failed to load user role after Google login.");
@@ -247,7 +247,6 @@ public class AuthService : IAuthService
         }
     }
 
-    // Các phương thức khác (LoginAsync, RefreshTokenAsync, LogoutAsync) không thay đổi
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
     {
         ValidateDto(dto);
@@ -303,7 +302,7 @@ public class AuthService : IAuthService
         try
         {
             var token = await _userTokenRepository.GetByRefreshTokenAsync(dto.RefreshToken);
-            if (token == null || token.IsRevoked || token.ExpiresAt < DateTime.UtcNow)
+            if (token == null || token.IsRevoked || token.RefreshTokenExpiresAt < DateTime.UtcNow)
                 throw new ValidationException("Invalid or expired refresh token.");
 
             var user = await _userRepository.GetByIdAsync(token.UserID);
@@ -390,11 +389,13 @@ public class AuthService : IAuthService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        // Thời gian hết hạn cho AccessToken (ví dụ: 1 giờ)
+        var accessTokenExpiry = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:ExpiryInMinutes"] ?? "60"));
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddMinutes(int.Parse(_configuration["Jwt:ExpiryInMinutes"])),
+            expires: accessTokenExpiry,
             signingCredentials: creds);
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
@@ -412,7 +413,8 @@ public class AuthService : IAuthService
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             IssuedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            ExpiresAt = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:ExpiryInMinutes"] ?? "60")), // Hết hạn của AccessToken
+            RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:RefreshTokenExpiryInDays"] ?? "7")), // Hết hạn của RefreshToken (mặc định 7 ngày)
             IsRevoked = false
         };
 

@@ -10,6 +10,7 @@ namespace PeerTutoringSystem.Domain.Entities.Authentication
         public string? RefreshToken { get; set; }
         public DateTime IssuedAt { get; set; }
         public DateTime ExpiresAt { get; set; }
+        public DateTime RefreshTokenExpiresAt { get; set; } 
         public bool IsRevoked { get; set; }
         public User? User { get; set; }
     }

@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\services\\authentication\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|solutionrelative:peertutoringsystem.application\\services\\authentication\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.domain\\entities\\authentication\\usertoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|solutionrelative:peertutoringsystem.domain\\entities\\authentication\\usertoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UserToken.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Authentication\\UserToken.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Authentication\\UserToken.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Authentication\\UserToken.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Domain\\Entities\\Authentication\\UserToken.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-14T08:29:22.422Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Authentication\\AuthService.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Authentication\\AuthService.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Authentication\\AuthService.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Authentication\\AuthService.cs",
+              "ViewState": "AgIAAOYAAAAAAAAAAAAAAMABAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-14T08:28:46.995Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
