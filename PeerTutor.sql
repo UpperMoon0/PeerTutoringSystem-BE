@@ -113,23 +113,23 @@ BEGIN
 END;
 GO
 
--- Create Profiles Table (For Tutors only)
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Profiles')
+-- Create UserBio Table (Renamed from Profiles)
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'UserBio')
 BEGIN
-    CREATE TABLE Profiles (
-        ProfileID INT IDENTITY(1,1) PRIMARY KEY,
-        UserID UNIQUEIDENTIFIER NOT NULL UNIQUE, -- Mỗi Tutor chỉ có 1 hồ sơ
+    CREATE TABLE UserBio (
+        BioID INT IDENTITY(1,1) PRIMARY KEY, -- Đổi ProfileID thành BioID
+        UserID UNIQUEIDENTIFIER NOT NULL UNIQUE, -- Mỗi User chỉ có 1 hồ sơ
         Bio NVARCHAR(MAX) NULL, -- Tiểu sử giới thiệu
         Experience NVARCHAR(MAX) NULL, -- Kinh nghiệm
         HourlyRate DECIMAL(18,2) NOT NULL DEFAULT 0.00, -- Mức học phí mỗi giờ
         Availability NVARCHAR(MAX) NULL, -- Thời gian rảnh (có thể lưu dưới dạng JSON string)
         CreatedDate DATETIME NOT NULL DEFAULT GETUTCDATE(),
         UpdatedDate DATETIME NULL,
-        CONSTRAINT FK_Profiles_Users FOREIGN KEY (UserID) REFERENCES Users(UserID)
+        CONSTRAINT FK_UserBio_Users FOREIGN KEY (UserID) REFERENCES Users(UserID)
     );
 
     -- Thêm chỉ mục cho UserID
-    CREATE NONCLUSTERED INDEX IX_Profiles_UserID ON Profiles(UserID);
+    CREATE NONCLUSTERED INDEX IX_UserBio_UserID ON UserBio(UserID);
 END;
 GO
 
