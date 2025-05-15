@@ -14,24 +14,24 @@ namespace PeerTutoringSystem.Api.Controllers.Profile_Bio
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class ProfilesController : ControllerBase
+    public class UserBioController : ControllerBase // Đổi tên controller
     {
         private readonly IProfileService _profileService;
 
-        public ProfilesController(IProfileService profileService)
+        public UserBioController(IProfileService profileService)
         {
             _profileService = profileService;
         }
 
         [HttpPost]
         [Authorize(Roles = "Tutor")]
-        public async Task<IActionResult> CreateProfile([FromBody] CreateProfileDto dto)
+        public async Task<IActionResult> CreateUserBio([FromBody] CreateProfileDto dto)
         {
             try
             {
                 var tutorId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ValidationException("Invalid token."));
-                var profile = await _profileService.CreateProfileAsync(tutorId, dto);
-                return Ok(profile);
+                var userBio = await _profileService.CreateProfileAsync(tutorId, dto);
+                return Ok(userBio);
             }
             catch (ValidationException ex)
             {
@@ -43,13 +43,13 @@ namespace PeerTutoringSystem.Api.Controllers.Profile_Bio
             }
         }
 
-        [HttpGet("{profileId:int}")]
-        public async Task<IActionResult> GetProfile(int profileId)
+        [HttpGet("{bioId:int}")] 
+        public async Task<IActionResult> GetUserBio(int bioId)
         {
             try
             {
-                var profile = await _profileService.GetProfileByIdAsync(profileId);
-                return Ok(profile);
+                var userBio = await _profileService.GetProfileByIdAsync(bioId);
+                return Ok(userBio);
             }
             catch (ValidationException ex)
             {
@@ -62,12 +62,12 @@ namespace PeerTutoringSystem.Api.Controllers.Profile_Bio
         }
 
         [HttpGet("user/{userId:guid}")]
-        public async Task<IActionResult> GetProfileByUserId(Guid userId)
+        public async Task<IActionResult> GetUserBioByUserId(Guid userId)
         {
             try
             {
-                var profile = await _profileService.GetProfileByUserIdAsync(userId);
-                return Ok(profile);
+                var userBio = await _profileService.GetProfileByUserIdAsync(userId);
+                return Ok(userBio);
             }
             catch (ValidationException ex)
             {
@@ -79,22 +79,22 @@ namespace PeerTutoringSystem.Api.Controllers.Profile_Bio
             }
         }
 
-        [HttpPut("{profileId:int}")]
+        [HttpPut("{bioId:int}")] 
         [Authorize(Roles = "Tutor")]
-        public async Task<IActionResult> UpdateProfile(int profileId, [FromBody] UpdateProfileDto dto)
+        public async Task<IActionResult> UpdateUserBio(int bioId, [FromBody] UpdateProfileDto dto) 
         {
             try
             {
                 var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ValidationException("Invalid token."));
-                var profile = await _profileService.GetProfileByIdAsync(profileId);
+                var userBio = await _profileService.GetProfileByIdAsync(bioId);
 
                 // Chỉ Tutor sở hữu hồ sơ hoặc Admin mới được cập nhật
                 var isAdmin = User.IsInRole("Admin");
-                if (profile.UserID != userId && !isAdmin)
-                    return StatusCode(403, new { error = "You do not have permission to update this profile." });
+                if (userBio.UserID != userId && !isAdmin)
+                    return StatusCode(403, new { error = "You do not have permission to update this user bio." });
 
-                await _profileService.UpdateProfileAsync(profileId, dto);
-                return Ok(new { message = "Profile updated successfully." });
+                await _profileService.UpdateProfileAsync(bioId, dto);
+                return Ok(new { message = "User bio updated successfully." });
             }
             catch (ValidationException ex)
             {
