@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PeerTutoringSystem.Application.DTOs.Profile_Bio
 {
-    public class ProfileDto
+    public class UserBioDto
     {
-        public int ProfileID { get; set; }
+        public int BioID { get; set; } 
         public Guid UserID { get; set; }
         public string TutorName { get; set; } = string.Empty;
         public string Bio { get; set; } = string.Empty;
@@ -18,7 +18,7 @@ namespace PeerTutoringSystem.Application.DTOs.Profile_Bio
         public DateTime? UpdatedDate { get; set; }
     }
 
-    public class CreateProfileDto
+    public class CreateUserBioDto 
     {
         [Required(ErrorMessage = "Hourly rate is required.")]
         [Range(0, 1000000, ErrorMessage = "Hourly rate must be between 0 and 1,000,000.")]
@@ -29,7 +29,7 @@ namespace PeerTutoringSystem.Application.DTOs.Profile_Bio
         public string Availability { get; set; } = string.Empty;
     }
 
-    public class UpdateProfileDto
+    public class UpdateUserBioDto 
     {
         [Required(ErrorMessage = "Hourly rate is required.")]
         [Range(0, 1000000, ErrorMessage = "Hourly rate must be between 0 and 1,000,000.")]

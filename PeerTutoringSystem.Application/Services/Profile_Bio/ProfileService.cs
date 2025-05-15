@@ -20,7 +20,7 @@ namespace PeerTutoringSystem.Application.Services.Profile_Bio
             _userRepository = userRepository;
         }
 
-        public async Task<ProfileDto> CreateProfileAsync(Guid tutorId, CreateProfileDto dto)
+        public async Task<UserBioDto> CreateProfileAsync(Guid tutorId, CreateProfileDto dto)
         {
             // Validate user
             var user = await _userRepository.GetByIdAsync(tutorId);
@@ -47,7 +47,7 @@ namespace PeerTutoringSystem.Application.Services.Profile_Bio
             return await MapToDtoAsync(profile);
         }
 
-        public async Task<ProfileDto> GetProfileByIdAsync(int profileId)
+        public async Task<UserBioDto> GetProfileByIdAsync(int profileId)
         {
             var profile = await _profileRepository.GetByIdAsync(profileId);
             if (profile == null)
@@ -56,7 +56,7 @@ namespace PeerTutoringSystem.Application.Services.Profile_Bio
             return await MapToDtoAsync(profile);
         }
 
-        public async Task<ProfileDto> GetProfileByUserIdAsync(Guid userId)
+        public async Task<UserBioDto> GetProfileByUserIdAsync(Guid userId)
         {
             var profile = await _profileRepository.GetByUserIdAsync(userId);
             if (profile == null)
@@ -80,13 +80,13 @@ namespace PeerTutoringSystem.Application.Services.Profile_Bio
             await _profileRepository.UpdateAsync(profile);
         }
 
-        private async Task<ProfileDto> MapToDtoAsync(Profile profile)
+        private async Task<UserBioDto> MapToDtoAsync(Profile profile)
         {
             var user = await _userRepository.GetByIdAsync(profile.UserID);
             if (user == null)
                 throw new ValidationException("User not found.");
 
-            return new ProfileDto
+            return new UserBioDto
             {
                 ProfileID = profile.ProfileID,
                 UserID = profile.UserID,

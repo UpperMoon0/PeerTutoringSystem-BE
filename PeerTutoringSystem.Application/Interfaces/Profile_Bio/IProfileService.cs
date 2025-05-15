@@ -6,9 +6,9 @@ namespace PeerTutoringSystem.Application.Interfaces.Profile_Bio
 {
     public interface IProfileService
     {
-        Task<ProfileDto> CreateProfileAsync(Guid tutorId, CreateProfileDto dto);
-        Task<ProfileDto> GetProfileByIdAsync(int profileId);
-        Task<ProfileDto> GetProfileByUserIdAsync(Guid userId);
+        Task<UserBioDto> CreateProfileAsync(Guid tutorId, CreateProfileDto dto);
+        Task<UserBioDto> GetProfileByIdAsync(int profileId);
+        Task<UserBioDto> GetProfileByUserIdAsync(Guid userId);
         Task UpdateProfileAsync(int profileId, UpdateProfileDto dto);
     }
 }
