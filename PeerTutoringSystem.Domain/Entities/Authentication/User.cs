@@ -19,7 +19,7 @@ namespace PeerTutoringSystem.Domain.Entities.Authentication
     {
         public Guid UserID { get; set; }
         public string FullName { get; set; } = string.Empty;
-        public string FirebaseUid { get; set; } = string.Empty;
+        public string? FirebaseUid { get; set; } // Có thể null, không mặc định chuỗi rỗng
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
         public DateTime DateOfBirth { get; set; }

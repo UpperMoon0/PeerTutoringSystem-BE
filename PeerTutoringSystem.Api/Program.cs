@@ -60,8 +60,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserTokenRepository, UserTokenRepository>();
 builder.Services.AddScoped<ITutorVerificationRepository, TutorVerificationRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
-builder.Services.AddScoped<IProfileService, ProfileService>();
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IUserBioService, UserBioService>();
+builder.Services.AddScoped<IUserBioRepository, UserBioRepository>();
 
 // Add CORS
 builder.Services.AddCors(options =>

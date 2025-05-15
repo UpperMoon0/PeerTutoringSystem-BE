@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using PeerTutoringSystem.Domain.Entities.Profile_Bio;
-using System;
 
 namespace PeerTutoringSystem.Infrastructure.Data
 {
@@ -16,7 +15,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
         public DbSet<UserToken> UserTokens { get; set; }
         public DbSet<TutorVerification> TutorVerifications { get; set; }
         public DbSet<Document> Documents { get; set; }
-        public DbSet<Profile> Profiles { get; set; } // Thêm DbSet cho Profile
+        public DbSet<UserBio> UserBio { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,7 +39,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
             modelBuilder.Entity<User>()
                 .Property(u => u.Status)
                 .HasConversion<string>()
-                .HasDefaultValue(UserStatus.Active); // Giả định UserStatus đã được định nghĩa
+                .HasDefaultValue(UserStatus.Active);
             modelBuilder.Entity<User>()
                 .Property(u => u.School)
                 .HasMaxLength(255)
@@ -100,26 +99,26 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(d => d.VerificationID);
 
-            // Profiles
-            modelBuilder.Entity<Profile>()
-                .HasKey(p => p.ProfileID);
-            modelBuilder.Entity<Profile>()
+            // UserBio
+            modelBuilder.Entity<UserBio>()
+                .HasKey(p => p.BioID);
+            modelBuilder.Entity<UserBio>()
                 .Property(p => p.HourlyRate)
                 .HasColumnType("DECIMAL(18,2)")
                 .HasDefaultValue(0.00);
-            modelBuilder.Entity<Profile>()
+            modelBuilder.Entity<UserBio>()
                 .Property(p => p.Bio)
-                .IsRequired(false); 
-            modelBuilder.Entity<Profile>()
+                .IsRequired(false);
+            modelBuilder.Entity<UserBio>()
                 .Property(p => p.Experience)
-                .IsRequired(false); 
-            modelBuilder.Entity<Profile>()
+                .IsRequired(false);
+            modelBuilder.Entity<UserBio>()
                 .Property(p => p.Availability)
                 .IsRequired(false);
-            modelBuilder.Entity<Profile>()
+            modelBuilder.Entity<UserBio>()
                 .HasOne(p => p.User)
                 .WithOne()
-                .HasForeignKey<Profile>(p => p.UserID)
+                .HasForeignKey<UserBio>(p => p.UserID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
         }

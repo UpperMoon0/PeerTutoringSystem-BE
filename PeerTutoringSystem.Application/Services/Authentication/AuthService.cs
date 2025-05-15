@@ -48,7 +48,7 @@ public class AuthService : IAuthService
         if (!IsOver14(dto.DateOfBirth))
             throw new ValidationException("You must be over 14 years old to register.");
 
-        using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
         try
         {
             var existingEmail = await _userRepository.GetByEmailAsync(dto.Email);
@@ -69,7 +69,8 @@ public class AuthService : IAuthService
                 LastActive = DateTime.UtcNow,
                 IsOnline = true,
                 Status = UserStatus.Active,
-                RoleID = 1 // Student
+                RoleID = 1, // Student
+                FirebaseUid = null // Đặt null cho đăng ký email/mật khẩu
             };
 
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
@@ -83,6 +84,8 @@ public class AuthService : IAuthService
             await StoreTokenAsync(userWithRole.UserID, accessToken, refreshToken);
 
             await transaction.CommitAsync();
+
+            _logger.LogInformation("Registered user with email: {Email}, FirebaseUid: {FirebaseUid}", dto.Email, user.FirebaseUid);
 
             return new AuthResponseDto
             {
@@ -129,8 +132,12 @@ public class AuthService : IAuthService
         }
 
         string firebaseUid = decodedToken.Uid;
+        if (string.IsNullOrEmpty(firebaseUid))
+        {
+            throw new ValidationException("FirebaseUid cannot be empty.");
+        }
 
-        using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+        using var transaction = await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
         try
         {
             var user = await _userRepository.GetByFirebaseUidAsync(firebaseUid);
@@ -382,14 +389,13 @@ public class AuthService : IAuthService
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
-            new Claim(ClaimTypes.Email, user.Email ?? user.FirebaseUid),
+            new Claim(ClaimTypes.Email, user.Email ?? user.FirebaseUid ?? string.Empty),
             new Claim(ClaimTypes.Role, user.Role.RoleName)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        // Thời gian hết hạn cho AccessToken (ví dụ: 1 giờ)
         var accessTokenExpiry = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:ExpiryInMinutes"] ?? "60"));
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
@@ -413,8 +419,8 @@ public class AuthService : IAuthService
             AccessToken = accessToken,
             RefreshToken = refreshToken,
             IssuedAt = DateTime.UtcNow,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:ExpiryInMinutes"] ?? "60")), // Hết hạn của AccessToken
-            RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:RefreshTokenExpiryInDays"] ?? "7")), // Hết hạn của RefreshToken (mặc định 7 ngày)
+            ExpiresAt = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:ExpiryInMinutes"] ?? "60")),
+            RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(int.Parse(_configuration["Jwt:RefreshTokenExpiryInDays"] ?? "7")),
             IsRevoked = false
         };
 
