@@ -7,38 +7,38 @@ using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio
 {
-    public class ProfileRepository : IProfileRepository
+    public class UserBioRepository : IUserBioRepository 
     {
         private readonly AppDbContext _context;
 
-        public ProfileRepository(AppDbContext context)
+        public UserBioRepository(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task<UserBio> GetByIdAsync(int profileId)
+        public async Task<UserBio> GetByIdAsync(int bioId) 
         {
-            return await _context.Profiles
+            return await _context.UserBio 
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.ProfileID == profileId);
+                .FirstOrDefaultAsync(p => p.BioID == bioId); 
         }
 
-        public async Task<UserBio> GetByUserIdAsync(Guid userId)
+        public async Task<UserBio> GetByUserIdAsync(Guid userId) 
         {
-            return await _context.Profiles
+            return await _context.UserBio 
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.UserID == userId);
         }
 
-        public async Task AddAsync(UserBio profile)
+        public async Task AddAsync(UserBio userBio) 
         {
-            await _context.Profiles.AddAsync(profile);
+            await _context.UserBio.AddAsync(userBio); 
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(UserBio profile)
+        public async Task UpdateAsync(UserBio userBio)
         {
-            _context.Profiles.Update(profile);
+            _context.UserBio.Update(userBio); 
             await _context.SaveChangesAsync();
         }
     }

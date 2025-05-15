@@ -156,7 +156,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 var user = await _userRepository.GetByIdAsync(verification.UserID);
                 if (user != null)
                 {
-                    user.RoleID = 2; // Tutor
+                    user.RoleID = 2;
                     await _userRepository.UpdateAsync(user);
                 }
             }

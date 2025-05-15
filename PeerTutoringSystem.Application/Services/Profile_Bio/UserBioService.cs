@@ -12,10 +12,10 @@ namespace PeerTutoringSystem.Application.Services.Profile_Bio
 {
     public class UserBioService : IUserBioService // Đổi tên class và interface
     {
-        private readonly IProfileRepository _profileRepository;
+        private readonly IUserBioRepository _profileRepository;
         private readonly IUserRepository _userRepository;
 
-        public UserBioService(IProfileRepository profileRepository, IUserRepository userRepository)
+        public UserBioService(IUserBioRepository profileRepository, IUserRepository userRepository)
         {
             _profileRepository = profileRepository;
             _userRepository = userRepository;

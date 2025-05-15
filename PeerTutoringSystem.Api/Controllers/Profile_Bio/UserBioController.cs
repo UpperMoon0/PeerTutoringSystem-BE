@@ -25,7 +25,7 @@ namespace PeerTutoringSystem.Api.Controllers.Profile_Bio
 
         [HttpPost]
         [Authorize(Roles = "Tutor")]
-        public async Task<IActionResult> CreateUserBio([FromBody] CreateProfileDto dto)
+        public async Task<IActionResult> CreateUserBio([FromBody] CreateUserBioDto dto)
         {
             try
             {
@@ -81,7 +81,7 @@ namespace PeerTutoringSystem.Api.Controllers.Profile_Bio
 
         [HttpPut("{bioId:int}")] 
         [Authorize(Roles = "Tutor")]
-        public async Task<IActionResult> UpdateUserBio(int bioId, [FromBody] UpdateProfileDto dto) 
+        public async Task<IActionResult> UpdateUserBio(int bioId, [FromBody] UpdateUserBioDto dto) 
         {
             try
             {
