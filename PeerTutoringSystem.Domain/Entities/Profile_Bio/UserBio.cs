@@ -3,9 +3,9 @@ using System;
 
 namespace PeerTutoringSystem.Domain.Entities.Profile_Bio
 {
-    public class Profile
+    public class UserBio 
     {
-        public int ProfileID { get; set; }
+        public int BioID { get; set; } 
         public Guid UserID { get; set; }
         public string Bio { get; set; } = string.Empty;
         public string Experience { get; set; } = string.Empty;

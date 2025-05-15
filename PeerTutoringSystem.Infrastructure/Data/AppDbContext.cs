@@ -16,7 +16,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
         public DbSet<UserToken> UserTokens { get; set; }
         public DbSet<TutorVerification> TutorVerifications { get; set; }
         public DbSet<Document> Documents { get; set; }
-        public DbSet<Profile> Profiles { get; set; } // Thêm DbSet cho Profile
+        public DbSet<UserBio> Profiles { get; set; } // Thêm DbSet cho Profile
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -101,25 +101,25 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .HasForeignKey(d => d.VerificationID);
 
             // Profiles
-            modelBuilder.Entity<Profile>()
+            modelBuilder.Entity<UserBio>()
                 .HasKey(p => p.ProfileID);
-            modelBuilder.Entity<Profile>()
+            modelBuilder.Entity<UserBio>()
                 .Property(p => p.HourlyRate)
                 .HasColumnType("DECIMAL(18,2)")
                 .HasDefaultValue(0.00);
-            modelBuilder.Entity<Profile>()
+            modelBuilder.Entity<UserBio>()
                 .Property(p => p.Bio)
                 .IsRequired(false); 
-            modelBuilder.Entity<Profile>()
+            modelBuilder.Entity<UserBio>()
                 .Property(p => p.Experience)
                 .IsRequired(false); 
-            modelBuilder.Entity<Profile>()
+            modelBuilder.Entity<UserBio>()
                 .Property(p => p.Availability)
                 .IsRequired(false);
-            modelBuilder.Entity<Profile>()
+            modelBuilder.Entity<UserBio>()
                 .HasOne(p => p.User)
                 .WithOne()
-                .HasForeignKey<Profile>(p => p.UserID)
+                .HasForeignKey<UserBio>(p => p.UserID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
         }

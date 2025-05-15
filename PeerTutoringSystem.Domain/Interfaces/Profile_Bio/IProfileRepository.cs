@@ -9,9 +9,9 @@ namespace PeerTutoringSystem.Domain.Interfaces.Profile_Bio
 {
     public interface IProfileRepository
     {
-        Task<Profile> GetByIdAsync(int profileId);
-        Task<Profile> GetByUserIdAsync(Guid userId);
-        Task AddAsync(Profile profile);
-        Task UpdateAsync(Profile profile);
+        Task<UserBio> GetByIdAsync(int profileId);
+        Task<UserBio> GetByUserIdAsync(Guid userId);
+        Task AddAsync(UserBio profile);
+        Task UpdateAsync(UserBio profile);
     }
 }

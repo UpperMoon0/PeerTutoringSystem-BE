@@ -16,27 +16,27 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio
             _context = context;
         }
 
-        public async Task<Profile> GetByIdAsync(int profileId)
+        public async Task<UserBio> GetByIdAsync(int profileId)
         {
             return await _context.Profiles
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.ProfileID == profileId);
         }
 
-        public async Task<Profile> GetByUserIdAsync(Guid userId)
+        public async Task<UserBio> GetByUserIdAsync(Guid userId)
         {
             return await _context.Profiles
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.UserID == userId);
         }
 
-        public async Task AddAsync(Profile profile)
+        public async Task AddAsync(UserBio profile)
         {
             await _context.Profiles.AddAsync(profile);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Profile profile)
+        public async Task UpdateAsync(UserBio profile)
         {
             _context.Profiles.Update(profile);
             await _context.SaveChangesAsync();

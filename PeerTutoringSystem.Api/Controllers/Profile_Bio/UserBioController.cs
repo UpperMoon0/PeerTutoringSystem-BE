@@ -16,9 +16,9 @@ namespace PeerTutoringSystem.Api.Controllers.Profile_Bio
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UserBioController : ControllerBase // Đổi tên controller
     {
-        private readonly IProfileService _profileService;
+        private readonly IUserBioService _profileService;
 
-        public UserBioController(IProfileService profileService)
+        public UserBioController(IUserBioService profileService)
         {
             _profileService = profileService;
         }
