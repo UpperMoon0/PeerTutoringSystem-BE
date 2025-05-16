@@ -39,6 +39,15 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<TutorVerification>> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.TutorVerifications
+                .Include(v => v.User)
+                .ThenInclude(u => u.Role)
+                .Where(v => v.UserID == userId)
+                .ToListAsync();
+        }
+
         public async Task UpdateAsync(TutorVerification verification)
         {
             _context.TutorVerifications.Update(verification);

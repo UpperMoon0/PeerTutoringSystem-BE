@@ -153,3 +153,32 @@ VALUES (
     '1990-01-01', '1234567890', 'Male', 'Hanoi', GETUTCDATE(), GETUTCDATE(), 
     1, 'Active', 3
 );
+
+--================================================================--
+-- Thêm trigger để kiểm tra số lượng yêu cầu của user
+IF EXISTS (SELECT * FROM sys.triggers WHERE name = 'TRG_PreventMultipleTutorRequests')
+    DROP TRIGGER TRG_PreventMultipleTutorRequests;
+GO
+
+CREATE TRIGGER TRG_PreventMultipleTutorRequests
+ON TutorVerifications
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Kiểm tra các yêu cầu mới được chèn hoặc cập nhật
+    IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        JOIN TutorVerifications tv ON i.UserID = tv.UserID
+        WHERE tv.VerificationStatus IN ('Pending', 'Approved')
+        AND i.VerificationStatus = 'Pending'
+        AND (i.VerificationID != tv.VerificationID OR i.VerificationID IS NULL)
+    )
+    BEGIN
+        THROW 51000, 'User already has a pending or approved tutor verification request.', 1;
+        ROLLBACK TRANSACTION;
+    END
+END;
+GO
