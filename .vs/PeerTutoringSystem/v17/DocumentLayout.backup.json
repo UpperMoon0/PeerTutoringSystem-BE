@@ -142,8 +142,7 @@
               "RelativeToolTip": "PeerTutoringSystem.Domain\\Interfaces\\Authentication\\ITutorVerificationRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABLAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-16T05:44:10.679Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-16T05:44:10.679Z"
             },
             {
               "$type": "Document",
@@ -155,8 +154,7 @@
               "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Authentication\\TutorVerificationService.cs",
               "ViewState": "AgIAAA4BAAAAAAAAAAAAABgAAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-15T15:47:55.588Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-15T15:47:55.588Z"
             },
             {
               "$type": "Document",
@@ -168,8 +166,7 @@
               "RelativeToolTip": "PeerTutoringSystem.Application\\Interfaces\\Authentication\\ITutorVerificationService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-15T15:47:43.63Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-15T15:47:43.63Z"
             },
             {
               "$type": "Document",
@@ -181,8 +178,7 @@
               "RelativeToolTip": "PeerTutoringSystem.Api\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-05-15T14:34:38.558Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-15T14:34:38.558Z"
             },
             {
               "$type": "Document",
@@ -192,7 +188,7 @@
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Program.cs",
               "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Program.cs",
               "RelativeToolTip": "PeerTutoringSystem.Api\\Program.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAAkwDQAAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAGAAAAAAAAAAAAAkwDQAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-15T14:19:22.546Z",
               "EditorCaption": ""
@@ -207,8 +203,7 @@
               "RelativeToolTip": "PeerTutoringSystem.Infrastructure\\Repositories\\Authentication\\DocumentRepository.cs",
               "ViewState": "AgIAAA0AAAAAAAAAAAAAwCUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-16T05:44:22.687Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-16T05:44:22.687Z"
             },
             {
               "$type": "Document",
@@ -220,8 +215,7 @@
               "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Authentication\\DocumentService.cs",
               "ViewState": "AgIAABoAAAAAAAAAAAAkwDUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-16T05:43:48.891Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-16T05:43:48.891Z"
             },
             {
               "$type": "Document",
@@ -233,8 +227,7 @@
               "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Authentication\\TutorVerificationDto.cs",
               "ViewState": "AgIAADsAAAAAAAAAAAAiwE4AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-15T15:47:38.028Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-15T15:47:38.028Z"
             },
             {
               "$type": "Document",
@@ -246,8 +239,7 @@
               "RelativeToolTip": "PeerTutoringSystem.Api\\Controllers\\Authentication\\DocumentsController.cs",
               "ViewState": "AgIAAD8AAAAAAAAAAAAkwFYAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-15T14:34:00.517Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-15T14:34:00.517Z"
             },
             {
               "$type": "Document",
@@ -259,8 +251,7 @@
               "RelativeToolTip": "PeerTutoringSystem.Api\\Controllers\\Authentication\\TutorVerificationsController.cs",
               "ViewState": "AgIAAEAAAAAAAAAAAAAgwFgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-15T15:43:22.654Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-15T15:43:22.654Z"
             },
             {
               "$type": "Document",
