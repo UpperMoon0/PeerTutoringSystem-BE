@@ -141,7 +141,20 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             user.LastActive = DateTime.UtcNow;
             await _userRepository.UpdateAsync(user);
         }
+        public async Task UnbanUserAsync(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new ValidationException("User not found.");
 
+            if (user.Status != UserStatus.Banned)
+                throw new ValidationException("User is not banned and cannot be unbanned.");
+
+            user.Status = UserStatus.Active;
+            user.IsOnline = false; 
+            user.LastActive = DateTime.UtcNow;
+            await _userRepository.UpdateAsync(user);
+        }
         private void ValidateDto<T>(T dto)
         {
             var validationContext = new ValidationContext(dto);
