@@ -16,7 +16,6 @@ using PeerTutoringSystem.Application.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio;
 using PeerTutoringSystem.Application.Interfaces.Skills;
-using PeerTutoringSystem.Application.Services.Skills;
 using PeerTutoringSystem.Domain.Interfaces.Skills;
 using PeerTutoringSystem.Infrastructure.Repositories.Skills;
 using PeerTutoringSystem.Application.DTOs.Authentication;

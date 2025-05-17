@@ -1,15 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.DTOs.Skills;
 using PeerTutoringSystem.Application.Interfaces.Skills;
-using PeerTutoringSystem.Domain.Entities.Authentication;
 using PeerTutoringSystem.Domain.Entities.Skills;
+using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Skills;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Application.Services.Skills
+namespace PeerTutoringSystem.Application.Services.Authentication
 {
     public class UserSkillService : IUserSkillService
     {
@@ -55,7 +56,7 @@ namespace PeerTutoringSystem.Application.Services.Skills
                 {
                     SkillID = skill.SkillID,
                     SkillName = skill.SkillName,
-                    SkillLevel = skill.SkillLevel,
+                    SkillLevel = skill.SkillLevel, // Đã là string
                     Description = skill.Description
                 }
             };
@@ -64,19 +65,18 @@ namespace PeerTutoringSystem.Application.Services.Skills
         public async Task<IEnumerable<UserSkillDto>> GetByUserIdAsync(Guid userId)
         {
             var userSkills = await _userSkillRepository.GetByUserIdAsync(userId);
-            var skills = await _skillRepository.GetAllAsync();
             return userSkills.Select(us => new UserSkillDto
             {
                 UserSkillID = us.UserSkillID,
                 UserID = us.UserID,
                 SkillID = us.SkillID,
                 IsTutor = us.IsTutor,
-                Skill = skills.FirstOrDefault(s => s.SkillID == us.SkillID) != null ? new SkillDto
+                Skill = us.Skill != null ? new SkillDto
                 {
-                    SkillID = skills.First(s => s.SkillID == us.SkillID).SkillID,
-                    SkillName = skills.First(s => s.SkillID == us.SkillID).SkillName,
-                    SkillLevel = skills.First(s => s.SkillID == us.SkillID).SkillLevel,
-                    Description = skills.First(s => s.SkillID == us.SkillID).Description
+                    SkillID = us.Skill.SkillID,
+                    SkillName = us.Skill.SkillName,
+                    SkillLevel = us.Skill.SkillLevel, // Đã là string
+                    Description = us.Skill.Description
                 } : null
             });
         }
@@ -84,19 +84,18 @@ namespace PeerTutoringSystem.Application.Services.Skills
         public async Task<IEnumerable<UserSkillDto>> GetAllAsync()
         {
             var userSkills = await _userSkillRepository.GetAllAsync();
-            var skills = await _skillRepository.GetAllAsync();
             return userSkills.Select(us => new UserSkillDto
             {
                 UserSkillID = us.UserSkillID,
                 UserID = us.UserID,
                 SkillID = us.SkillID,
                 IsTutor = us.IsTutor,
-                Skill = skills.FirstOrDefault(s => s.SkillID == us.SkillID) != null ? new SkillDto
+                Skill = us.Skill != null ? new SkillDto
                 {
-                    SkillID = skills.First(s => s.SkillID == us.SkillID).SkillID,
-                    SkillName = skills.First(s => s.SkillID == us.SkillID).SkillName,
-                    SkillLevel = skills.First(s => s.SkillID == us.SkillID).SkillLevel,
-                    Description = skills.First(s => s.SkillID == us.SkillID).Description
+                    SkillID = us.Skill.SkillID,
+                    SkillName = us.Skill.SkillName,
+                    SkillLevel = us.Skill.SkillLevel, // Đã là string
+                    Description = us.Skill.Description
                 } : null
             });
         }
@@ -113,19 +112,18 @@ namespace PeerTutoringSystem.Application.Services.Skills
         {
             var userSkill = await _userSkillRepository.GetByIdAsync(userSkillId);
             if (userSkill == null) return null;
-            var skill = await _skillRepository.GetByIdAsync(userSkill.SkillID);
             return new UserSkillDto
             {
                 UserSkillID = userSkill.UserSkillID,
                 UserID = userSkill.UserID,
                 SkillID = userSkill.SkillID,
                 IsTutor = userSkill.IsTutor,
-                Skill = skill != null ? new SkillDto
+                Skill = userSkill.Skill != null ? new SkillDto
                 {
-                    SkillID = skill.SkillID,
-                    SkillName = skill.SkillName,
-                    SkillLevel = skill.SkillLevel,
-                    Description = skill.Description
+                    SkillID = userSkill.Skill.SkillID,
+                    SkillName = userSkill.Skill.SkillName,
+                    SkillLevel = userSkill.Skill.SkillLevel, // Đã là string
+                    Description = userSkill.Skill.Description
                 } : null
             };
         }

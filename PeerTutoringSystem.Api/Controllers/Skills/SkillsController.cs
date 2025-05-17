@@ -6,6 +6,7 @@ using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Skills;
 using System;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Api.Controllers.Authentication
 {
@@ -19,14 +20,19 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
 
         public SkillsController(ISkillService skillService, IUserSkillService userSkillService)
         {
-            _skillService = skillService;
-            _userSkillService = userSkillService;
+            _skillService = skillService ?? throw new ArgumentNullException(nameof(skillService));
+            _userSkillService = userSkillService ?? throw new ArgumentNullException(nameof(userSkillService));
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Add([FromBody] CreateSkillDto skillDto)
         {
+            if (skillDto == null)
+            {
+                return BadRequest(new { message = "Request body is required. Please provide a valid skillDto object." });
+            }
+
             try
             {
                 var skill = await _skillService.AddAsync(skillDto);
@@ -35,6 +41,10 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -57,6 +67,11 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid skillId, [FromBody] SkillDto skillDto)
         {
+            if (skillDto == null)
+            {
+                return BadRequest(new { message = "Request body is required. Please provide a valid skillDto object." });
+            }
+
             try
             {
                 var updated = await _skillService.UpdateAsync(skillId, skillDto);
@@ -66,6 +81,10 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 
@@ -83,6 +102,10 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             catch (InvalidOperationException ex)
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 

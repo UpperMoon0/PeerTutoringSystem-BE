@@ -1,9 +1,6 @@
 ﻿using PeerTutoringSystem.Application.DTOs.Authentication;
-using PeerTutoringSystem.Application.DTOs.Skills;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
-using PeerTutoringSystem.Domain.Entities.Authentication;
 using PeerTutoringSystem.Domain.Entities.Skills;
-using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Skills;
 using System;
 using System.Collections.Generic;
@@ -28,6 +25,9 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new InvalidOperationException("SkillName is required.");
             }
 
+            // Kiểm tra và chuyển đổi SkillLevel
+            string skillLevelStr = ValidateSkillLevel(skillDto.SkillLevel);
+
             var existingSkill = await _skillRepository.GetByNameAsync(skillDto.SkillName);
             if (existingSkill != null)
             {
@@ -38,7 +38,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 SkillID = Guid.NewGuid(),
                 SkillName = skillDto.SkillName,
-                SkillLevel = skillDto.SkillLevel,
+                SkillLevel = skillLevelStr, // Lưu dưới dạng string vào database
                 Description = skillDto.Description
             };
             var added = await _skillRepository.AddAsync(skill);
@@ -46,7 +46,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 SkillID = added.SkillID,
                 SkillName = added.SkillName,
-                SkillLevel = added.SkillLevel,
+                SkillLevel = added.SkillLevel, // Trả về dưới dạng string
                 Description = added.Description
             };
         }
@@ -59,7 +59,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 SkillID = skill.SkillID,
                 SkillName = skill.SkillName,
-                SkillLevel = skill.SkillLevel,
+                SkillLevel = skill.SkillLevel, // Trả về dưới dạng string
                 Description = skill.Description
             };
         }
@@ -71,7 +71,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 SkillID = s.SkillID,
                 SkillName = s.SkillName,
-                SkillLevel = s.SkillLevel,
+                SkillLevel = s.SkillLevel, // Trả về dưới dạng string
                 Description = s.Description
             });
         }
@@ -83,6 +83,9 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new InvalidOperationException("SkillName is required.");
             }
 
+            // Kiểm tra và chuyển đổi SkillLevel
+            string skillLevelStr = ValidateSkillLevel(skillDto.SkillLevel);
+
             var skill = await _skillRepository.GetByIdAsync(skillId);
             if (skill == null) return null;
 
@@ -93,16 +96,28 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             }
 
             skill.SkillName = skillDto.SkillName;
-            skill.SkillLevel = skillDto.SkillLevel;
+            skill.SkillLevel = skillLevelStr;
             skill.Description = skillDto.Description;
             var updated = await _skillRepository.UpdateAsync(skill);
             return new SkillDto
             {
                 SkillID = updated.SkillID,
                 SkillName = updated.SkillName,
-                SkillLevel = updated.SkillLevel,
+                SkillLevel = updated.SkillLevel, // Trả về dưới dạng string
                 Description = updated.Description
             };
+        }
+
+        // Phương thức hỗ trợ để kiểm tra và chuyển đổi skillLevel
+        private string ValidateSkillLevel(string skillLevelStr)
+        {
+            if (string.IsNullOrEmpty(skillLevelStr))
+                return null;
+
+            if (Enum.TryParse<SkillLevel>(skillLevelStr, true, out _))
+                return skillLevelStr;
+
+            throw new InvalidOperationException($"Invalid SkillLevel value: '{skillLevelStr}'. Expected values: Beginner, Elementary, Intermediate, Advanced, or Expert.");
         }
     }
 }
