@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
+using System;
+using System.Security.Claims;
 
 namespace PeerTutoringSystem.Api.Controllers.Authentication
 {
@@ -25,8 +27,9 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         {
             try
             {
-                var skill = await _skillService.AddAsync(skillDto);
-                return Ok(skill);
+                var skillId = Guid.NewGuid();
+                var skill = await _skillService.AddAsync(skillId, skillDto);
+                return Ok(new { SkillID = skill.SkillID });
             }
             catch (InvalidOperationException ex)
             {
@@ -41,7 +44,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             return Ok(skills);
         }
 
-        [HttpGet("{skillId}")]
+        [HttpGet("{skillId:guid}")]
         public async Task<IActionResult> GetById(Guid skillId)
         {
             var skill = await _skillService.GetByIdAsync(skillId);
@@ -49,7 +52,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             return Ok(skill);
         }
 
-        [HttpPut("{skillId}")]
+        [HttpPut("{skillId:guid}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid skillId, [FromBody] SkillDto skillDto)
         {
@@ -68,10 +71,13 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         [HttpPost("user-skills")]
         public async Task<IActionResult> AddUserSkill([FromBody] UserSkillDto userSkillDto)
         {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException());
+            if (userId != userSkillDto.UserID && !User.IsInRole("Admin"))
+                return Forbid();
             try
             {
                 var added = await _userSkillService.AddAsync(userSkillDto);
-                return Ok(added);
+                return Ok(new { UserSkillID = added.UserSkillID });
             }
             catch (InvalidOperationException ex)
             {
@@ -79,16 +85,26 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             }
         }
 
-        [HttpGet("user-skills")]
-        public async Task<IActionResult> GetUserSkills()
+        [HttpGet("user-skills/{userId:guid}")]
+        public async Task<IActionResult> GetUserSkills(Guid userId)
         {
-            var skills = await _userSkillService.GetAllAsync();
-            return Ok(skills);
+            var skills = await _userSkillService.GetByUserIdAsync(userId);
+            return Ok(skills.Select(us => new
+            {
+                UserSkillID = us.UserSkillID,
+                SkillID = us.SkillID,
+                IsTutor = us.IsTutor
+            }));
         }
 
-        [HttpDelete("user-skills/{userSkillId}")]
+        [HttpDelete("user-skills/{userSkillId:guid}")]
         public async Task<IActionResult> DeleteUserSkill(Guid userSkillId)
         {
+            var userSkill = await _userSkillService.GetByIdAsync(userSkillId);
+            if (userSkill == null) return NotFound();
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException());
+            if (userId != userSkill.UserID && !User.IsInRole("Admin"))
+                return Forbid();
             var success = await _userSkillService.DeleteAsync(userSkillId);
             if (!success) return NotFound();
             return Ok(new { message = "Deleted successfully" });
