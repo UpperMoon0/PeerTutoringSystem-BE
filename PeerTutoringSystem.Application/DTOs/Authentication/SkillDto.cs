@@ -8,7 +8,7 @@ namespace PeerTutoringSystem.Application.DTOs.Authentication
 {
     public class SkillDto
     {
-        public Guid SkillID { get; set; }
+        public Guid SkillID { get; set; } // Thêm SkillID để hiển thị trong response
         public string SkillName { get; set; }
         public string SkillLevel { get; set; }
         public string Description { get; set; }

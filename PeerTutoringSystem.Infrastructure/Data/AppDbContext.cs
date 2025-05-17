@@ -139,6 +139,10 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .IsRequired();
 
             modelBuilder.Entity<Skill>()
+                .HasIndex(s => s.SkillName)
+                .IsUnique();
+
+            modelBuilder.Entity<Skill>()
                 .Property(s => s.SkillLevel)
                 .HasMaxLength(50);
 

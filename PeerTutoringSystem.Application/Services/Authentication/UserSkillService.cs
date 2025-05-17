@@ -1,4 +1,5 @@
-﻿using PeerTutoringSystem.Application.DTOs.Authentication;
+﻿using Microsoft.EntityFrameworkCore;
+using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Authentication;
@@ -14,15 +15,23 @@ namespace PeerTutoringSystem.Application.Services.Authentication
     {
         private readonly IUserSkillRepository _userSkillRepository;
         private readonly ISkillRepository _skillRepository;
+        private readonly IUserRepository _userRepository;
 
-        public UserSkillService(IUserSkillRepository userSkillRepository, ISkillRepository skillRepository)
+        public UserSkillService(IUserSkillRepository userSkillRepository, ISkillRepository skillRepository, IUserRepository userRepository)
         {
             _userSkillRepository = userSkillRepository;
             _skillRepository = skillRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<UserSkillDto> AddAsync(UserSkillDto userSkillDto)
         {
+            var user = await _userRepository.GetByIdAsync(userSkillDto.UserID);
+            if (user == null)
+            {
+                throw new InvalidOperationException($"User with ID '{userSkillDto.UserID}' does not exist.");
+            }
+
             var userSkill = new UserSkill
             {
                 UserID = userSkillDto.UserID,

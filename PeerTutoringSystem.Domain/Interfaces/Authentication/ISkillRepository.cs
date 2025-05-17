@@ -11,6 +11,7 @@ namespace PeerTutoringSystem.Domain.Interfaces.Authentication
     {
         Task<Skill> AddAsync(Skill skill);
         Task<Skill> GetByIdAsync(Guid skillId);
+        Task<Skill> GetByNameAsync(string skillName);
         Task<IEnumerable<Skill>> GetAllAsync();
         Task<Skill> UpdateAsync(Skill skill);
     }

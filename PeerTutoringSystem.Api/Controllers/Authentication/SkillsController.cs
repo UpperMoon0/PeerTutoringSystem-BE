@@ -23,8 +23,15 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Add([FromBody] SkillDto skillDto)
         {
-            var skill = await _skillService.AddAsync(skillDto);
-            return Ok(skill);
+            try
+            {
+                var skill = await _skillService.AddAsync(skillDto);
+                return Ok(skill);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -46,18 +53,30 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid skillId, [FromBody] SkillDto skillDto)
         {
-            var updated = await _skillService.UpdateAsync(skillId, skillDto);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            try
+            {
+                var updated = await _skillService.UpdateAsync(skillId, skillDto);
+                if (updated == null) return NotFound();
+                return Ok(updated);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("user-skills")]
         public async Task<IActionResult> AddUserSkill([FromBody] UserSkillDto userSkillDto)
         {
-            var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
-            userSkillDto.UserID = userId;
-            var added = await _userSkillService.AddAsync(userSkillDto);
-            return Ok(added);
+            try
+            {
+                var added = await _userSkillService.AddAsync(userSkillDto);
+                return Ok(added);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet("user-skills")]

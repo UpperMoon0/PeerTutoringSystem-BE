@@ -32,6 +32,12 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
             return await _context.Skills.FindAsync(skillId);
         }
 
+        public async Task<Skill> GetByNameAsync(string skillName)
+        {
+            return await _context.Skills
+                .FirstOrDefaultAsync(s => s.SkillName == skillName);
+        }
+
         public async Task<IEnumerable<Skill>> GetAllAsync()
         {
             return await _context.Skills.ToListAsync();

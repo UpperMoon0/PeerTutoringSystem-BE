@@ -21,6 +21,17 @@ namespace PeerTutoringSystem.Application.Services.Authentication
 
         public async Task<SkillDto> AddAsync(SkillDto skillDto)
         {
+            if (string.IsNullOrWhiteSpace(skillDto.SkillName))
+            {
+                throw new InvalidOperationException("SkillName is required.");
+            }
+
+            var existingSkill = await _skillRepository.GetByNameAsync(skillDto.SkillName);
+            if (existingSkill != null)
+            {
+                throw new InvalidOperationException($"Skill with name '{skillDto.SkillName}' already exists.");
+            }
+
             var skill = new Skill
             {
                 SkillName = skillDto.SkillName,
@@ -64,8 +75,20 @@ namespace PeerTutoringSystem.Application.Services.Authentication
 
         public async Task<SkillDto> UpdateAsync(Guid skillId, SkillDto skillDto)
         {
+            if (string.IsNullOrWhiteSpace(skillDto.SkillName))
+            {
+                throw new InvalidOperationException("SkillName is required.");
+            }
+
             var skill = await _skillRepository.GetByIdAsync(skillId);
             if (skill == null) return null;
+
+            var existingSkill = await _skillRepository.GetByNameAsync(skillDto.SkillName);
+            if (existingSkill != null && existingSkill.SkillID != skillId)
+            {
+                throw new InvalidOperationException($"Skill with name '{skillDto.SkillName}' already exists.");
+            }
+
             skill.SkillName = skillDto.SkillName;
             skill.SkillLevel = skillDto.SkillLevel;
             skill.Description = skillDto.Description;
