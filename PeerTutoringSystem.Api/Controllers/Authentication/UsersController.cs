@@ -108,6 +108,24 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
+        [HttpPost("{userId:guid}/unban")]
+        [AuthorizeAdmin]
+        public async Task<IActionResult> UnbanUser(Guid userId)
+        {
+            try
+            {
+                await _userService.UnbanUserAsync(userId);
+                return Ok(new { message = "User unbanned successfully." });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+            }
+        }
 
         [HttpPost("{userId:guid}/request-tutor")]
         [Authorize(Roles = "Student")]
