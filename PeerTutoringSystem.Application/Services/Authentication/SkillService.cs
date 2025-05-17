@@ -5,7 +5,6 @@ using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Services.Authentication
@@ -19,7 +18,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             _skillRepository = skillRepository;
         }
 
-        public async Task<SkillDto> AddAsync(SkillDto skillDto)
+        public async Task<SkillDto> AddAsync(Guid skillId, SkillDto skillDto)
         {
             if (string.IsNullOrWhiteSpace(skillDto.SkillName))
             {
@@ -34,6 +33,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
 
             var skill = new Skill
             {
+                SkillID = skillId,
                 SkillName = skillDto.SkillName,
                 SkillLevel = skillDto.SkillLevel,
                 Description = skillDto.Description
