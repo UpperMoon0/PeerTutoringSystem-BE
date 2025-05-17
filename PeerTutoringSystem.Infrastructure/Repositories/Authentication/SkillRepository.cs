@@ -5,7 +5,6 @@ using PeerTutoringSystem.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
@@ -21,7 +20,6 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
 
         public async Task<Skill> AddAsync(Skill skill)
         {
-            skill.SkillID = Guid.NewGuid();
             await _context.Skills.AddAsync(skill);
             await _context.SaveChangesAsync();
             return skill;
