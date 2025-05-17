@@ -10,6 +10,7 @@ namespace PeerTutoringSystem.Application.Interfaces.Authentication
         Task<UserDto> GetUserByIdAsync(Guid userId);
         Task UpdateUserAsync(Guid userId, UpdateUserDto dto);
         Task BanUserAsync(Guid userId);
+        Task UnbanUserAsync(Guid userId);
         Task<List<UserDto>> GetAllUsersAsync();
     }
 }
