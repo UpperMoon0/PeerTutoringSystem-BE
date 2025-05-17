@@ -15,6 +15,10 @@ using PeerTutoringSystem.Application.Services.Profile_Bio;
 using PeerTutoringSystem.Application.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio;
+using PeerTutoringSystem.Application.Interfaces.Skills;
+using PeerTutoringSystem.Domain.Interfaces.Skills;
+using PeerTutoringSystem.Infrastructure.Repositories.Skills;
+using PeerTutoringSystem.Application.DTOs.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +55,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 builder.Services.AddLogging();
+
 // Register services and repositories
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -62,6 +67,10 @@ builder.Services.AddScoped<ITutorVerificationRepository, TutorVerificationReposi
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IUserBioService, UserBioService>();
 builder.Services.AddScoped<IUserBioRepository, UserBioRepository>();
+builder.Services.AddScoped<ISkillRepository, SkillRepository>();
+builder.Services.AddScoped<IUserSkillRepository, UserSkillRepository>();
+builder.Services.AddScoped<ISkillService, SkillService>();
+builder.Services.AddScoped<IUserSkillService, UserSkillService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -99,6 +108,19 @@ builder.Services.AddSwaggerGen(c =>
             },
             Array.Empty<string>()
         }
+    });
+
+    // Cấu hình Swagger để loại bỏ SkillID khỏi request body của POST /api/skills
+    c.MapType<CreateSkillDto>(() => new OpenApiSchema
+    {
+        Type = "object",
+        Properties = new Dictionary<string, OpenApiSchema>
+        {
+            ["skillName"] = new OpenApiSchema { Type = "string" },
+            ["skillLevel"] = new OpenApiSchema { Type = "string" },
+            ["description"] = new OpenApiSchema { Type = "string" }
+        },
+        Required = new HashSet<string> { "skillName" }
     });
 });
 

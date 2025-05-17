@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using PeerTutoringSystem.Domain.Entities.Profile_Bio;
+using PeerTutoringSystem.Domain.Entities.Skills;
 
 namespace PeerTutoringSystem.Infrastructure.Data
 {
@@ -16,6 +17,8 @@ namespace PeerTutoringSystem.Infrastructure.Data
         public DbSet<TutorVerification> TutorVerifications { get; set; }
         public DbSet<Document> Documents { get; set; }
         public DbSet<UserBio> UserBio { get; set; }
+        public DbSet<Skill> Skills { get; set; }
+        public DbSet<UserSkill> UserSkills { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -121,6 +124,53 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .HasForeignKey<UserBio>(p => p.UserID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .IsRequired();
+
+            // Configure Skill entity
+            modelBuilder.Entity<Skill>()
+                .ToTable("Skills")
+                .HasKey(s => s.SkillID);
+
+            modelBuilder.Entity<Skill>()
+                .Property(s => s.SkillID)
+                .HasDefaultValueSql("NEWID()");
+
+            modelBuilder.Entity<Skill>()
+                .Property(s => s.SkillName)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            modelBuilder.Entity<Skill>()
+                .HasIndex(s => s.SkillName)
+                .IsUnique();
+
+            modelBuilder.Entity<Skill>()
+                .Property(s => s.SkillLevel)
+                .HasMaxLength(50);
+
+            modelBuilder.Entity<Skill>()
+                .Property(s => s.Description)
+                .HasMaxLength(500);
+
+            // Configure UserSkill entity
+            modelBuilder.Entity<UserSkill>()
+                .ToTable("UserSkills")
+                .HasKey(us => us.UserSkillID);
+
+            modelBuilder.Entity<UserSkill>()
+                .Property(us => us.UserSkillID)
+                .HasDefaultValueSql("NEWID()");
+
+            modelBuilder.Entity<UserSkill>()
+                .HasOne(us => us.User)
+                .WithMany()
+                .HasForeignKey(us => us.UserID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserSkill>()
+                .HasOne(us => us.Skill)
+                .WithMany()
+                .HasForeignKey(us => us.SkillID)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -154,3 +154,36 @@ VALUES (
     1, 'Active', 3
 );
 
+-- Create Skills Table
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Skills')
+BEGIN
+    CREATE TABLE Skills (
+        SkillID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        SkillName NVARCHAR(100) NOT NULL,
+        SkillLevel NVARCHAR(50) NULL CHECK (SkillLevel IN ('Beginner', 'Elementary', 'Intermediate', 'Advanced', 'Expert')),
+        Description NVARCHAR(500) NULL
+    );
+END;
+GO
+
+-- Nếu bảng đã tồn tại, xóa constraint cũ và thêm constraint mới
+IF EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CHK_SkillLevel' AND parent_object_id = OBJECT_ID('Skills'))
+BEGIN
+    ALTER TABLE Skills
+    DROP CONSTRAINT CHK_SkillLevel;
+END;
+
+ALTER TABLE Skills
+ADD CONSTRAINT CHK_SkillLevel CHECK (SkillLevel IN ('Beginner', 'Elementary', 'Intermediate', 'Advanced', 'Expert'));
+GO
+
+-- Tạo bảng UserSkills
+CREATE TABLE UserSkills (
+    UserSkillID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserID UNIQUEIDENTIFIER NOT NULL,
+    SkillID UNIQUEIDENTIFIER NOT NULL,
+    IsTutor BIT NOT NULL,
+    CONSTRAINT FK_UserSkills_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+    CONSTRAINT FK_UserSkills_Skills FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
+);
+
