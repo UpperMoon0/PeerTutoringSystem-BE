@@ -6,7 +6,6 @@ using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Services.Authentication
@@ -32,6 +31,12 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new InvalidOperationException($"User with ID '{userSkillDto.UserID}' does not exist.");
             }
 
+            var skill = await _skillRepository.GetByIdAsync(userSkillDto.SkillID);
+            if (skill == null)
+            {
+                throw new InvalidOperationException($"Skill with ID '{userSkillDto.SkillID}' does not exist.");
+            }
+
             var userSkill = new UserSkill
             {
                 UserID = userSkillDto.UserID,
@@ -39,7 +44,6 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 IsTutor = userSkillDto.IsTutor
             };
             var added = await _userSkillRepository.AddAsync(userSkill);
-            var skill = await _skillRepository.GetByIdAsync(added.SkillID);
             return new UserSkillDto
             {
                 UserSkillID = added.UserSkillID,
@@ -56,22 +60,43 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             };
         }
 
-        public async Task<IEnumerable<UserSkillDto>> GetAllAsync()
+        public async Task<IEnumerable<UserSkillDto>> GetByUserIdAsync(Guid userId)
         {
-            var userSkills = await _userSkillRepository.GetAllAsync();
+            var userSkills = await _userSkillRepository.GetByUserIdAsync(userId);
+            var skills = await _skillRepository.GetAllAsync();
             return userSkills.Select(us => new UserSkillDto
             {
                 UserSkillID = us.UserSkillID,
                 UserID = us.UserID,
                 SkillID = us.SkillID,
                 IsTutor = us.IsTutor,
-                Skill = new SkillDto
+                Skill = skills.FirstOrDefault(s => s.SkillID == us.SkillID) != null ? new SkillDto
                 {
-                    SkillID = us.Skill.SkillID,
-                    SkillName = us.Skill.SkillName,
-                    SkillLevel = us.Skill.SkillLevel,
-                    Description = us.Skill.Description
-                }
+                    SkillID = skills.First(s => s.SkillID == us.SkillID).SkillID,
+                    SkillName = skills.First(s => s.SkillID == us.SkillID).SkillName,
+                    SkillLevel = skills.First(s => s.SkillID == us.SkillID).SkillLevel,
+                    Description = skills.First(s => s.SkillID == us.SkillID).Description
+                } : null
+            });
+        }
+
+        public async Task<IEnumerable<UserSkillDto>> GetAllAsync()
+        {
+            var userSkills = await _userSkillRepository.GetAllAsync();
+            var skills = await _skillRepository.GetAllAsync();
+            return userSkills.Select(us => new UserSkillDto
+            {
+                UserSkillID = us.UserSkillID,
+                UserID = us.UserID,
+                SkillID = us.SkillID,
+                IsTutor = us.IsTutor,
+                Skill = skills.FirstOrDefault(s => s.SkillID == us.SkillID) != null ? new SkillDto
+                {
+                    SkillID = skills.First(s => s.SkillID == us.SkillID).SkillID,
+                    SkillName = skills.First(s => s.SkillID == us.SkillID).SkillName,
+                    SkillLevel = skills.First(s => s.SkillID == us.SkillID).SkillLevel,
+                    Description = skills.First(s => s.SkillID == us.SkillID).Description
+                } : null
             });
         }
 
@@ -81,6 +106,27 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             if (userSkill == null) return false;
             await _userSkillRepository.DeleteAsync(userSkillId);
             return true;
+        }
+
+        public async Task<UserSkillDto> GetByIdAsync(Guid userSkillId)
+        {
+            var userSkill = await _userSkillRepository.GetByIdAsync(userSkillId);
+            if (userSkill == null) return null;
+            var skill = await _skillRepository.GetByIdAsync(userSkill.SkillID);
+            return new UserSkillDto
+            {
+                UserSkillID = userSkill.UserSkillID,
+                UserID = userSkill.UserID,
+                SkillID = userSkill.SkillID,
+                IsTutor = userSkill.IsTutor,
+                Skill = skill != null ? new SkillDto
+                {
+                    SkillID = skill.SkillID,
+                    SkillName = skill.SkillName,
+                    SkillLevel = skill.SkillLevel,
+                    Description = skill.Description
+                } : null
+            };
         }
     }
 }
