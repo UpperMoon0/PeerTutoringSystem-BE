@@ -5,7 +5,6 @@ using PeerTutoringSystem.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
@@ -50,6 +49,14 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
                 await _context.SaveChangesAsync();
             }
             return userSkill;
+        }
+
+        public async Task<IEnumerable<UserSkill>> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.UserSkills
+                .Include(us => us.Skill)
+                .Where(us => us.UserID == userId)
+                .ToListAsync();
         }
     }
 }
