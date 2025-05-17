@@ -1,9 +1,9 @@
-﻿using PeerTutoringSystem.Application.DTOs.Authentication;
+﻿using PeerTutoringSystem.Application.DTOs.Skills;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Application.Interfaces.Authentication
+namespace PeerTutoringSystem.Application.Interfaces.Skills
 {
     public interface IUserSkillService
     {

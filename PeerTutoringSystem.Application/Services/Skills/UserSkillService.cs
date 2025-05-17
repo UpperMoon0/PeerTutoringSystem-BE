@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PeerTutoringSystem.Application.DTOs.Authentication;
-using PeerTutoringSystem.Application.Interfaces.Authentication;
+using PeerTutoringSystem.Application.DTOs.Skills;
+using PeerTutoringSystem.Application.Interfaces.Skills;
 using PeerTutoringSystem.Domain.Entities.Authentication;
-using PeerTutoringSystem.Domain.Interfaces.Authentication;
+using PeerTutoringSystem.Domain.Entities.Skills;
+using PeerTutoringSystem.Domain.Interfaces.Skills;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Application.Services.Authentication
+namespace PeerTutoringSystem.Application.Services.Skills
 {
     public class UserSkillService : IUserSkillService
     {

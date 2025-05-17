@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PeerTutoringSystem.Domain.Entities.Authentication;
-using PeerTutoringSystem.Domain.Interfaces.Authentication;
+using PeerTutoringSystem.Domain.Entities.Skills;
+using PeerTutoringSystem.Domain.Interfaces.Skills;
 using PeerTutoringSystem.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
+namespace PeerTutoringSystem.Infrastructure.Repositories.Skills
 {
     public class SkillRepository : ISkillRepository
     {

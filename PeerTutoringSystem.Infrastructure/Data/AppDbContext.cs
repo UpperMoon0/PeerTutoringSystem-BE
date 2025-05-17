@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using PeerTutoringSystem.Domain.Entities.Profile_Bio;
+using PeerTutoringSystem.Domain.Entities.Skills;
 
 namespace PeerTutoringSystem.Infrastructure.Data
 {

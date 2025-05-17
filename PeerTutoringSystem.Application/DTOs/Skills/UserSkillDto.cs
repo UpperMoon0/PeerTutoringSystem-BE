@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Application.DTOs.Authentication
+namespace PeerTutoringSystem.Application.DTOs.Skills
 {
     public class UserSkillDto
     {

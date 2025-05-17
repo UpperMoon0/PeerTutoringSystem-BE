@@ -1,9 +1,9 @@
-﻿using PeerTutoringSystem.Domain.Entities.Authentication;
+﻿using PeerTutoringSystem.Domain.Entities.Skills;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Domain.Interfaces.Authentication
+namespace PeerTutoringSystem.Domain.Interfaces.Skills
 {
     public interface IUserSkillRepository
     {

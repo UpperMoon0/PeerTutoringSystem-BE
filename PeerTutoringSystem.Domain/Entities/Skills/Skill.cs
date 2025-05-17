@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Domain.Entities.Authentication
+namespace PeerTutoringSystem.Domain.Entities.Skills
 {
     public class Skill
     {

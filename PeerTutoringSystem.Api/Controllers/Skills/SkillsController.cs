@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Application.DTOs.Authentication;
+using PeerTutoringSystem.Application.DTOs.Skills;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
+using PeerTutoringSystem.Application.Interfaces.Skills;
 using System;
 using System.Security.Claims;
 
@@ -23,12 +25,11 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Add([FromBody] SkillDto skillDto)
+        public async Task<IActionResult> Add([FromBody] CreateSkillDto skillDto)
         {
             try
             {
-                var skillId = Guid.NewGuid();
-                var skill = await _skillService.AddAsync(skillId, skillDto);
+                var skill = await _skillService.AddAsync(skillDto);
                 return Ok(new { SkillID = skill.SkillID });
             }
             catch (InvalidOperationException ex)

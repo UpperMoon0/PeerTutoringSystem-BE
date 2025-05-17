@@ -1,10 +1,11 @@
-﻿using System;
+﻿using PeerTutoringSystem.Domain.Entities.Authentication;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PeerTutoringSystem.Domain.Entities.Authentication
+namespace PeerTutoringSystem.Domain.Entities.Skills
 {
     public class UserSkill
     {
