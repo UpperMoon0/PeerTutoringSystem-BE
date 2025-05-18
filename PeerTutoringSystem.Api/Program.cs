@@ -19,6 +19,10 @@ using PeerTutoringSystem.Application.Interfaces.Skills;
 using PeerTutoringSystem.Domain.Interfaces.Skills;
 using PeerTutoringSystem.Infrastructure.Repositories.Skills;
 using PeerTutoringSystem.Application.DTOs.Authentication;
+using PeerTutoringSystem.Application.Interfaces.Booking;
+using PeerTutoringSystem.Infrastructure.Repositories.Booking;
+using PeerTutoringSystem.Application.Services.Booking;
+using PeerTutoringSystem.Domain.Interfaces.Booking;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +75,11 @@ builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IUserSkillRepository, UserSkillRepository>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IUserSkillService, UserSkillService>();
+builder.Services.AddScoped<ITutorAvailabilityRepository, TutorAvailabilityRepository>();
+builder.Services.AddScoped<IBookingSessionRepository, BookingSessionRepository>();
+builder.Services.AddScoped<ITutorAvailabilityService, TutorAvailabilityService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
+
 
 // Add CORS
 builder.Services.AddCors(options =>
