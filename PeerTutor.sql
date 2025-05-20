@@ -133,26 +133,54 @@ BEGIN
 END;
 GO
 
--- Create Indexes
-CREATE NONCLUSTERED INDEX IX_Users_Email ON Users(Email);
-IF EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Users_FirebaseUid' AND object_id = OBJECT_ID('Users'))
+-- Create TutorAvailabilities Table
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'TutorAvailabilities')
 BEGIN
-    DROP INDEX IX_Users_FirebaseUid ON Users;
-END
-CREATE UNIQUE NONCLUSTERED INDEX IX_Users_FirebaseUid ON Users(FirebaseUid) WHERE FirebaseUid IS NOT NULL AND FirebaseUid != '';
-CREATE NONCLUSTERED INDEX IX_TutorVerifications_CitizenID ON TutorVerifications(CitizenID);
-CREATE NONCLUSTERED INDEX IX_TutorVerifications_StudentID ON TutorVerifications(StudentID);
+    CREATE TABLE TutorAvailabilities (
+        AvailabilityId UNIQUEIDENTIFIER PRIMARY KEY,
+        TutorId UNIQUEIDENTIFIER NOT NULL,
+        StartTime DATETIME NOT NULL,
+        EndTime DATETIME NOT NULL,
+        IsRecurring BIT NOT NULL DEFAULT 0,
+        RecurringDay NVARCHAR(10) NULL, -- Store as string representation of DayOfWeek
+        RecurrenceEndDate DATETIME NULL,
+        IsBooked BIT NOT NULL DEFAULT 0,
+        CONSTRAINT FK_TutorAvailabilities_Users FOREIGN KEY (TutorId) REFERENCES Users(UserID)
+    );
+    
+    CREATE NONCLUSTERED INDEX IX_TutorAvailabilities_TutorId ON TutorAvailabilities(TutorId);
+    CREATE NONCLUSTERED INDEX IX_TutorAvailabilities_TimeRange ON TutorAvailabilities(StartTime, EndTime);
+END;
 GO
 
-INSERT INTO Users (
-    UserID, FullName, Email, PasswordHash, DateOfBirth, PhoneNumber, 
-    Gender, Hometown, CreatedDate, LastActive, IsOnline, Status, RoleID
-)
-VALUES (
-    NEWID(), 'Admin User', 'admin@example.com', 'AQAAAAIAAYagAAAAEBu/GxeoOcRJL1/6fxnjfarakRdfsAj/7K5s0ne2VbAgAPflGYuWWVjKGlEbKpNpCQ==', 
-    '1990-01-01', '1234567890', 'Male', 'Hanoi', GETUTCDATE(), GETUTCDATE(), 
-    1, 'Active', 3
-);
+-- Create BookingSessions Table with BookingStatus enum represented as string
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'BookingSessions')
+BEGIN
+    CREATE TABLE BookingSessions (
+        BookingId UNIQUEIDENTIFIER PRIMARY KEY,
+        StudentId UNIQUEIDENTIFIER NOT NULL,
+        TutorId UNIQUEIDENTIFIER NOT NULL,
+        AvailabilityId UNIQUEIDENTIFIER NOT NULL,
+        SessionDate DATE NOT NULL,
+        StartTime DATETIME NOT NULL,
+        EndTime DATETIME NOT NULL,
+        SkillId UNIQUEIDENTIFIER NULL,
+        Topic NVARCHAR(100) NOT NULL,
+        Description NVARCHAR(500) NULL,
+        Status NVARCHAR(20) NOT NULL CHECK (Status IN ('Pending', 'Confirmed', 'Cancelled', 'Completed')),
+        CreatedAt DATETIME NOT NULL,
+        UpdatedAt DATETIME NULL,
+        CONSTRAINT FK_BookingSessions_Students FOREIGN KEY (StudentId) REFERENCES Users(UserID),
+        CONSTRAINT FK_BookingSessions_Tutors FOREIGN KEY (TutorId) REFERENCES Users(UserID),
+        CONSTRAINT FK_BookingSessions_Availabilities FOREIGN KEY (AvailabilityId) REFERENCES TutorAvailabilities(AvailabilityId)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_BookingSessions_StudentId ON BookingSessions(StudentId);
+    CREATE NONCLUSTERED INDEX IX_BookingSessions_TutorId ON BookingSessions(TutorId);
+    CREATE NONCLUSTERED INDEX IX_BookingSessions_Status ON BookingSessions(Status);
+    CREATE NONCLUSTERED INDEX IX_BookingSessions_TimeRange ON BookingSessions(StartTime, EndTime);
+END;
+GO
 
 -- Create Skills Table
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Skills')
@@ -186,4 +214,26 @@ CREATE TABLE UserSkills (
     CONSTRAINT FK_UserSkills_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
     CONSTRAINT FK_UserSkills_Skills FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
 );
+GO
 
+-- Create Indexes
+CREATE NONCLUSTERED INDEX IX_Users_Email ON Users(Email);
+IF EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Users_FirebaseUid' AND object_id = OBJECT_ID('Users'))
+BEGIN
+    DROP INDEX IX_Users_FirebaseUid ON Users;
+END;
+CREATE UNIQUE NONCLUSTERED INDEX IX_Users_FirebaseUid ON Users(FirebaseUid) WHERE FirebaseUid IS NOT NULL AND FirebaseUid != '';
+CREATE NONCLUSTERED INDEX IX_TutorVerifications_CitizenID ON TutorVerifications(CitizenID);
+CREATE NONCLUSTERED INDEX IX_TutorVerifications_StudentID ON TutorVerifications(StudentID);
+GO
+
+INSERT INTO Users (
+    UserID, FullName, Email, PasswordHash, DateOfBirth, PhoneNumber, 
+    Gender, Hometown, CreatedDate, LastActive, IsOnline, Status, RoleID
+)
+VALUES (
+    NEWID(), 'Admin User', 'admin@example.com', 'AQAAAAIAAYagAAAAEBu/GxeoOcRJL1/6fxnjfarakRdfsAj/7K5s0ne2VbAgAPflGYuWWVjKGlEbKp ринNpCQ==', 
+    '1990-01-01', '1234567890', 'Male', 'Hanoi', GETUTCDATE(), GETUTCDATE(), 
+    1, 'Active', 3
+);
+GO
