@@ -93,7 +93,14 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException());
             if (userId != userSkillDto.UserID && !User.IsInRole("Admin"))
-                return Forbid();
+                return StatusCode(403, new { message = "You are not authorized to assign skills for another user." });
+
+            // Kiểm tra nếu IsTutor = true, người dùng phải có vai trò Tutor
+            if (userSkillDto.IsTutor && !User.IsInRole("Tutor") && !User.IsInRole("Admin"))
+            {
+                return StatusCode(403, new { message = "Only users with Tutor role or Admins can assign a skill as a tutor." });
+            }
+
             try
             {
                 var added = await _userSkillService.AddAsync(userSkillDto);
@@ -128,7 +135,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             if (userSkill == null) return NotFound();
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException());
             if (userId != userSkill.UserID && !User.IsInRole("Admin"))
-                return Forbid();
+                return StatusCode(403, new { message = "You are not authorized to delete this skill association." });
             var success = await _userSkillService.DeleteAsync(userSkillId);
             if (!success) return NotFound();
             return Ok(new { message = "Deleted successfully" });
