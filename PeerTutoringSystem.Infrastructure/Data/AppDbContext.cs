@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PeerTutoringSystem.Domain.Entities.Authentication;
+using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Entities.Profile_Bio;
 using PeerTutoringSystem.Domain.Entities.Skills;
 
@@ -19,6 +20,8 @@ namespace PeerTutoringSystem.Infrastructure.Data
         public DbSet<UserBio> UserBio { get; set; }
         public DbSet<Skill> Skills { get; set; }
         public DbSet<UserSkill> UserSkills { get; set; }
+        public DbSet<TutorAvailability> TutorAvailabilities { get; set; }
+        public DbSet<BookingSession> BookingSessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -171,6 +174,22 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(us => us.SkillID)
                 .OnDelete(DeleteBehavior.Cascade);
+            // Configure BookingSession entity
+            modelBuilder.Entity<BookingSession>(entity =>
+            {
+                entity.HasKey(e => e.BookingId);
+                entity.Property(e => e.Topic).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.Status).HasConversion<string>();
+            });
+
+            // Configure TutorAvailability entity
+            modelBuilder.Entity<TutorAvailability>(entity =>
+            {
+                entity.HasKey(e => e.AvailabilityId);
+                entity.Property(e => e.RecurringDay).HasConversion<string>();
+            });
         }
     }
+
 }
