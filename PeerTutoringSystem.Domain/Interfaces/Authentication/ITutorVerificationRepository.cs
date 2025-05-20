@@ -12,5 +12,6 @@ namespace PeerTutoringSystem.Domain.Interfaces.Authentication
         Task<IEnumerable<TutorVerification>> GetAllAsync();
         Task UpdateAsync(TutorVerification verification);
         Task<IEnumerable<TutorVerification>> GetByUserIdAsync(Guid userId);
+        Task<TutorVerification> GetLatestVerificationAsync(Guid userId);
     }
 }
