@@ -7,7 +7,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging; 
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace PeerTutoringSystem.Application.Services.Authentication
 {
@@ -16,13 +17,13 @@ namespace PeerTutoringSystem.Application.Services.Authentication
         private readonly ITutorVerificationRepository _tutorVerificationRepository;
         private readonly IDocumentRepository _documentRepository;
         private readonly IUserRepository _userRepository;
-        private readonly ILogger<TutorVerificationService> _logger; 
+        private readonly ILogger<TutorVerificationService> _logger;
 
         public TutorVerificationService(
             ITutorVerificationRepository tutorVerificationRepository,
             IDocumentRepository documentRepository,
             IUserRepository userRepository,
-            ILogger<TutorVerificationService> logger) 
+            ILogger<TutorVerificationService> logger)
         {
             _tutorVerificationRepository = tutorVerificationRepository;
             _documentRepository = documentRepository;
@@ -32,11 +33,9 @@ namespace PeerTutoringSystem.Application.Services.Authentication
 
         public async Task<Guid> RequestTutorAsync(Guid userId, RequestTutorDto dto)
         {
-            // Validate DTO
             ValidateDto(dto);
             _logger.LogInformation("Starting tutor verification request for user ID: {UserId}", userId);
 
-            // Kiểm tra người dùng
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null || user.Status != UserStatus.Active)
             {
@@ -49,11 +48,9 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new ValidationException("Only students can request tutor role.");
             }
 
-            // Kiểm tra xem user đã gửi yêu cầu trước đó chưa
             var existingVerifications = await GetVerificationsByUserIdAsync(userId);
             if (existingVerifications.Any())
             {
-                // Sắp xếp theo VerificationDate, nếu null thì dùng giá trị mặc định là DateTime.MinValue
                 var latestVerification = existingVerifications
                     .OrderByDescending(v => v.VerificationDate ?? DateTime.MinValue)
                     .First();
@@ -68,11 +65,9 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                     _logger.LogWarning("User ID: {UserId} is already a tutor.", userId);
                     throw new ValidationException("You are already a tutor. No need to request again.");
                 }
-                // Nếu trạng thái là "Rejected", cho phép gửi yêu cầu mới (tiếp tục logic bên dưới)
                 _logger.LogInformation("Previous request for user ID: {UserId} was rejected. Allowing new request.", userId);
             }
 
-            // Tạo bản ghi TutorVerification
             var verification = new TutorVerification
             {
                 VerificationID = Guid.NewGuid(),
@@ -83,12 +78,11 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 Major = dto.Major,
                 VerificationStatus = "Pending",
                 AccessLevel = "Tutor",
-                VerificationDate = DateTime.UtcNow // Đặt thời gian tạo yêu cầu
+                VerificationDate = DateTime.UtcNow
             };
             await _tutorVerificationRepository.AddAsync(verification);
             _logger.LogInformation("Created tutor verification request with ID: {VerificationId} for user ID: {UserId}", verification.VerificationID, userId);
 
-            // Xử lý tài liệu
             foreach (var doc in dto.Documents)
             {
                 var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", doc.DocumentPath.TrimStart('/'));
@@ -266,6 +260,23 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 _logger.LogWarning("Validation failed for DTO: {Errors}", errors);
                 throw new ValidationException(errors);
             }
+        }
+
+        public async Task<(bool HasVerification, string LatestStatus)> HasPendingOrApprovedTutorVerificationAsync(Guid userId, params string[] statuses)
+        {
+            _logger.LogInformation("Checking tutor verification status for user ID: {UserId} with statuses: {Statuses}", userId, string.Join(", ", statuses));
+
+            var latestVerification = await _tutorVerificationRepository.GetLatestVerificationAsync(userId);
+            if (latestVerification == null)
+            {
+                _logger.LogInformation("No verification found for user ID: {UserId}", userId);
+                return (false, "None");
+            }
+
+            var hasVerification = statuses.Contains(latestVerification.VerificationStatus);
+            _logger.LogInformation("User ID: {UserId} has verification status: {Status}, result: {HasVerification}", userId, latestVerification.VerificationStatus, hasVerification);
+
+            return (hasVerification, latestVerification.VerificationStatus);
         }
     }
 }
