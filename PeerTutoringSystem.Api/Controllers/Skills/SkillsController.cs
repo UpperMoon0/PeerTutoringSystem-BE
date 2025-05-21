@@ -113,12 +113,10 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException());
             if (userId != userSkillDto.UserID && !User.IsInRole("Admin"))
-                return StatusCode(403, new { message = "You are not authorized to assign skills for another user." });
+                return StatusCode(403, new { message = "You are not authorized to assegn skills for another user." });
 
             if (userSkillDto.IsTutor && !User.IsInRole("Tutor") && !User.IsInRole("Admin"))
-            {
                 return StatusCode(403, new { message = "Only users with Tutor role or Admins can assign a skill as a tutor." });
-            }
 
             try
             {
