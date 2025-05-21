@@ -88,6 +88,26 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             }
         }
 
+        [HttpDelete("{skillId:guid}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(Guid skillId)
+        {
+            try
+            {
+                var success = await _skillService.DeleteAsync(skillId);
+                if (!success) return NotFound(new { message = "Skill not found." });
+                return Ok(new { message = "Skill deleted successfully." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
+        }
+
         [HttpPost("user-skills")]
         public async Task<IActionResult> AddUserSkill([FromBody] UserSkillDto userSkillDto)
         {
@@ -95,7 +115,6 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             if (userId != userSkillDto.UserID && !User.IsInRole("Admin"))
                 return StatusCode(403, new { message = "You are not authorized to assign skills for another user." });
 
-            // Kiểm tra nếu IsTutor = true, người dùng phải có vai trò Tutor
             if (userSkillDto.IsTutor && !User.IsInRole("Tutor") && !User.IsInRole("Admin"))
             {
                 return StatusCode(403, new { message = "Only users with Tutor role or Admins can assign a skill as a tutor." });
