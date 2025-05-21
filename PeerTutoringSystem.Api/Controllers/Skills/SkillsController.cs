@@ -113,12 +113,10 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException());
             if (userId != userSkillDto.UserID && !User.IsInRole("Admin"))
-                return StatusCode(403, new { message = "You are not authorized to assign skills for another user." });
+                return StatusCode(403, new { message = "You are not authorized to assegn skills for another user." });
 
             if (userSkillDto.IsTutor && !User.IsInRole("Tutor") && !User.IsInRole("Admin"))
-            {
                 return StatusCode(403, new { message = "Only users with Tutor role or Admins can assign a skill as a tutor." });
-            }
 
             try
             {
@@ -138,13 +136,28 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         [HttpGet("user-skills/{userId:guid}")]
         public async Task<IActionResult> GetUserSkills(Guid userId)
         {
-            var skills = await _userSkillService.GetByUserIdAsync(userId);
-            return Ok(skills.Select(us => new
+            var userSkills = await _userSkillService.GetByUserIdAsync(userId);
+            var result = new List<object>();
+
+            foreach (var us in userSkills)
             {
-                UserSkillID = us.UserSkillID,
-                SkillID = us.SkillID,
-                IsTutor = us.IsTutor
-            }));
+                var skill = await _skillService.GetByIdAsync(us.SkillID);
+                result.Add(new
+                {
+                    UserSkillID = us.UserSkillID,
+                    SkillID = us.SkillID,
+                    IsTutor = us.IsTutor,
+                    Skill = skill != null ? new
+                    {
+                        SkillID = skill.SkillID,
+                        SkillName = skill.SkillName,
+                        SkillLevel = skill.SkillLevel,
+                        Description = skill.Description
+                    } : null
+                });
+            }
+
+            return Ok(result);
         }
 
         [HttpDelete("user-skills/{userSkillId:guid}")]
