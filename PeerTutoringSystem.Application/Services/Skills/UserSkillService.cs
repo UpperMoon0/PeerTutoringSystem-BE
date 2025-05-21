@@ -41,24 +41,19 @@ namespace PeerTutoringSystem.Application.Services.Authentication
 
             var userSkill = new UserSkill
             {
+                UserSkillID = Guid.NewGuid(),
                 UserID = userSkillDto.UserID,
                 SkillID = userSkillDto.SkillID,
                 IsTutor = userSkillDto.IsTutor
             };
             var added = await _userSkillRepository.AddAsync(userSkill);
+
             return new UserSkillDto
             {
                 UserSkillID = added.UserSkillID,
                 UserID = added.UserID,
                 SkillID = added.SkillID,
-                IsTutor = added.IsTutor,
-                Skill = new SkillDto
-                {
-                    SkillID = skill.SkillID,
-                    SkillName = skill.SkillName,
-                    SkillLevel = skill.SkillLevel, // Đã là string
-                    Description = skill.Description
-                }
+                IsTutor = added.IsTutor
             };
         }
 
@@ -70,14 +65,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 UserSkillID = us.UserSkillID,
                 UserID = us.UserID,
                 SkillID = us.SkillID,
-                IsTutor = us.IsTutor,
-                Skill = us.Skill != null ? new SkillDto
-                {
-                    SkillID = us.Skill.SkillID,
-                    SkillName = us.Skill.SkillName,
-                    SkillLevel = us.Skill.SkillLevel, // Đã là string
-                    Description = us.Skill.Description
-                } : null
+                IsTutor = us.IsTutor
             });
         }
 
@@ -89,14 +77,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 UserSkillID = us.UserSkillID,
                 UserID = us.UserID,
                 SkillID = us.SkillID,
-                IsTutor = us.IsTutor,
-                Skill = us.Skill != null ? new SkillDto
-                {
-                    SkillID = us.Skill.SkillID,
-                    SkillName = us.Skill.SkillName,
-                    SkillLevel = us.Skill.SkillLevel, // Đã là string
-                    Description = us.Skill.Description
-                } : null
+                IsTutor = us.IsTutor
             });
         }
 
@@ -117,14 +98,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 UserSkillID = userSkill.UserSkillID,
                 UserID = userSkill.UserID,
                 SkillID = userSkill.SkillID,
-                IsTutor = userSkill.IsTutor,
-                Skill = userSkill.Skill != null ? new SkillDto
-                {
-                    SkillID = userSkill.Skill.SkillID,
-                    SkillName = userSkill.Skill.SkillName,
-                    SkillLevel = userSkill.Skill.SkillLevel, // Đã là string
-                    Description = userSkill.Skill.Description
-                } : null
+                IsTutor = userSkill.IsTutor
             };
         }
     }

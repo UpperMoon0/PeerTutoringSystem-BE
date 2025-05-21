@@ -136,13 +136,28 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         [HttpGet("user-skills/{userId:guid}")]
         public async Task<IActionResult> GetUserSkills(Guid userId)
         {
-            var skills = await _userSkillService.GetByUserIdAsync(userId);
-            return Ok(skills.Select(us => new
+            var userSkills = await _userSkillService.GetByUserIdAsync(userId);
+            var result = new List<object>();
+
+            foreach (var us in userSkills)
             {
-                UserSkillID = us.UserSkillID,
-                SkillID = us.SkillID,
-                IsTutor = us.IsTutor
-            }));
+                var skill = await _skillService.GetByIdAsync(us.SkillID);
+                result.Add(new
+                {
+                    UserSkillID = us.UserSkillID,
+                    SkillID = us.SkillID,
+                    IsTutor = us.IsTutor,
+                    Skill = skill != null ? new
+                    {
+                        SkillID = skill.SkillID,
+                        SkillName = skill.SkillName,
+                        SkillLevel = skill.SkillLevel,
+                        Description = skill.Description
+                    } : null
+                });
+            }
+
+            return Ok(result);
         }
 
         [HttpDelete("user-skills/{userSkillId:guid}")]
