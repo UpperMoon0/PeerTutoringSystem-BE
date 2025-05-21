@@ -5,6 +5,8 @@ using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.Interfaces.Booking;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging;
+using PeerTutoringSystem.Domain.Entities.Booking;
 
 namespace PeerTutoringSystem.Api.Controllers.Booking
 {
@@ -14,10 +16,12 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
     public class BookingsController : ControllerBase
     {
         private readonly IBookingService _bookingService;
+        private readonly ILogger<BookingsController> _logger;
 
-        public BookingsController(IBookingService bookingService)
+        public BookingsController(IBookingService bookingService, ILogger<BookingsController> logger)
         {
             _bookingService = bookingService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -38,6 +42,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Unexpected error while creating booking.");
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
@@ -60,6 +65,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Unexpected error while retrieving student bookings.");
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
@@ -82,6 +88,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Unexpected error while retrieving tutor bookings.");
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
@@ -104,6 +111,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Unexpected error while retrieving upcoming bookings.");
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
@@ -132,6 +140,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Unexpected error while retrieving booking {BookingId}.", bookingId);
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
@@ -141,6 +150,12 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         {
             try
             {
+                // Validate the status field
+                if (string.IsNullOrEmpty(dto.Status) || !Enum.TryParse<BookingStatus>(dto.Status, true, out _))
+                {
+                    return BadRequest(new { error = "Invalid booking status. Valid values are: Pending, Confirmed, Completed, Cancelled." });
+                }
+
                 var booking = await _bookingService.GetBookingByIdAsync(bookingId);
                 if (booking == null)
                     return NotFound(new { error = "Booking not found." });
@@ -150,11 +165,12 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                 var isAdmin = User.IsInRole("Admin");
 
                 // Student can only cancel their own bookings
-                if (dto.Status == "Cancelled" && booking.StudentId != userId && !isAdmin)
+                if (dto.Status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) && booking.StudentId != userId && !isAdmin)
                     return StatusCode(403, new { error = "You do not have permission to cancel this booking." });
 
                 // Tutor can only confirm or complete bookings
-                if ((dto.Status == "Confirmed" || dto.Status == "Completed") &&
+                if ((dto.Status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase) ||
+                     dto.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase)) &&
                     booking.TutorId != userId && !isAdmin)
                     return StatusCode(403, new { error = "You do not have permission to update this booking status." });
 
@@ -167,6 +183,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Unexpected error while updating booking status for booking {BookingId}.", bookingId);
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
