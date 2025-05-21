@@ -58,5 +58,13 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Skills
                 .Where(us => us.UserID == userId)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<UserSkill>> GetBySkillIdAsync(Guid skillId)
+        {
+            return await _context.UserSkills
+                .Include(us => us.Skill)
+                .Where(us => us.SkillID == skillId)
+                .ToListAsync();
+        }
     }
 }

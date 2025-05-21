@@ -12,10 +12,12 @@ namespace PeerTutoringSystem.Application.Services.Authentication
     public class SkillService : ISkillService
     {
         private readonly ISkillRepository _skillRepository;
+        private readonly IUserSkillRepository _userSkillRepository;
 
-        public SkillService(ISkillRepository skillRepository)
+        public SkillService(ISkillRepository skillRepository, IUserSkillRepository userSkillRepository)
         {
             _skillRepository = skillRepository;
+            _userSkillRepository = userSkillRepository;
         }
 
         public async Task<SkillDto> AddAsync(CreateSkillDto skillDto)
@@ -25,7 +27,6 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new InvalidOperationException("SkillName is required.");
             }
 
-            // Kiểm tra và chuyển đổi SkillLevel
             string skillLevelStr = ValidateSkillLevel(skillDto.SkillLevel);
 
             var existingSkill = await _skillRepository.GetByNameAsync(skillDto.SkillName);
@@ -38,7 +39,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 SkillID = Guid.NewGuid(),
                 SkillName = skillDto.SkillName,
-                SkillLevel = skillLevelStr, // Lưu dưới dạng string vào database
+                SkillLevel = skillLevelStr,
                 Description = skillDto.Description
             };
             var added = await _skillRepository.AddAsync(skill);
@@ -46,7 +47,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 SkillID = added.SkillID,
                 SkillName = added.SkillName,
-                SkillLevel = added.SkillLevel, // Trả về dưới dạng string
+                SkillLevel = added.SkillLevel,
                 Description = added.Description
             };
         }
@@ -59,7 +60,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 SkillID = skill.SkillID,
                 SkillName = skill.SkillName,
-                SkillLevel = skill.SkillLevel, // Trả về dưới dạng string
+                SkillLevel = skill.SkillLevel,
                 Description = skill.Description
             };
         }
@@ -71,7 +72,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 SkillID = s.SkillID,
                 SkillName = s.SkillName,
-                SkillLevel = s.SkillLevel, // Trả về dưới dạng string
+                SkillLevel = s.SkillLevel,
                 Description = s.Description
             });
         }
@@ -83,7 +84,6 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new InvalidOperationException("SkillName is required.");
             }
 
-            // Kiểm tra và chuyển đổi SkillLevel
             string skillLevelStr = ValidateSkillLevel(skillDto.SkillLevel);
 
             var skill = await _skillRepository.GetByIdAsync(skillId);
@@ -103,12 +103,30 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 SkillID = updated.SkillID,
                 SkillName = updated.SkillName,
-                SkillLevel = updated.SkillLevel, // Trả về dưới dạng string
+                SkillLevel = updated.SkillLevel,
                 Description = updated.Description
             };
         }
 
-        // Phương thức hỗ trợ để kiểm tra và chuyển đổi skillLevel
+        public async Task<bool> DeleteAsync(Guid skillId)
+        {
+            var skill = await _skillRepository.GetByIdAsync(skillId);
+            if (skill == null)
+            {
+                return false;
+            }
+
+            // Check if the skill is associated with any users
+            var userSkills = await _userSkillRepository.GetBySkillIdAsync(skillId);
+            if (userSkills.Any())
+            {
+                throw new InvalidOperationException("Cannot delete skill because it is associated with one or more users.");
+            }
+
+            await _skillRepository.DeleteAsync(skillId);
+            return true;
+        }
+
         private string ValidateSkillLevel(string skillLevelStr)
         {
             if (string.IsNullOrEmpty(skillLevelStr))

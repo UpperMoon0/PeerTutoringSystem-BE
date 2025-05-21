@@ -12,5 +12,6 @@ namespace PeerTutoringSystem.Domain.Interfaces.Skills
         Task<UserSkill> GetByIdAsync(Guid userSkillId);
         Task<UserSkill> DeleteAsync(Guid userSkillId);
         Task<IEnumerable<UserSkill>> GetByUserIdAsync(Guid userId);
+        Task<IEnumerable<UserSkill>> GetBySkillIdAsync(Guid skillId);
     }
 }

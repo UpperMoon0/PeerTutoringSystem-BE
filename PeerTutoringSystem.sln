@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeerTutoringSystem.Infrastr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeerTutoringSystem.Api", "PeerTutoringSystem.Api\PeerTutoringSystem.Api.csproj", "{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeerTutoringSystem.Tests", "PeerTutoringSystem.Tests\PeerTutoringSystem.Tests.csproj", "{5C9FD8DF-BBFB-469C-B03B-425EF153ED40}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5C9FD8DF-BBFB-469C-B03B-425EF153ED40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C9FD8DF-BBFB-469C-B03B-425EF153ED40}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5C9FD8DF-BBFB-469C-B03B-425EF153ED40}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C9FD8DF-BBFB-469C-B03B-425EF153ED40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

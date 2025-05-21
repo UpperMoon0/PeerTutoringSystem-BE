@@ -1,5 +1,4 @@
-﻿// PeerTutoringSystem.Application/Services/Booking/BookingService.cs
-using PeerTutoringSystem.Application.DTOs.Booking;
+﻿using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Entities.Booking;
@@ -176,20 +175,20 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
             try
             {
-                var student = await _userService.GetUserByIdAsync(booking.StudentId.ToString());
+                var student = await _userService.GetUserByIdAsync(booking.StudentId);
                 if (student != null)
                 {
-                    studentName = $"{student.FirstName} {student.LastName}";
+                    studentName = $"{student.FullName}";
                 }
             }
             catch { /* Ignore errors and use default name */ }
 
             try
             {
-                var tutor = await _userService.GetUserByIdAsync(booking.TutorId.ToString());
+                var tutor = await _userService.GetUserByIdAsync(booking.TutorId);
                 if (tutor != null)
                 {
-                    tutorName = $"{tutor.FirstName} {tutor.LastName}";
+                    tutorName = $"{tutor.FullName}";
                 }
             }
             catch { /* Ignore errors and use default name */ }
