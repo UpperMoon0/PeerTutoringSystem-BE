@@ -44,6 +44,24 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             }
         }
 
+        [HttpGet("tutors")]
+        public async Task<IActionResult> GetAllTutors()
+        {
+            try
+            {
+                var tutors = await _userService.GetAllTutorsAsync();
+                return Ok(tutors);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+            }
+        }
+
         [HttpGet("{userId:guid}")]
         public async Task<IActionResult> GetUser(Guid userId)
         {
@@ -108,6 +126,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
+
         [HttpPost("{userId:guid}/unban")]
         [AuthorizeAdmin]
         public async Task<IActionResult> UnbanUser(Guid userId)
