@@ -39,7 +39,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 PhoneNumber = user.PhoneNumber,
                 Gender = user.Gender.ToString(),
                 Hometown = user.Hometown,
-                School = user.School, // Thêm trường School
+                School = user.School,
                 AvatarUrl = user.AvatarUrl,
                 Status = user.Status.ToString(),
                 Role = user.Role.RoleName
@@ -62,7 +62,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                     PhoneNumber = user.PhoneNumber,
                     Gender = user.Gender.ToString(),
                     Hometown = user.Hometown,
-                    School = user.School, // Thêm trường School
+                    School = user.School,
                     AvatarUrl = user.AvatarUrl,
                     Status = user.Status.ToString(),
                     Role = user.Role.RoleName
@@ -70,6 +70,35 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             }
 
             return userDtos;
+        }
+
+        public async Task<List<UserDto>> GetAllTutorsAsync()
+        {
+            var users = await _userRepository.GetAllAsync();
+            var tutorDtos = new List<UserDto>();
+
+            foreach (var user in users)
+            {
+                if (user.Role.RoleName == "Tutor" && user.Status == UserStatus.Active)
+                {
+                    tutorDtos.Add(new UserDto
+                    {
+                        UserID = user.UserID,
+                        FullName = user.FullName,
+                        Email = user.Email ?? user.FirebaseUid,
+                        DateOfBirth = user.DateOfBirth,
+                        PhoneNumber = user.PhoneNumber,
+                        Gender = user.Gender.ToString(),
+                        Hometown = user.Hometown,
+                        School = user.School,
+                        AvatarUrl = user.AvatarUrl,
+                        Status = user.Status.ToString(),
+                        Role = user.Role.RoleName
+                    });
+                }
+            }
+
+            return tutorDtos;
         }
 
         public async Task UpdateUserAsync(Guid userId, UpdateUserDto dto)
@@ -87,40 +116,33 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                     throw new ValidationException("Email already exists.");
             }
 
-            // Cập nhật các trường cơ bản
             user.FullName = dto.FullName;
             user.Email = dto.Email;
             user.DateOfBirth = dto.DateOfBirth;
             user.PhoneNumber = dto.PhoneNumber;
             user.Gender = Enum.Parse<Gender>(dto.Gender, true);
             user.Hometown = dto.Hometown;
-            user.School = dto.School; // Cập nhật trường School (có thể null)
+            user.School = dto.School;
 
-            // Xử lý avatar nếu có file được gửi lên
             if (dto.Avatar != null)
             {
-                // Kiểm tra định dạng ảnh (JPG, PNG)
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
                 var extension = Path.GetExtension(dto.Avatar.FileName).ToLower();
                 if (!allowedExtensions.Contains(extension))
                     throw new ValidationException($"Invalid file format for avatar. Only JPG and PNG files are allowed.");
 
-                // Kiểm tra kích thước ảnh (tối đa 2MB)
                 var maxFileSize = 2 * 1024 * 1024; // 2MB
                 if (dto.Avatar.Length > maxFileSize)
                     throw new ValidationException($"Avatar exceeds maximum size of 2MB.");
 
-                // Tạo tên file duy nhất
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(_avatarStoragePath, fileName);
 
-                // Lưu file
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await dto.Avatar.CopyToAsync(stream);
                 }
 
-                // Cập nhật AvatarUrl
                 user.AvatarUrl = $"/avatars/{fileName}";
             }
 
@@ -141,6 +163,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             user.LastActive = DateTime.UtcNow;
             await _userRepository.UpdateAsync(user);
         }
+
         public async Task UnbanUserAsync(Guid userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
@@ -151,10 +174,11 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new ValidationException("User is not banned and cannot be unbanned.");
 
             user.Status = UserStatus.Active;
-            user.IsOnline = false; 
+            user.IsOnline = false;
             user.LastActive = DateTime.UtcNow;
             await _userRepository.UpdateAsync(user);
         }
+
         private void ValidateDto<T>(T dto)
         {
             var validationContext = new ValidationContext(dto);
