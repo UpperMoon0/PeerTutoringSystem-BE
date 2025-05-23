@@ -3,6 +3,62 @@
   "WorkspaceRootPath": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}|PeerTutoringSystem.Api\\PeerTutoringSystem.Api.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.api\\controllers\\authentication\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}|PeerTutoringSystem.Api\\PeerTutoringSystem.Api.csproj|solutionrelative:peertutoringsystem.api\\controllers\\authentication\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\services\\authentication\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|solutionrelative:peertutoringsystem.application\\services\\authentication\\userservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\interfaces\\authentication\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|solutionrelative:peertutoringsystem.application\\interfaces\\authentication\\iuserservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{524ABFCD-7F19-4187-A300-5A8356D6E12B}|PeerTutoringSystem.Infrastructure\\PeerTutoringSystem.Infrastructure.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.infrastructure\\repositories\\authentication\\usertokenrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{524ABFCD-7F19-4187-A300-5A8356D6E12B}|PeerTutoringSystem.Infrastructure\\PeerTutoringSystem.Infrastructure.csproj|solutionrelative:peertutoringsystem.infrastructure\\repositories\\authentication\\usertokenrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{524ABFCD-7F19-4187-A300-5A8356D6E12B}|PeerTutoringSystem.Infrastructure\\PeerTutoringSystem.Infrastructure.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.infrastructure\\repositories\\authentication\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{524ABFCD-7F19-4187-A300-5A8356D6E12B}|PeerTutoringSystem.Infrastructure\\PeerTutoringSystem.Infrastructure.csproj|solutionrelative:peertutoringsystem.infrastructure\\repositories\\authentication\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.domain\\interfaces\\authentication\\iusertokenrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|solutionrelative:peertutoringsystem.domain\\interfaces\\authentication\\iusertokenrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.domain\\interfaces\\authentication\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|solutionrelative:peertutoringsystem.domain\\interfaces\\authentication\\iuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.domain\\entities\\authentication\\usertoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|solutionrelative:peertutoringsystem.domain\\entities\\authentication\\usertoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.domain\\entities\\authentication\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|solutionrelative:peertutoringsystem.domain\\entities\\authentication\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\services\\authentication\\tutorverificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|solutionrelative:peertutoringsystem.application\\services\\authentication\\tutorverificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\interfaces\\skills\\iskillservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|solutionrelative:peertutoringsystem.application\\interfaces\\skills\\iskillservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\interfaces\\authentication\\itutorverificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|solutionrelative:peertutoringsystem.application\\interfaces\\authentication\\itutorverificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\dtos\\authentication\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|solutionrelative:peertutoringsystem.application\\dtos\\authentication\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}|PeerTutoringSystem.Api\\PeerTutoringSystem.Api.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.api\\controllers\\authentication\\tutorverificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}|PeerTutoringSystem.Api\\PeerTutoringSystem.Api.csproj|solutionrelative:peertutoringsystem.api\\controllers\\authentication\\tutorverificationscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}|PeerTutoringSystem.Api\\PeerTutoringSystem.Api.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D20B8B1C-EC12-411D-90A1-77EB1ED269D9}|PeerTutoringSystem.Api\\PeerTutoringSystem.Api.csproj|solutionrelative:peertutoringsystem.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -21,10 +77,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\services\\skills\\userskillservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|solutionrelative:peertutoringsystem.application\\services\\skills\\userskillservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\interfaces\\skills\\iskillservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|solutionrelative:peertutoringsystem.application\\interfaces\\skills\\iskillservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{452A5102-582D-409F-92FB-8D88C0A755DA}|PeerTutoringSystem.Application\\PeerTutoringSystem.Application.csproj|c:\\users\\huyh6\\onedrive\\desktop\\exe201\\peertutoringsystem-be\\peertutoringsystem.application\\dtos\\skills\\skilldto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -74,109 +126,168 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AppDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
-              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
-              "ViewState": "AgIAAJkAAAAAAAAAAAAiwAoAAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T10:00:34.046Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Program.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Program.cs",
-              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Program.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Api\\Program.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAAAACUAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T09:54:59.14Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\appsettings.json",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\appsettings.json",
-              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\appsettings.json",
-              "RelativeToolTip": "PeerTutoringSystem.Api\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-05-21T09:53:23.283Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "UserSkillRepository.cs",
-              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\UserSkillRepository.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\UserSkillRepository.cs",
-              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\UserSkillRepository.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\UserSkillRepository.cs",
-              "ViewState": "AgIAACUAAAAAAAAAAAAwwEUAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T08:48:42.548Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "UserSkillDto.cs",
-              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Skills\\UserSkillDto.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Skills\\UserSkillDto.cs",
-              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Skills\\UserSkillDto.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Skills\\UserSkillDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T08:47:37.308Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "SkillsController.cs",
-              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Skills\\SkillsController.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Controllers\\Skills\\SkillsController.cs",
-              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Skills\\SkillsController.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Api\\Controllers\\Skills\\SkillsController.cs",
-              "ViewState": "AgIAAIkAAAAAAAAAAADwv6AAAAAJAAAAAAAAAA==",
+              "Title": "UserTokenRepository.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Authentication\\UserTokenRepository.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Repositories\\Authentication\\UserTokenRepository.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Authentication\\UserTokenRepository.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Infrastructure\\Repositories\\Authentication\\UserTokenRepository.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAA/wDEAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T08:47:22.892Z"
+              "WhenOpened": "2025-05-22T15:08:40.546Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "UserSkillService.cs",
-              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Skills\\UserSkillService.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Skills\\UserSkillService.cs",
-              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Skills\\UserSkillService.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Skills\\UserSkillService.cs",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAcwGgAAAABAAAAAAAAAA==",
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Authentication\\UserRepository.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Repositories\\Authentication\\UserRepository.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Authentication\\UserRepository.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Infrastructure\\Repositories\\Authentication\\UserRepository.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAAAswFUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T08:47:53.483Z"
+              "WhenOpened": "2025-05-22T15:08:37.298Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "SkillDto.cs",
-              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Skills\\SkillDto.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Skills\\SkillDto.cs",
-              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Skills\\SkillDto.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Skills\\SkillDto.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAgwBsAAAABAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "IUserService.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Interfaces\\Authentication\\IUserService.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Interfaces\\Authentication\\IUserService.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Interfaces\\Authentication\\IUserService.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\Interfaces\\Authentication\\IUserService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-21T08:47:32.725Z"
+              "WhenOpened": "2025-05-22T15:07:55.749Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Authentication\\UserService.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Authentication\\UserService.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Authentication\\UserService.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Authentication\\UserService.cs",
+              "ViewState": "AgIAAKYAAAAAAAAAAAA2wMAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:08:05.702Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Authentication\\UsersController.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Controllers\\Authentication\\UsersController.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Authentication\\UsersController.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Api\\Controllers\\Authentication\\UsersController.cs",
+              "ViewState": "AgIAAKUAAAAAAAAAAAAuwKsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:07:00.754Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "IUserTokenRepository.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Interfaces\\Authentication\\IUserTokenRepository.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Interfaces\\Authentication\\IUserTokenRepository.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Interfaces\\Authentication\\IUserTokenRepository.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Domain\\Interfaces\\Authentication\\IUserTokenRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:08:32.179Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "IUserRepository.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Interfaces\\Authentication\\IUserRepository.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Interfaces\\Authentication\\IUserRepository.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Interfaces\\Authentication\\IUserRepository.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Domain\\Interfaces\\Authentication\\IUserRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:08:28.305Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "UserToken.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Authentication\\UserToken.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Authentication\\UserToken.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Authentication\\UserToken.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Domain\\Entities\\Authentication\\UserToken.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:08:20.952Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Authentication\\User.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Authentication\\User.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Authentication\\User.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Domain\\Entities\\Authentication\\User.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAUwCUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:08:17Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "TutorVerificationService.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Authentication\\TutorVerificationService.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Authentication\\TutorVerificationService.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Authentication\\TutorVerificationService.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Authentication\\TutorVerificationService.cs",
+              "ViewState": "AgIAAPwAAAAAAAAAAADwvxkBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:08:09.765Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ITutorVerificationService.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Interfaces\\Authentication\\ITutorVerificationService.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Interfaces\\Authentication\\ITutorVerificationService.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Interfaces\\Authentication\\ITutorVerificationService.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\Interfaces\\Authentication\\ITutorVerificationService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:07:51.816Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "TutorVerificationsController.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Authentication\\TutorVerificationsController.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Controllers\\Authentication\\TutorVerificationsController.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Authentication\\TutorVerificationsController.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Api\\Controllers\\Authentication\\TutorVerificationsController.cs",
+              "ViewState": "AgIAAHIAAAAAAAAAAAAUwIsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:07:04.879Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "UserDto.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAQwC8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-22T15:06:13.655Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "ISkillService.cs",
               "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Interfaces\\Skills\\ISkillService.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Interfaces\\Skills\\ISkillService.cs",
@@ -188,7 +299,103 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 15,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
+              "ViewState": "AgIAAJkAAAAAAAAAAAAiwAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-21T10:00:34.046Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Program.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Program.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Program.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Api\\Program.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAACUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-21T09:54:59.14Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\appsettings.json",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\appsettings.json",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\appsettings.json",
+              "RelativeToolTip": "PeerTutoringSystem.Api\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-05-21T09:53:23.283Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "UserSkillRepository.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\UserSkillRepository.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\UserSkillRepository.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\UserSkillRepository.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\UserSkillRepository.cs",
+              "ViewState": "AgIAACUAAAAAAAAAAAAwwEUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-21T08:48:42.548Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "UserSkillDto.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Skills\\UserSkillDto.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Skills\\UserSkillDto.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Skills\\UserSkillDto.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Skills\\UserSkillDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-21T08:47:37.308Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "SkillsController.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Skills\\SkillsController.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Controllers\\Skills\\SkillsController.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Skills\\SkillsController.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Api\\Controllers\\Skills\\SkillsController.cs",
+              "ViewState": "AgIAAIkAAAAAAAAAAADwv6AAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-21T08:47:22.892Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "UserSkillService.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Skills\\UserSkillService.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Skills\\UserSkillService.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Skills\\UserSkillService.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Skills\\UserSkillService.cs",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAcwGgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-21T08:47:53.483Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "SkillDto.cs",
+              "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Skills\\SkillDto.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Skills\\SkillDto.cs",
+              "ToolTip": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Skills\\SkillDto.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Skills\\SkillDto.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAgwBsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-21T08:47:32.725Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
               "Title": "SkillRepository.cs",
               "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\SkillRepository.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Repositories\\Skills\\SkillRepository.cs",
@@ -200,7 +407,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 23,
               "Title": "IUserSkillRepository.cs",
               "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Interfaces\\Skills\\IUserSkillRepository.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Interfaces\\Skills\\IUserSkillRepository.cs",
@@ -212,7 +419,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 24,
               "Title": "ISkillRepository.cs",
               "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Interfaces\\Skills\\ISkillRepository.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Interfaces\\Skills\\ISkillRepository.cs",
@@ -224,7 +431,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 25,
               "Title": "UserSkill.cs",
               "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Skills\\UserSkill.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Skills\\UserSkill.cs",
@@ -236,7 +443,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 26,
               "Title": "Skill.cs",
               "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Skills\\Skill.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Skills\\Skill.cs",
@@ -248,7 +455,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 27,
               "Title": "SkillService.cs",
               "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Skills\\SkillService.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Skills\\SkillService.cs",
@@ -260,7 +467,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 28,
               "Title": "IUserSkillService.cs",
               "DocumentMoniker": "C:\\Users\\huyh6\\OneDrive\\Desktop\\EXE201\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Interfaces\\Skills\\IUserSkillService.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Interfaces\\Skills\\IUserSkillService.cs",

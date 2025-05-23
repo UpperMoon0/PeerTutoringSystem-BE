@@ -34,67 +34,94 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                     throw new ValidationException("Invalid token."));
 
                 var booking = await _bookingService.CreateBookingAsync(studentId, dto);
-                return Ok(booking);
+                return Ok(new
+                {
+                    data = booking,
+                    message = "Booking created successfully.",
+                    timestamp = DateTime.UtcNow
+                });
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while creating booking.");
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
             }
         }
 
         [HttpGet("student")]
         [Authorize(Roles = "Student")]
-        public async Task<IActionResult> GetStudentBookings()
+        public async Task<IActionResult> GetStudentBookings([FromQuery] BookingFilterDto filter)
         {
             try
             {
                 var studentId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                     throw new ValidationException("Invalid token."));
 
-                var bookings = await _bookingService.GetBookingsByStudentAsync(studentId);
-                return Ok(bookings);
+                var pagedBookings = await _bookingService.GetBookingsByStudentAsync(studentId, filter);
+                return Ok(new
+                {
+                    data = pagedBookings.Items,
+                    pagination = new
+                    {
+                        totalCount = pagedBookings.TotalCount,
+                        pageNumber = pagedBookings.PageNumber,
+                        pageSize = pagedBookings.PageSize,
+                        totalPages = pagedBookings.TotalPages
+                    },
+                    timestamp = DateTime.UtcNow
+                });
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while retrieving student bookings.");
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
             }
         }
 
         [HttpGet("tutor")]
         [Authorize(Roles = "Tutor")]
-        public async Task<IActionResult> GetTutorBookings()
+        public async Task<IActionResult> GetTutorBookings([FromQuery] BookingFilterDto filter)
         {
             try
             {
                 var tutorId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                     throw new ValidationException("Invalid token."));
 
-                var bookings = await _bookingService.GetBookingsByTutorAsync(tutorId);
-                return Ok(bookings);
+                var pagedBookings = await _bookingService.GetBookingsByTutorAsync(tutorId, filter);
+                return Ok(new
+                {
+                    data = pagedBookings.Items,
+                    pagination = new
+                    {
+                        totalCount = pagedBookings.TotalCount,
+                        pageNumber = pagedBookings.PageNumber,
+                        pageSize = pagedBookings.PageSize,
+                        totalPages = pagedBookings.TotalPages
+                    },
+                    timestamp = DateTime.UtcNow
+                });
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while retrieving tutor bookings.");
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
             }
         }
 
         [HttpGet("upcoming")]
-        public async Task<IActionResult> GetUpcomingBookings()
+        public async Task<IActionResult> GetUpcomingBookings([FromQuery] BookingFilterDto filter)
         {
             try
             {
@@ -102,17 +129,28 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                     throw new ValidationException("Invalid token."));
                 var isTutor = User.IsInRole("Tutor");
 
-                var bookings = await _bookingService.GetUpcomingBookingsAsync(userId, isTutor);
-                return Ok(bookings);
+                var pagedBookings = await _bookingService.GetUpcomingBookingsAsync(userId, isTutor, filter);
+                return Ok(new
+                {
+                    data = pagedBookings.Items,
+                    pagination = new
+                    {
+                        totalCount = pagedBookings.TotalCount,
+                        pageNumber = pagedBookings.PageNumber,
+                        pageSize = pagedBookings.PageSize,
+                        totalPages = pagedBookings.TotalPages
+                    },
+                    timestamp = DateTime.UtcNow
+                });
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while retrieving upcoming bookings.");
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
             }
         }
 
@@ -123,25 +161,29 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             {
                 var booking = await _bookingService.GetBookingByIdAsync(bookingId);
                 if (booking == null)
-                    return NotFound(new { error = "Booking not found." });
+                    return NotFound(new { error = "Booking not found.", timestamp = DateTime.UtcNow });
 
                 var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                     throw new ValidationException("Invalid token."));
                 var isAdmin = User.IsInRole("Admin");
 
                 if (booking.StudentId != userId && booking.TutorId != userId && !isAdmin)
-                    return StatusCode(403, new { error = "You do not have permission to view this booking." });
+                    return StatusCode(403, new { error = "You do not have permission to view this booking.", timestamp = DateTime.UtcNow });
 
-                return Ok(booking);
+                return Ok(new
+                {
+                    data = booking,
+                    timestamp = DateTime.UtcNow
+                });
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while retrieving booking {BookingId}.", bookingId);
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
             }
         }
 
@@ -150,41 +192,43 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         {
             try
             {
-                // Validate the status field
                 if (string.IsNullOrEmpty(dto.Status) || !Enum.TryParse<BookingStatus>(dto.Status, true, out _))
                 {
-                    return BadRequest(new { error = "Invalid booking status. Valid values are: Pending, Confirmed, Completed, Cancelled." });
+                    return BadRequest(new { error = "Invalid booking status. Valid values are: Pending, Confirmed, Completed, Cancelled.", timestamp = DateTime.UtcNow });
                 }
 
                 var booking = await _bookingService.GetBookingByIdAsync(bookingId);
                 if (booking == null)
-                    return NotFound(new { error = "Booking not found." });
+                    return NotFound(new { error = "Booking not found.", timestamp = DateTime.UtcNow });
 
                 var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                     throw new ValidationException("Invalid token."));
                 var isAdmin = User.IsInRole("Admin");
 
-                // Student can only cancel their own bookings
                 if (dto.Status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) && booking.StudentId != userId && !isAdmin)
-                    return StatusCode(403, new { error = "You do not have permission to cancel this booking." });
+                    return StatusCode(403, new { error = "You do not have permission to cancel this booking.", timestamp = DateTime.UtcNow });
 
-                // Tutor can only confirm or complete bookings
                 if ((dto.Status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase) ||
                      dto.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase)) &&
                     booking.TutorId != userId && !isAdmin)
-                    return StatusCode(403, new { error = "You do not have permission to update this booking status." });
+                    return StatusCode(403, new { error = "You do not have permission to update this booking status.", timestamp = DateTime.UtcNow });
 
                 var updatedBooking = await _bookingService.UpdateBookingStatusAsync(bookingId, dto);
-                return Ok(updatedBooking);
+                return Ok(new
+                {
+                    data = updatedBooking,
+                    message = "Booking status updated successfully.",
+                    timestamp = DateTime.UtcNow
+                });
             }
             catch (ValidationException ex)
             {
-                return BadRequest(new { error = ex.Message });
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while updating booking status for booking {BookingId}.", bookingId);
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
             }
         }
     }
