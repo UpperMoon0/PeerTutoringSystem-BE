@@ -39,12 +39,42 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                 .ToListAsync();
         }
 
+        public async Task<(IEnumerable<BookingSession> Bookings, int TotalCount)> GetByStudentIdAsync(Guid studentId, BookingFilter filter)
+        {
+            var query = _context.BookingSessions.Where(b => b.StudentId == studentId);
+            query = ApplyFilters(query, filter);
+
+            var totalCount = await query.CountAsync();
+            var bookings = await query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .OrderByDescending(b => b.StartTime)
+                .ToListAsync();
+
+            return (bookings, totalCount);
+        }
+
         public async Task<IEnumerable<BookingSession>> GetByTutorIdAsync(Guid tutorId)
         {
             return await _context.BookingSessions
                 .Where(b => b.TutorId == tutorId)
                 .OrderByDescending(b => b.StartTime)
                 .ToListAsync();
+        }
+
+        public async Task<(IEnumerable<BookingSession> Bookings, int TotalCount)> GetByTutorIdAsync(Guid tutorId, BookingFilter filter)
+        {
+            var query = _context.BookingSessions.Where(b => b.TutorId == tutorId);
+            query = ApplyFilters(query, filter);
+
+            var totalCount = await query.CountAsync();
+            var bookings = await query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .OrderByDescending(b => b.StartTime)
+                .ToListAsync();
+
+            return (bookings, totalCount);
         }
 
         public async Task UpdateAsync(BookingSession booking)
@@ -64,7 +94,6 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
 
         public async Task<bool> IsSlotAvailableAsync(Guid tutorId, DateTime startTime, DateTime endTime)
         {
-            // Check if tutor has any overlapping bookings (exclude cancelled)
             var overlappingBookings = await _context.BookingSessions
                 .Where(b => b.TutorId == tutorId &&
                             b.Status != BookingStatus.Cancelled &&
@@ -78,7 +107,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
 
         public async Task<IEnumerable<BookingSession>> GetUpcomingBookingsByUserAsync(Guid userId, bool isTutor)
         {
-            var query = _context.BookingSessions.AsQueryable();
+            var query = _context.BookingSessions.AsQueryable(); // Fixed the typo "radionu"
 
             if (isTutor)
             {
@@ -93,6 +122,53 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                 .Where(b => b.StartTime > DateTime.UtcNow && b.Status != BookingStatus.Cancelled)
                 .OrderBy(b => b.StartTime)
                 .ToListAsync();
+        }
+
+        public async Task<(IEnumerable<BookingSession> Bookings, int TotalCount)> GetUpcomingBookingsByUserAsync(Guid userId, bool isTutor, BookingFilter filter)
+        {
+            var query = isTutor
+                ? _context.BookingSessions.Where(b => b.TutorId == userId)
+                : _context.BookingSessions.Where(b => b.StudentId == userId);
+
+            query = query.Where(b => b.StartTime > DateTime.UtcNow && b.Status != BookingStatus.Cancelled);
+            query = ApplyFilters(query, filter);
+
+            var totalCount = await query.CountAsync();
+            var bookings = await query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .OrderBy(b => b.StartTime)
+                .ToListAsync();
+
+            return (bookings, totalCount);
+        }
+
+        private IQueryable<BookingSession> ApplyFilters(IQueryable<BookingSession> query, BookingFilter filter)
+        {
+            if (!string.IsNullOrEmpty(filter.Status))
+            {
+                if (Enum.TryParse<BookingStatus>(filter.Status, true, out var status))
+                {
+                    query = query.Where(b => b.Status == status);
+                }
+            }
+
+            if (filter.SkillId.HasValue)
+            {
+                query = query.Where(b => b.SkillId == filter.SkillId.Value);
+            }
+
+            if (filter.StartDate.HasValue)
+            {
+                query = query.Where(b => b.StartTime >= filter.StartDate.Value);
+            }
+
+            if (filter.EndDate.HasValue)
+            {
+                query = query.Where(b => b.EndTime <= filter.EndDate.Value);
+            }
+
+            return query;
         }
     }
 }

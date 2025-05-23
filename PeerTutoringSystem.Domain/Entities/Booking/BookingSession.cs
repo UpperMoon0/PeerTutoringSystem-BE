@@ -1,5 +1,4 @@
-﻿// PeerTutoringSystem.Domain/Entities/Booking/BookingSession.cs
-using System;
+﻿using System;
 
 namespace PeerTutoringSystem.Domain.Entities.Booking
 {
