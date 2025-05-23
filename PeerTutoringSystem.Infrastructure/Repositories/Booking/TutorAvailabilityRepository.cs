@@ -49,6 +49,30 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                 .ToListAsync();
         }
 
+        public async Task<(IEnumerable<TutorAvailability> Availabilities, int TotalCount)> GetByTutorIdAsync(Guid tutorId, BookingFilter filter)
+        {
+            var query = _context.TutorAvailabilities.Where(a => a.TutorId == tutorId);
+
+            if (filter.StartDate.HasValue)
+            {
+                query = query.Where(a => a.StartTime >= filter.StartDate.Value);
+            }
+
+            if (filter.EndDate.HasValue)
+            {
+                query = query.Where(a => a.EndTime <= filter.EndDate.Value);
+            }
+
+            var totalCount = await query.CountAsync();
+            var availabilities = await query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .OrderBy(a => a.StartTime)
+                .ToListAsync();
+
+            return (availabilities, totalCount);
+        }
+
         public async Task UpdateAsync(TutorAvailability availability)
         {
             _context.TutorAvailabilities.Update(availability);
@@ -57,7 +81,6 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
 
         public async Task<IEnumerable<TutorAvailability>> GetAvailableSlotsByTutorIdAsync(Guid tutorId, DateTime startDate, DateTime endDate)
         {
-            // Get all non-recurring slots within date range
             var nonRecurringSlots = await _context.TutorAvailabilities
                 .Where(a => a.TutorId == tutorId &&
                            !a.IsRecurring &&
@@ -66,7 +89,6 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                            a.StartTime <= endDate)
                 .ToListAsync();
 
-            // Get recurring slots that apply to the date range
             var recurringSlots = await _context.TutorAvailabilities
                 .Where(a => a.TutorId == tutorId &&
                            a.IsRecurring &&
@@ -74,19 +96,65 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                            (a.RecurrenceEndDate == null || a.RecurrenceEndDate >= startDate))
                 .ToListAsync();
 
-            // Filter recurring slots by checking if they fall within the requested date range
             var filteredRecurringSlots = new List<TutorAvailability>();
             foreach (var slot in recurringSlots)
             {
-                // Create instances of recurring slots that fall within requested date range
                 var instances = GenerateRecurringInstances(slot, startDate, endDate);
                 filteredRecurringSlots.AddRange(instances);
             }
 
-            // Combine both sets and return
             return nonRecurringSlots.Concat(filteredRecurringSlots)
                 .OrderBy(a => a.StartTime)
                 .ToList();
+        }
+
+        public async Task<(IEnumerable<TutorAvailability> Availabilities, int TotalCount)> GetAvailableSlotsByTutorIdAsync(Guid tutorId, DateTime startDate, DateTime endDate, BookingFilter filter)
+        {
+            var query = _context.TutorAvailabilities
+                .Where(a => a.TutorId == tutorId &&
+                           !a.IsBooked &&
+                           a.StartTime >= startDate &&
+                           a.StartTime <= endDate);
+
+            if (filter.StartDate.HasValue)
+            {
+                query = query.Where(a => a.StartTime >= filter.StartDate.Value);
+            }
+
+            if (filter.EndDate.HasValue)
+            {
+                query = query.Where(a => a.EndTime <= filter.EndDate.Value);
+            }
+
+            var nonRecurringSlots = await query
+                .Where(a => !a.IsRecurring)
+                .ToListAsync();
+
+            var recurringSlots = await _context.TutorAvailabilities
+                .Where(a => a.TutorId == tutorId &&
+                           a.IsRecurring &&
+                           !a.IsBooked &&
+                           (a.RecurrenceEndDate == null || a.RecurrenceEndDate >= startDate))
+                .ToListAsync();
+
+            var filteredRecurringSlots = new List<TutorAvailability>();
+            foreach (var slot in recurringSlots)
+            {
+                var instances = GenerateRecurringInstances(slot, startDate, endDate);
+                filteredRecurringSlots.AddRange(instances);
+            }
+
+            var allSlots = nonRecurringSlots.Concat(filteredRecurringSlots)
+                .OrderBy(a => a.StartTime)
+                .ToList();
+
+            var totalCount = allSlots.Count;
+            var pagedSlots = allSlots
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToList();
+
+            return (pagedSlots, totalCount);
         }
 
         private List<TutorAvailability> GenerateRecurringInstances(TutorAvailability recurring, DateTime startDate, DateTime endDate)
@@ -97,17 +165,14 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
             var day = recurring.RecurringDay.Value;
             var currentDate = startDate.Date;
 
-            // Find first occurrence after start date
             while (currentDate.DayOfWeek != day)
             {
                 currentDate = currentDate.AddDays(1);
             }
 
-            // Generate all occurrences within the date range
             while (currentDate <= endDate &&
                   (recurring.RecurrenceEndDate == null || currentDate <= recurring.RecurrenceEndDate))
             {
-                // Calculate time for this instance
                 var startTime = new DateTime(
                     currentDate.Year,
                     currentDate.Month,
@@ -124,24 +189,21 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                     recurring.EndTime.Minute,
                     0);
 
-                // Check if this specific instance isn't already booked
                 var isBooked = IsTimeSlotBooked(recurring.TutorId, startTime, endTime).Result;
 
                 if (!isBooked)
                 {
-                    // Create a new instance with the same properties but specific date/time
                     instances.Add(new TutorAvailability
                     {
-                        AvailabilityId = recurring.AvailabilityId, // Keep reference to original
+                        AvailabilityId = recurring.AvailabilityId,
                         TutorId = recurring.TutorId,
                         StartTime = startTime,
                         EndTime = endTime,
-                        IsRecurring = false, // Set to false for the instance
+                        IsRecurring = false,
                         IsBooked = false
                     });
                 }
 
-                // Move to next week
                 currentDate = currentDate.AddDays(7);
             }
 
@@ -150,7 +212,6 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
 
         private async Task<bool> IsTimeSlotBooked(Guid tutorId, DateTime startTime, DateTime endTime)
         {
-            // Check if there's an existing booking that would make this time slot unavailable
             return await _context.BookingSessions
                 .Where(b => b.TutorId == tutorId &&
                            b.Status != BookingStatus.Cancelled &&

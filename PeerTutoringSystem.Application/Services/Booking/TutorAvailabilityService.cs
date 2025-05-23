@@ -14,19 +14,23 @@ namespace PeerTutoringSystem.Application.Services.Booking
     public class TutorAvailabilityService : ITutorAvailabilityService
     {
         private readonly ITutorAvailabilityRepository _availabilityRepository;
+        private readonly IBookingSessionRepository _bookingRepository;
         private readonly ILogger<TutorAvailabilityService> _logger;
 
-        public TutorAvailabilityService(ITutorAvailabilityRepository availabilityRepository, ILogger<TutorAvailabilityService> logger)
+        public TutorAvailabilityService(
+            ITutorAvailabilityRepository availabilityRepository,
+            IBookingSessionRepository bookingRepository,
+            ILogger<TutorAvailabilityService> logger)
         {
             _availabilityRepository = availabilityRepository;
+            _bookingRepository = bookingRepository;
             _logger = logger;
         }
 
         public async Task<TutorAvailabilityDto> AddAsync(Guid tutorId, CreateTutorAvailabilityDto dto)
         {
-            var currentDateTimeUtc = DateTime.UtcNow; // May 21, 2025, 08:12 AM UTC
+            var currentDateTimeUtc = DateTime.UtcNow;
 
-            // Validate input
             if (dto.StartTime < currentDateTimeUtc)
                 throw new ValidationException("Start time cannot be in the past.");
 
@@ -42,7 +46,6 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (dto.RecurrenceEndDate.HasValue && dto.RecurrenceEndDate.Value < currentDateTimeUtc.Date)
                 throw new ValidationException("Recurrence end date cannot be in the past.");
 
-            // Parse recurring day if provided
             DayOfWeek? recurringDay = null;
             if (dto.IsRecurring && !string.IsNullOrEmpty(dto.RecurringDay))
             {
@@ -59,7 +62,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 {
                     await _availabilityRepository.AddAsync(availability);
                 }
-                return MapToDto(availabilities.First()); // Return the first slot as a representative DTO
+                return MapToDto(availabilities.First());
             }
             else
             {
@@ -92,7 +95,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 {
                     var slotStart = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day, startTime.Hour, startTime.Minute, 0, DateTimeKind.Utc);
                     var slotEnd = slotStart + (endTime - startTime);
-                    if (slotStart >= DateTime.UtcNow) // Only include future slots
+                    if (slotStart >= DateTime.UtcNow)
                     {
                         slots.Add(new TutorAvailability
                         {
@@ -117,6 +120,14 @@ namespace PeerTutoringSystem.Application.Services.Booking
         {
             try
             {
+                var availability = await _availabilityRepository.GetByIdAsync(availabilityId);
+                if (availability == null)
+                    return false;
+
+                var hasBooking = await _bookingRepository.IsSlotAvailableAsync(availability.TutorId, availability.StartTime, availability.EndTime);
+                if (!hasBooking)
+                    throw new ValidationException("Cannot delete availability with existing bookings.");
+
                 await _availabilityRepository.DeleteAsync(availabilityId);
                 return true;
             }
@@ -127,29 +138,65 @@ namespace PeerTutoringSystem.Application.Services.Booking
             }
         }
 
-        public async Task<IEnumerable<TutorAvailabilityDto>> GetAvailableSlotsAsync(Guid tutorId, DateTime startDate, DateTime endDate)
+        public async Task<(IEnumerable<TutorAvailabilityDto> Availabilities, int TotalCount)> GetByTutorIdAsync(Guid tutorId, BookingFilterDto filter)
+        {
+            var availabilities = await _availabilityRepository.GetByTutorIdAsync(tutorId);
+            var query = availabilities.AsEnumerable();
+
+            if (filter.StartDate.HasValue)
+            {
+                query = query.Where(a => a.StartTime >= filter.StartDate.Value);
+            }
+
+            if (filter.EndDate.HasValue)
+            {
+                query = query.Where(a => a.EndTime <= filter.EndDate.Value);
+            }
+
+            var totalCount = query.Count();
+            var filtered = query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .OrderBy(a => a.StartTime);
+
+            return (filtered.Select(MapToDto), totalCount);
+        }
+
+        public async Task<(IEnumerable<TutorAvailabilityDto> Availabilities, int TotalCount)> GetAvailableSlotsAsync(Guid tutorId, DateTime startDate, DateTime endDate, BookingFilterDto filter)
         {
             if (startDate > endDate)
                 throw new ValidationException("Start date must be before end date.");
 
-            var currentDateTimeUtc = DateTime.UtcNow; // May 21, 2025, 08:12 AM UTC
+            var currentDateTimeUtc = DateTime.UtcNow;
             if (startDate < currentDateTimeUtc)
                 startDate = currentDateTimeUtc;
 
             var availabilities = await _availabilityRepository.GetAvailableSlotsByTutorIdAsync(tutorId, startDate, endDate);
-            return availabilities.Select(MapToDto);
+            var query = availabilities.AsEnumerable();
+
+            if (filter.StartDate.HasValue)
+            {
+                query = query.Where(a => a.StartTime >= filter.StartDate.Value);
+            }
+
+            if (filter.EndDate.HasValue)
+            {
+                query = query.Where(a => a.EndTime <= filter.EndDate.Value);
+            }
+
+            var totalCount = query.Count();
+            var filtered = query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .OrderBy(a => a.StartTime);
+
+            return (filtered.Select(MapToDto), totalCount);
         }
 
         public async Task<TutorAvailabilityDto> GetByIdAsync(Guid availabilityId)
         {
             var availability = await _availabilityRepository.GetByIdAsync(availabilityId);
             return availability != null ? MapToDto(availability) : null;
-        }
-
-        public async Task<IEnumerable<TutorAvailabilityDto>> GetByTutorIdAsync(Guid tutorId)
-        {
-            var availabilities = await _availabilityRepository.GetByTutorIdAsync(tutorId);
-            return availabilities.Select(MapToDto);
         }
 
         private TutorAvailabilityDto MapToDto(TutorAvailability availability)

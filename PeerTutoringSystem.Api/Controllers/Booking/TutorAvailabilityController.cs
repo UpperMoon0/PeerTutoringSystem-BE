@@ -14,12 +14,12 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TutorAvailabilityController : ControllerBase
     {
-        private readonly ITutorAvailabilityService _availabilityService; // Single declaration
+        private readonly ITutorAvailabilityService _availabilityService;
         private readonly ILogger<TutorAvailabilityController> _logger;
 
         public TutorAvailabilityController(ITutorAvailabilityService availabilityService, ILogger<TutorAvailabilityController> logger)
         {
-            _availabilityService = availabilityService; 
+            _availabilityService = availabilityService;
             _logger = logger;
         }
 
@@ -55,15 +55,17 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         }
 
         [HttpGet("tutor/{tutorId:guid}")]
-        public async Task<IActionResult> GetTutorAvailability(Guid tutorId)
+        public async Task<IActionResult> GetTutorAvailability(Guid tutorId, [FromQuery] BookingFilterDto filter)
         {
             try
             {
-                var availabilities = await _availabilityService.GetByTutorIdAsync(tutorId);
+                var (availabilities, totalCount) = await _availabilityService.GetByTutorIdAsync(tutorId, filter);
                 return Ok(new
                 {
                     data = availabilities,
-                    count = availabilities.Count(),
+                    totalCount,
+                    page = filter.Page,
+                    pageSize = filter.PageSize,
                     timestamp = DateTime.UtcNow
                 });
             }
@@ -77,24 +79,25 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         [HttpGet("available")]
         public async Task<IActionResult> GetAvailableSlots([FromQuery] Guid tutorId,
                                                          [FromQuery] DateTime startDate,
-                                                         [FromQuery] DateTime endDate)
+                                                         [FromQuery] DateTime endDate,
+                                                         [FromQuery] BookingFilterDto filter)
         {
             try
             {
-                var currentDateTime = DateTime.UtcNow; // May 21, 2025, 03:18 PM +07
-                var currentDateTimeUtc = currentDateTime.AddHours(-7); // Convert to UTC: May 21, 2025, 08:18 AM UTC
-
-                if (startDate < currentDateTimeUtc)
+                var currentDateTime = DateTime.UtcNow;
+                if (startDate < currentDateTime)
                     return BadRequest(new { error = "Start date cannot be in the past.", timestamp = DateTime.UtcNow });
 
                 if (endDate <= startDate)
                     return BadRequest(new { error = "End date must be after the start date.", timestamp = DateTime.UtcNow });
 
-                var availabilities = await _availabilityService.GetAvailableSlotsAsync(tutorId, startDate, endDate);
+                var (availabilities, totalCount) = await _availabilityService.GetAvailableSlotsAsync(tutorId, startDate, endDate, filter);
                 return Ok(new
                 {
                     data = availabilities,
-                    count = availabilities.Count(),
+                    totalCount,
+                    page = filter.Page,
+                    pageSize = filter.PageSize,
                     timestamp = DateTime.UtcNow
                 });
             }

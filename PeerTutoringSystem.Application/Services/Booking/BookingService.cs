@@ -29,24 +29,19 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
         public async Task<BookingSessionDto> CreateBookingAsync(Guid studentId, CreateBookingDto dto)
         {
-            // Get availability
             var availability = await _availabilityRepository.GetByIdAsync(dto.AvailabilityId);
             if (availability == null)
                 throw new ValidationException("The selected time slot is not available.");
 
-            // Validate tutor ID matches availability
             if (availability.TutorId != dto.TutorId)
                 throw new ValidationException("The selected time slot does not belong to the specified tutor.");
 
-            // Check if slot is already booked
             if (availability.IsBooked)
                 throw new ValidationException("This time slot has already been booked.");
 
-            // Check if slot is still available (not double-booked)
             if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, availability.StartTime, availability.EndTime))
                 throw new ValidationException("This time slot is no longer available.");
 
-            // Create booking
             var booking = new BookingSession
             {
                 BookingId = Guid.NewGuid(),
@@ -65,11 +60,54 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
             await _bookingRepository.AddAsync(booking);
 
-            // Mark availability as booked
             availability.IsBooked = true;
             await _availabilityRepository.UpdateAsync(availability);
 
-            // Return booking with names
+            return await EnrichBookingWithNames(booking);
+        }
+
+        public async Task<BookingSessionDto> CreateInstantBookingAsync(Guid studentId, InstantBookingDto dto)
+        {
+            var currentDateTimeUtc = DateTime.UtcNow;
+
+            if (dto.StartTime < currentDateTimeUtc)
+                throw new ValidationException("Start time cannot be in the past.");
+            if (dto.EndTime <= dto.StartTime)
+                throw new ValidationException("End time must be after start time.");
+            if (dto.EndTime.Subtract(dto.StartTime).TotalMinutes < 30)
+                throw new ValidationException("Session must be at least 30 minutes long.");
+
+            if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, dto.StartTime, dto.EndTime))
+                throw new ValidationException("This time slot is not available.");
+
+            var availability = new TutorAvailability
+            {
+                AvailabilityId = Guid.NewGuid(),
+                TutorId = dto.TutorId,
+                StartTime = dto.StartTime,
+                EndTime = dto.EndTime,
+                IsRecurring = false,
+                IsBooked = true
+            };
+            await _availabilityRepository.AddAsync(availability);
+
+            var booking = new BookingSession
+            {
+                BookingId = Guid.NewGuid(),
+                StudentId = studentId,
+                TutorId = dto.TutorId,
+                AvailabilityId = availability.AvailabilityId,
+                SessionDate = dto.StartTime.Date,
+                StartTime = dto.StartTime,
+                EndTime = dto.EndTime,
+                SkillId = dto.SkillId,
+                Topic = dto.Topic ?? "General tutoring session",
+                Description = dto.Description,
+                Status = BookingStatus.Pending,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _bookingRepository.AddAsync(booking);
             return await EnrichBookingWithNames(booking);
         }
 
@@ -81,43 +119,64 @@ namespace PeerTutoringSystem.Application.Services.Booking
             return await EnrichBookingWithNames(booking);
         }
 
-        public async Task<IEnumerable<BookingSessionDto>> GetBookingsByStudentAsync(Guid studentId)
+        public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetBookingsByStudentAsync(Guid studentId, BookingFilterDto filter)
         {
-            var bookings = await _bookingRepository.GetByStudentIdAsync(studentId);
-            var dtos = new List<BookingSessionDto>();
+            var query = await _bookingRepository.GetByStudentIdAsync(studentId);
+            query = ApplyFilters(query, filter);
 
+            var totalCount = query.Count();
+            var bookings = query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToList();
+
+            var dtos = new List<BookingSessionDto>();
             foreach (var booking in bookings)
             {
                 dtos.Add(await EnrichBookingWithNames(booking));
             }
 
-            return dtos;
+            return (dtos, totalCount);
         }
 
-        public async Task<IEnumerable<BookingSessionDto>> GetBookingsByTutorAsync(Guid tutorId)
+        public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetBookingsByTutorAsync(Guid tutorId, BookingFilterDto filter)
         {
-            var bookings = await _bookingRepository.GetByTutorIdAsync(tutorId);
-            var dtos = new List<BookingSessionDto>();
+            var query = await _bookingRepository.GetByTutorIdAsync(tutorId);
+            query = ApplyFilters(query, filter);
 
+            var totalCount = query.Count();
+            var bookings = query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToList();
+
+            var dtos = new List<BookingSessionDto>();
             foreach (var booking in bookings)
             {
                 dtos.Add(await EnrichBookingWithNames(booking));
             }
 
-            return dtos;
+            return (dtos, totalCount);
         }
 
-        public async Task<IEnumerable<BookingSessionDto>> GetUpcomingBookingsAsync(Guid userId, bool isTutor)
+        public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetUpcomingBookingsAsync(Guid userId, bool isTutor, BookingFilterDto filter)
         {
-            var upcomingBookings = await _bookingRepository.GetUpcomingBookingsByUserAsync(userId, isTutor);
-            var dtos = new List<BookingSessionDto>();
+            var query = await _bookingRepository.GetUpcomingBookingsByUserAsync(userId, isTutor);
+            query = ApplyFilters(query, filter);
 
-            foreach (var booking in upcomingBookings)
+            var totalCount = query.Count();
+            var bookings = query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToList();
+
+            var dtos = new List<BookingSessionDto>();
+            foreach (var booking in bookings)
             {
                 dtos.Add(await EnrichBookingWithNames(booking));
             }
 
-            return dtos;
+            return (dtos, totalCount);
         }
 
         public async Task<BookingSessionDto> UpdateBookingStatusAsync(Guid bookingId, UpdateBookingStatusDto dto)
@@ -126,18 +185,15 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (booking == null)
                 throw new ValidationException("Booking not found.");
 
-            // Validate status
             if (!Enum.TryParse<BookingStatus>(dto.Status, true, out var newStatus))
                 throw new ValidationException("Invalid booking status.");
 
-            // Apply status-specific validations
             switch (newStatus)
             {
                 case BookingStatus.Cancelled:
                     if (booking.Status == BookingStatus.Completed)
                         throw new ValidationException("Cannot cancel a completed booking.");
 
-                    // If cancelled, make the slot available again
                     var availability = await _availabilityRepository.GetByIdAsync(booking.AvailabilityId);
                     if (availability != null)
                     {
@@ -159,7 +215,6 @@ namespace PeerTutoringSystem.Application.Services.Booking
                     break;
             }
 
-            // Update booking status
             booking.Status = newStatus;
             booking.UpdatedAt = DateTime.UtcNow;
             await _bookingRepository.UpdateAsync(booking);
@@ -167,9 +222,36 @@ namespace PeerTutoringSystem.Application.Services.Booking
             return await EnrichBookingWithNames(booking);
         }
 
+        private IEnumerable<BookingSession> ApplyFilters(IEnumerable<BookingSession> query, BookingFilterDto filter)
+        {
+            if (!string.IsNullOrEmpty(filter.Status))
+            {
+                if (Enum.TryParse<BookingStatus>(filter.Status, true, out var status))
+                {
+                    query = query.Where(b => b.Status == status);
+                }
+            }
+
+            if (filter.SkillId.HasValue)
+            {
+                query = query.Where(b => b.SkillId == filter.SkillId.Value);
+            }
+
+            if (filter.StartDate.HasValue)
+            {
+                query = query.Where(b => b.StartTime >= filter.StartDate.Value);
+            }
+
+            if (filter.EndDate.HasValue)
+            {
+                query = query.Where(b => b.EndTime <= filter.EndDate.Value);
+            }
+
+            return query.OrderByDescending(b => b.StartTime);
+        }
+
         private async Task<BookingSessionDto> EnrichBookingWithNames(BookingSession booking)
         {
-            // Get student and tutor names
             var studentName = "Unknown Student";
             var tutorName = "Unknown Tutor";
 
@@ -181,7 +263,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                     studentName = $"{student.FullName}";
                 }
             }
-            catch { /* Ignore errors and use default name */ }
+            catch { }
 
             try
             {
@@ -191,7 +273,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                     tutorName = $"{tutor.FullName}";
                 }
             }
-            catch { /* Ignore errors and use default name */ }
+            catch { }
 
             return new BookingSessionDto
             {
