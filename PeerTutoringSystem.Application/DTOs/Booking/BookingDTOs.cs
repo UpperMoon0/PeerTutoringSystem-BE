@@ -1,4 +1,5 @@
-﻿namespace PeerTutoringSystem.Application.DTOs.Booking
+﻿
+namespace PeerTutoringSystem.Application.DTOs.Booking
 {
     public class TutorAvailabilityDto
     {
@@ -7,9 +8,10 @@
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public bool IsRecurring { get; set; }
-        public string RecurringDay { get; set; }
+        public string RecurrenceRule { get; set; } // e.g., "Weekly:Monday,Wednesday"
         public DateTime? RecurrenceEndDate { get; set; }
         public bool IsBooked { get; set; }
+        public bool AllowInstantBooking { get; set; }
     }
 
     public class CreateTutorAvailabilityDto
@@ -17,8 +19,9 @@
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public bool IsRecurring { get; set; }
-        public string RecurringDay { get; set; }
+        public string RecurrenceRule { get; set; } // e.g., "Weekly:Monday,Wednesday"
         public DateTime? RecurrenceEndDate { get; set; }
+        public bool AllowInstantBooking { get; set; }
     }
 
     public class BookingSessionDto
@@ -50,5 +53,24 @@
     public class UpdateBookingStatusDto
     {
         public string Status { get; set; } // "Confirmed", "Cancelled", "Completed"
+    }
+
+    public class BookingFilterDto
+    {
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public string Status { get; set; } // e.g., "Pending,Confirmed,Cancelled,Completed"
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public Guid? TutorId { get; set; }
+    }
+
+    public class PagedResultDto<T>
+    {
+        public List<T> Items { get; set; }
+        public int TotalCount { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
     }
 }

@@ -10,5 +10,4 @@ namespace PeerTutoringSystem.Application.Interfaces.Booking
         Task<bool> DeleteAsync(Guid availabilityId);
         Task<IEnumerable<TutorAvailabilityDto>> GetAvailableSlotsAsync(Guid tutorId, DateTime startDate, DateTime endDate);
     }
-
 }
