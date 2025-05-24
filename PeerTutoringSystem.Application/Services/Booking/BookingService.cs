@@ -3,6 +3,7 @@ using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
+using PeerTutoringSystem.Domain.Interfaces.Skills;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -16,15 +17,18 @@ namespace PeerTutoringSystem.Application.Services.Booking
         private readonly IBookingSessionRepository _bookingRepository;
         private readonly ITutorAvailabilityRepository _availabilityRepository;
         private readonly IUserService _userService;
+        private readonly ISkillRepository _skillRepository;
 
         public BookingService(
             IBookingSessionRepository bookingRepository,
             ITutorAvailabilityRepository availabilityRepository,
-            IUserService userService)
+            IUserService userService,
+            ISkillRepository skillRepository)
         {
-            _bookingRepository = bookingRepository;
-            _availabilityRepository = availabilityRepository;
-            _userService = userService;
+            _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
+            _availabilityRepository = availabilityRepository ?? throw new ArgumentNullException(nameof(availabilityRepository));
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _skillRepository = skillRepository ?? throw new ArgumentNullException(nameof(skillRepository));
         }
 
         public async Task<BookingSessionDto> CreateBookingAsync(Guid studentId, CreateBookingDto dto)
@@ -41,6 +45,13 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
             if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, availability.StartTime, availability.EndTime))
                 throw new ValidationException("This time slot is no longer available.");
+
+            if (dto.SkillId.HasValue)
+            {
+                var skill = await _skillRepository.GetByIdAsync(dto.SkillId.Value);
+                if (skill == null)
+                    throw new ValidationException("The specified skill does not exist.");
+            }
 
             var booking = new BookingSession
             {
@@ -80,6 +91,13 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, dto.StartTime, dto.EndTime))
                 throw new ValidationException("This time slot is not available.");
 
+            if (dto.SkillId.HasValue)
+            {
+                var skill = await _skillRepository.GetByIdAsync(dto.SkillId.Value);
+                if (skill == null)
+                    throw new ValidationException("The specified skill does not exist.");
+            }
+
             var availability = new TutorAvailability
             {
                 AvailabilityId = Guid.NewGuid(),
@@ -87,6 +105,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime,
                 IsRecurring = false,
+                IsDailyRecurring = false,
                 IsBooked = true
             };
             await _availabilityRepository.AddAsync(availability);
@@ -188,12 +207,13 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (!Enum.TryParse<BookingStatus>(dto.Status, true, out var newStatus))
                 throw new ValidationException("Invalid booking status.");
 
+            // Kiểm tra trạng thái chuyển đổi hợp lệ
+            if (!IsValidStatusTransition(booking.Status, newStatus))
+                throw new ValidationException($"Invalid status transition from {booking.Status} to {newStatus}.");
+
             switch (newStatus)
             {
                 case BookingStatus.Cancelled:
-                    if (booking.Status == BookingStatus.Completed)
-                        throw new ValidationException("Cannot cancel a completed booking.");
-
                     var availability = await _availabilityRepository.GetByIdAsync(booking.AvailabilityId);
                     if (availability != null)
                     {
@@ -203,15 +223,8 @@ namespace PeerTutoringSystem.Application.Services.Booking
                     break;
 
                 case BookingStatus.Completed:
-                    if (booking.Status == BookingStatus.Cancelled)
-                        throw new ValidationException("Cannot complete a cancelled booking.");
                     if (booking.EndTime > DateTime.UtcNow)
                         throw new ValidationException("Cannot mark a future booking as completed.");
-                    break;
-
-                case BookingStatus.Confirmed:
-                    if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Completed)
-                        throw new ValidationException("Cannot confirm a booking that is cancelled or completed.");
                     break;
             }
 
@@ -220,6 +233,22 @@ namespace PeerTutoringSystem.Application.Services.Booking
             await _bookingRepository.UpdateAsync(booking);
 
             return await EnrichBookingWithNames(booking);
+        }
+
+        private bool IsValidStatusTransition(BookingStatus currentStatus, BookingStatus newStatus)
+        {
+            switch (currentStatus)
+            {
+                case BookingStatus.Pending:
+                    return newStatus == BookingStatus.Confirmed || newStatus == BookingStatus.Cancelled;
+                case BookingStatus.Confirmed:
+                    return newStatus == BookingStatus.Completed || newStatus == BookingStatus.Cancelled;
+                case BookingStatus.Cancelled:
+                case BookingStatus.Completed:
+                    return false; // Không cho phép chuyển đổi từ Cancelled hoặc Completed
+                default:
+                    return false;
+            }
         }
 
         private IEnumerable<BookingSession> ApplyFilters(IEnumerable<BookingSession> query, BookingFilterDto filter)

@@ -1,7 +1,4 @@
 ﻿using PeerTutoringSystem.Application.DTOs.Booking;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Interfaces.Booking
 {
