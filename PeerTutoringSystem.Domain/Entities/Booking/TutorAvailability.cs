@@ -9,6 +9,7 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public bool IsRecurring { get; set; }
+        public bool IsDailyRecurring { get; set; }
         public DayOfWeek? RecurringDay { get; set; }
         public DateTime? RecurrenceEndDate { get; set; }
         public bool IsBooked { get; set; }
