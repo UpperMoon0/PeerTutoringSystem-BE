@@ -6,6 +6,7 @@ using PeerTutoringSystem.Application.Interfaces.Booking;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace PeerTutoringSystem.Api.Controllers.Booking
 {
@@ -19,21 +20,21 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
 
         public TutorAvailabilityController(ITutorAvailabilityService availabilityService, ILogger<TutorAvailabilityController> logger)
         {
-            _availabilityService = availabilityService;
-            _logger = logger;
+            _availabilityService = availabilityService ?? throw new ArgumentNullException(nameof(availabilityService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpPost]
         [Authorize(Roles = "Tutor")]
         public async Task<IActionResult> AddAvailability([FromBody] CreateTutorAvailabilityDto dto)
         {
+            if (dto == null)
+                return BadRequest(new { error = "Request body is required.", timestamp = DateTime.UtcNow });
+
             try
             {
-                if (dto == null)
-                    return BadRequest(new { error = "Request body is required.", timestamp = DateTime.UtcNow });
-
-                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-                    throw new ValidationException("Invalid token."));
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
 
                 var availability = await _availabilityService.AddAsync(userId, dto);
                 return Ok(new
@@ -45,20 +46,30 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             }
             catch (ValidationException ex)
             {
+                _logger.LogWarning(ex, "Validation error while adding tutor availability.");
                 return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while adding tutor availability.");
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
 
         [HttpGet("tutor/{tutorId:guid}")]
+        [Authorize(Roles = "Tutor,Admin,Student")]
         public async Task<IActionResult> GetTutorAvailability(Guid tutorId, [FromQuery] BookingFilterDto filter)
         {
             try
             {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+
+                var isTutor = User.IsInRole("Tutor");
+                var isAdmin = User.IsInRole("Admin");
+                if (!isAdmin && isTutor && userId != tutorId)
+                    return StatusCode(403, new { error = "You can only view your own availability.", timestamp = DateTime.UtcNow });
+
                 var (availabilities, totalCount) = await _availabilityService.GetByTutorIdAsync(tutorId, filter);
                 return Ok(new
                 {
@@ -72,7 +83,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while retrieving tutor availability for tutor {TutorId}.", tutorId);
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
 
@@ -101,10 +112,15 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                     timestamp = DateTime.UtcNow
                 });
             }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while retrieving available slots for tutor {TutorId}.", tutorId);
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while retrieving available slots for tutor {TutorId}.", tutorId);
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
 
@@ -114,8 +130,8 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         {
             try
             {
-                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-                    throw new ValidationException("Invalid token."));
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
 
                 var availability = await _availabilityService.GetByIdAsync(availabilityId);
                 if (availability == null)
@@ -132,12 +148,13 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             }
             catch (ValidationException ex)
             {
+                _logger.LogWarning(ex, "Validation error while deleting availability {AvailabilityId}.", availabilityId);
                 return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while deleting availability {AvailabilityId}.", availabilityId);
-                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message, timestamp = DateTime.UtcNow });
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
     }

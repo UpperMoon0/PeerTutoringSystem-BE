@@ -188,6 +188,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
             {
                 entity.HasKey(e => e.AvailabilityId);
                 entity.Property(e => e.RecurringDay).HasConversion<string>();
+                entity.Property(e => e.IsDailyRecurring).HasDefaultValue(false);
             });
         }
     }

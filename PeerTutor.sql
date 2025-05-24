@@ -142,6 +142,7 @@ BEGIN
         StartTime DATETIME NOT NULL,
         EndTime DATETIME NOT NULL,
         IsRecurring BIT NOT NULL DEFAULT 0,
+        IsDailyRecurring BIT NOT NULL DEFAULT 0, -- Thêm cột IsDailyRecurring
         RecurringDay NVARCHAR(10) NULL, -- Store as string representation of DayOfWeek
         RecurrenceEndDate DATETIME NULL,
         IsBooked BIT NOT NULL DEFAULT 0,
@@ -150,6 +151,19 @@ BEGIN
     
     CREATE NONCLUSTERED INDEX IX_TutorAvailabilities_TutorId ON TutorAvailabilities(TutorId);
     CREATE NONCLUSTERED INDEX IX_TutorAvailabilities_TimeRange ON TutorAvailabilities(StartTime, EndTime);
+    CREATE NONCLUSTERED INDEX IX_TutorAvailabilities_IsDailyRecurring ON TutorAvailabilities(IsDailyRecurring); -- Thêm chỉ mục cho IsDailyRecurring
+END;
+ELSE
+BEGIN
+    -- Nếu bảng đã tồn tại, kiểm tra và thêm cột IsDailyRecurring nếu chưa có
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('TutorAvailabilities') AND name = 'IsDailyRecurring')
+    BEGIN
+        ALTER TABLE TutorAvailabilities
+        ADD IsDailyRecurring BIT NOT NULL DEFAULT 0;
+
+        -- Thêm chỉ mục cho cột mới
+        CREATE NONCLUSTERED INDEX IX_TutorAvailabilities_IsDailyRecurring ON TutorAvailabilities(IsDailyRecurring);
+    END;
 END;
 GO
 
@@ -205,15 +219,18 @@ ALTER TABLE Skills
 ADD CONSTRAINT CHK_SkillLevel CHECK (SkillLevel IN ('Beginner', 'Elementary', 'Intermediate', 'Advanced', 'Expert'));
 GO
 
--- Tạo bảng UserSkills
-CREATE TABLE UserSkills (
-    UserSkillID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    UserID UNIQUEIDENTIFIER NOT NULL,
-    SkillID UNIQUEIDENTIFIER NOT NULL,
-    IsTutor BIT NOT NULL,
-    CONSTRAINT FK_UserSkills_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
-    CONSTRAINT FK_UserSkills_Skills FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
-);
+-- Create UserSkills Table
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'UserSkills')
+BEGIN
+    CREATE TABLE UserSkills (
+        UserSkillID UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        UserID UNIQUEIDENTIFIER NOT NULL,
+        SkillID UNIQUEIDENTIFIER NOT NULL,
+        IsTutor BIT NOT NULL,
+        CONSTRAINT FK_UserSkills_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+        CONSTRAINT FK_UserSkills_Skills FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
+    );
+END;
 GO
 
 -- Create Indexes
@@ -227,12 +244,13 @@ CREATE NONCLUSTERED INDEX IX_TutorVerifications_CitizenID ON TutorVerifications(
 CREATE NONCLUSTERED INDEX IX_TutorVerifications_StudentID ON TutorVerifications(StudentID);
 GO
 
+-- Insert initial admin user
 INSERT INTO Users (
     UserID, FullName, Email, PasswordHash, DateOfBirth, PhoneNumber, 
     Gender, Hometown, CreatedDate, LastActive, IsOnline, Status, RoleID
 )
 VALUES (
-    NEWID(), 'Admin User', 'admin@example.com', 'AQAAAAIAAYagAAAAEBu/GxeoOcRJL1/6fxnjfarakRdfsAj/7K5s0ne2VbAgAPflGYuWWVjKGlEbKp ринNpCQ==', 
+    NEWID(), 'Admin User', 'admin@example.com', 'AQAAAAIAAYagAAAAEBu/GxeoOcRJL1/6fxnjfarakRdfsAj/7K5s0ne2VbAgAPflGYuWWVjKGlEbKpNpCQ==', 
     '1990-01-01', '1234567890', 'Male', 'Hanoi', GETUTCDATE(), GETUTCDATE(), 
     1, 'Active', 3
 );
