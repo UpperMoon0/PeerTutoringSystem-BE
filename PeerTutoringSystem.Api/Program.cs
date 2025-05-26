@@ -4,25 +4,29 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using PeerTutoringSystem.Infrastructure.Data;
-using System.Text;
 using Microsoft.OpenApi.Models;
-using PeerTutoringSystem.Application.Interfaces.Authentication;
-using PeerTutoringSystem.Application.Services.Authentication;
-using PeerTutoringSystem.Domain.Interfaces.Authentication;
-using PeerTutoringSystem.Infrastructure.Repositories.Authentication;
-using PeerTutoringSystem.Application.Services.Profile_Bio;
-using PeerTutoringSystem.Application.Interfaces.Profile_Bio;
-using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
-using PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio;
-using PeerTutoringSystem.Application.Interfaces.Skills;
-using PeerTutoringSystem.Domain.Interfaces.Skills;
-using PeerTutoringSystem.Infrastructure.Repositories.Skills;
 using PeerTutoringSystem.Application.DTOs.Authentication;
+using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Booking;
-using PeerTutoringSystem.Infrastructure.Repositories.Booking;
+using PeerTutoringSystem.Application.Interfaces.Profile_Bio;
+using PeerTutoringSystem.Application.Interfaces.Reviews;
+using PeerTutoringSystem.Application.Interfaces.Skills;
+using PeerTutoringSystem.Application.Services.Authentication;
 using PeerTutoringSystem.Application.Services.Booking;
+using PeerTutoringSystem.Application.Services.Profile_Bio;
+using PeerTutoringSystem.Application.Services.Reviews;
+using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
+using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
+using PeerTutoringSystem.Domain.Interfaces.Reviews;
+using PeerTutoringSystem.Domain.Interfaces.Skills;
+using PeerTutoringSystem.Infrastructure.Data;
+using PeerTutoringSystem.Infrastructure.Repositories.Authentication;
+using PeerTutoringSystem.Infrastructure.Repositories.Booking;
+using PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio;
+using PeerTutoringSystem.Infrastructure.Repositories.Reviews;
+using PeerTutoringSystem.Infrastructure.Repositories.Skills;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,6 +83,8 @@ builder.Services.AddScoped<ITutorAvailabilityRepository, TutorAvailabilityReposi
 builder.Services.AddScoped<IBookingSessionRepository, BookingSessionRepository>();
 builder.Services.AddScoped<ITutorAvailabilityService, TutorAvailabilityService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
 
 // Add CORS

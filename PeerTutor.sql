@@ -255,3 +255,26 @@ VALUES (
     1, 'Active', 3
 );
 GO
+
+-- Create Review table
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Reviews')
+BEGIN
+    CREATE TABLE Reviews (
+        ReviewID INT IDENTITY(1,1) PRIMARY KEY,
+        BookingID UNIQUEIDENTIFIER NOT NULL,
+        StudentID UNIQUEIDENTIFIER NOT NULL,
+        TutorID UNIQUEIDENTIFIER NOT NULL,
+        Rating INT NOT NULL CHECK (Rating BETWEEN 1 AND 5),
+        Comment NVARCHAR(500) NULL,
+        ReviewDate DATETIME NOT NULL DEFAULT GETUTCDATE(),
+        CONSTRAINT FK_Reviews_BookingSessions FOREIGN KEY (BookingID) REFERENCES BookingSessions(BookingID),
+        CONSTRAINT FK_Reviews_Students FOREIGN KEY (StudentID) REFERENCES Users(UserID),
+        CONSTRAINT FK_Reviews_Tutors FOREIGN KEY (TutorID) REFERENCES Users(UserID)
+    );
+
+    -- Add indexes for faster querying
+    CREATE NONCLUSTERED INDEX IX_Reviews_BookingID ON Reviews(BookingID);
+    CREATE NONCLUSTERED INDEX IX_Reviews_StudentID ON Reviews(StudentID);
+    CREATE NONCLUSTERED INDEX IX_Reviews_TutorID ON Reviews(TutorID);
+END;
+GO
