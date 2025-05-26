@@ -2,6 +2,7 @@
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Entities.Profile_Bio;
+using PeerTutoringSystem.Domain.Entities.Reviews;
 using PeerTutoringSystem.Domain.Entities.Skills;
 
 namespace PeerTutoringSystem.Infrastructure.Data
@@ -22,6 +23,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
         public DbSet<UserSkill> UserSkills { get; set; }
         public DbSet<TutorAvailability> TutorAvailabilities { get; set; }
         public DbSet<BookingSession> BookingSessions { get; set; }
+        public DbSet<Review> Reviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -190,6 +192,37 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 entity.Property(e => e.RecurringDay).HasConversion<string>();
                 entity.Property(e => e.IsDailyRecurring).HasDefaultValue(false);
             });
+
+            // Reviews configuration
+            modelBuilder.Entity<Review>()
+                .HasKey(r => r.ReviewID);
+
+            modelBuilder.Entity<Review>()
+                .Property(r => r.Rating)
+                .IsRequired();
+
+            modelBuilder.Entity<Review>()
+                .Property(r => r.Comment)
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Booking)
+                .WithMany()
+                .HasForeignKey(r => r.BookingID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Student)
+                .WithMany()
+                .HasForeignKey(r => r.StudentID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Tutor)
+                .WithMany()
+                .HasForeignKey(r => r.TutorID)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 
