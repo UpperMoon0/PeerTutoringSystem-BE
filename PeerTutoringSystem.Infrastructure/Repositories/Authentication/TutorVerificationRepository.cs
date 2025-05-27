@@ -53,5 +53,13 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
             _context.TutorVerifications.Update(verification);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<TutorVerification> GetLatestVerificationAsync(Guid userId)
+        {
+            return await _context.TutorVerifications
+                .Where(v => v.UserID == userId)
+                .OrderByDescending(v => v.VerificationDate ?? DateTime.MinValue)
+                .FirstOrDefaultAsync();
+        }
     }
 }

@@ -1,6 +1,6 @@
 # PeerTutoringSystem Backend
 
-Welcome to the backend of the **PeerTutoringSystem**, a platform designed to facilitate peer tutoring by managing user authentication, tutor verification, document uploads, and tutor profiles. This project is built using **ASP.NET Core** with a layered architecture, integrating with **SQL Server** for data storage and **Firebase** for authentication.
+Welcome to the backend of the **PeerTutoringSystem**, a platform designed to facilitate peer tutoring by managing user authentication, tutor verification, document uploads, tutor profiles, and tutoring session bookings. This project is built using **ASP.NET Core** with a layered architecture, integrating with **SQL Server** for data storage and **Firebase** for authentication.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -14,8 +14,11 @@ Welcome to the backend of the **PeerTutoringSystem**, a platform designed to fac
   - [Tutor Verifications](#tutor-verifications)
   - [Documents](#documents)
   - [Profiles](#profiles)
+  - [Tutor Availabilities](#tutor-availabilities)
+  - [Bookings](#bookings)
 - [Usage](#usage)
 - [Testing](#testing)
+- [Performance Optimization](#performance-optimization)
 - [Links](#links)
 - [Contributing](#contributing)
 - [License](#license)
@@ -35,7 +38,7 @@ The project follows a layered architecture with the following structure:
 ```
 PeerTutoringSystem
 ├── PeerTutoringSystem.Api
-│   ├── Controllers/                # API controllers (Auth, Users, TutorVerifications, Documents, Profiles)
+│   ├── Controllers/                # API controllers (Auth, Users, TutorVerifications, Documents, Profiles, Bookings)
 │   ├── Middleware/                 # Custom middleware (e.g., AuthorizeAdmin)
 │   ├── wwwroot/documents/          # Folder for storing uploaded documents
 │   ├── appsettings.json            # Configuration file
@@ -46,7 +49,7 @@ PeerTutoringSystem
 │   ├── Interfaces/                 # Service interfaces
 │   └── Services/                   # Business logic implementation
 ├── PeerTutoringSystem.Domain
-│   ├── Entities/                   # Domain entities (User, TutorVerification, Document, Profile, etc.)
+│   ├── Entities/                   # Domain entities (User, TutorVerification, Document, Profile, TutorAvailability, BookingSession)
 │   └── Interfaces/                 # Repository interfaces
 ├── PeerTutoringSystem.Infrastructure
 │   ├── Data/                       # DbContext (AppDbContext)
@@ -77,9 +80,11 @@ Follow these steps to set up the project locally:
        "DefaultConnection": "Server=localhost;Database=PeerTutoringSystem;Trusted_Connection=True;"
      }
      ```
-   - Run migrations to create the database and tables:
+   - Run migrations to create the database and tables, including the new `IsDailyRecurring` column:
      ```bash
      cd PeerTutoringSystem.Infrastructure
+     dotnet ef migrations add InitialCreate --startup-project ../PeerTutoringSystem.Api
+     dotnet ef migrations add AddIsDailyRecurring --startup-project ../PeerTutoringSystem.Api
      dotnet ef database update --startup-project ../PeerTutoringSystem.Api
      ```
 
@@ -127,6 +132,10 @@ Follow these steps to set up the project locally:
         });
     });
     ```
+
+- **Time Zone Handling**:
+  - All date and time values (`StartTime`, `EndTime`, `CreatedAt`, etc.) are stored and processed in **UTC** to ensure consistency.
+  - For future extensibility, consider adding a `TimeZone` field to `TutorAvailabilities` or `Users` and using `TimeZoneInfo` for conversions.
 
 ## Running the Application
 1. **Build the solution**:
@@ -185,7 +194,36 @@ Follow these steps to set up the project locally:
 | GET    | `/api/profiles/user/{userId}`| Get a tutor profile by user ID    | Authenticated (JWT)   |
 | PUT    | `/api/profiles/{profileId}`  | Update a tutor profile            | Self or Admin         |
 
-#### Notes:
+### Tutor Availabilities
+| Method | Endpoint                     | Description                       | Authorization         |
+|--------|------------------------------|-----------------------------------|-----------------------|
+| POST   | `/api/tutor-availability`    | Add a tutor availability slot     | Tutor only            |
+| GET    | `/api/tutor-availability/tutor/{tutorId}` | Get availability slots for a tutor | Tutor, Admin, Student |
+| GET    | `/api/tutor-availability/available?tutorId={tutorId}&startDate={date}&endDate={date}` | Get available slots for booking | Public                |
+| DELETE | `/api/tutor-availability/{availabilityId}` | Delete an availability slot | Tutor only            |
+
+**Notes**:
+- The `/api/tutor-availability/tutor/{tutorId}` endpoint restricts Tutors to viewing only their own slots unless the user is an Admin.
+- Supports both **weekly recurring** (`IsRecurring`) and **daily recurring** (`IsDailyRecurring`) availability slots.
+- All times are handled in **UTC**. Future updates may include user-specific time zone support.
+
+### Bookings
+| Method | Endpoint                     | Description                       | Authorization         |
+|--------|------------------------------|-----------------------------------|-----------------------|
+| POST   | `/api/bookings`              | Create a booking for a slot        | Student only          |
+| POST   | `/api/bookings/instant`      | Create an instant booking         | Student only          |
+| GET    | `/api/bookings/{bookingId}`  | Get a booking by ID               | Student, Tutor, Admin |
+| GET    | `/api/bookings/student`      | Get bookings for a student        | Student only          |
+| GET    | `/api/bookings/tutor`        | Get bookings for a tutor          | Tutor only            |
+| GET    | `/api/bookings/upcoming`     | Get upcoming bookings             | Student, Tutor        |
+| PUT    | `/api/bookings/{bookingId}/status` | Update booking status       | Student, Tutor, Admin |
+
+**Notes**:
+- Bookings require a valid `SkillId` (checked against the `Skills` table).
+- Status transitions are validated (e.g., `Pending` to `Confirmed` or `Cancelled`, but not from `Cancelled` to `Completed`).
+- Only Students can cancel bookings, while Tutors can confirm or mark as completed.
+
+#### Additional Notes:
 - **Document Upload**:
   - Documents must be in PDF or Word format (`.pdf`, `.doc`, `.docx`).
   - Maximum file size: 5MB.
@@ -286,7 +324,33 @@ Follow these steps to set up the project locally:
      }
      ```
 
-6. **Admin Actions**:
+6. **Add Tutor Availability**:
+   - Send a `POST` request to `/api/tutor-availability` with:
+     ```json
+     {
+       "StartTime": "2025-06-01T09:00:00Z",
+       "EndTime": "2025-06-01T10:00:00Z",
+       "IsRecurring": false,
+       "IsDailyRecurring": true,
+       "RecurrenceEndDate": "2025-12-31T23:59:59Z"
+     }
+     ```
+   - This creates a daily recurring slot from June 1, 2025, to December 31, 2025, from 9:00 to 10:00 UTC.
+
+7. **Create a Booking**:
+   - Send a `POST` request to `/api/bookings` with:
+     ```json
+     {
+       "TutorId": "guid-of-tutor",
+       "AvailabilityId": "guid-of-availability",
+       "SkillId": "guid-of-skill",
+       "Topic": "Math Tutoring",
+       "Description": "Need help with calculus."
+     }
+     ```
+   - The `SkillId` must exist in the `Skills` table, and the slot must be available.
+
+8. **Admin Actions**:
    - Use an Admin account to approve/reject tutor verification requests via `/api/tutor-verifications/{verificationId}`.
 
 ## Testing
@@ -294,6 +358,18 @@ Follow these steps to set up the project locally:
   - Run the application in development mode and navigate to `/swagger` to test endpoints interactively.
 - **Postman**:
   - Import the API collection (if provided) or manually create requests based on the [API Endpoints](#api-endpoints) section.
+- **Unit Tests**:
+  - Use a testing framework like **xUnit** with **Moq** to test services and repositories.
+  - Example: Test the `TutorAvailabilityService` to ensure daily recurring slots are generated correctly.
+
+## Performance Optimization
+- **Dynamic Slot Generation**:
+  - Recurring availability slots (weekly and daily) are generated dynamically at runtime, reducing database storage requirements.
+  - The `TutorAvailabilityService` uses efficient logic to create slots within the requested time range, minimizing queries.
+- **Indexing**:
+  - The database includes indexes on `TutorAvailabilities` (`TutorId`, `StartTime`, `EndTime`, `IsDailyRecurring`) to optimize slot retrieval.
+- **Monitoring**:
+  - For large datasets, monitor the performance of `GetAvailableSlotsByTutorIdAsync` and consider limiting the time range (e.g., 30 days) for recurring slots.
 
 ## Links
 - **Repository**: [GitHub Repository](https://github.com/huy69185/PeerTutoringSystem-BE)

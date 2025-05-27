@@ -47,5 +47,15 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Skills
             await _context.SaveChangesAsync();
             return skill;
         }
+
+        public async Task DeleteAsync(Guid skillId)
+        {
+            var skill = await _context.Skills.FindAsync(skillId);
+            if (skill != null)
+            {
+                _context.Skills.Remove(skill);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
