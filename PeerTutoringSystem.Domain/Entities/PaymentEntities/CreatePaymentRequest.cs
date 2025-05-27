@@ -1,4 +1,6 @@
-﻿public class CreatePaymentRequest
+﻿namespace PeerTutoringSystem.Domain.Entities.PaymentEntities;
+
+public class CreatePaymentRequest
 {
     public decimal Amount { get; set; }
     public string Description { get; set; }

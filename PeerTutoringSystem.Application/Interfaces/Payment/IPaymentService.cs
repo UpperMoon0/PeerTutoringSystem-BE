@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 
 public interface IPaymentService
 {

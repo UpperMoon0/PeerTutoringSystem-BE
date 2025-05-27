@@ -23,6 +23,10 @@ using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Infrastructure.Repositories.Booking;
 using PeerTutoringSystem.Application.Services.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
+using PeerTutoringSystem.Domain.Interfaces.Payment;
+using PeerTutoringSystem.Infrastructure.Repositories.Payment;
+using PeerTutoringSystem.Application.Interfaces.Payment;
+using PeerTutoringSystem.Application.Services.Payment;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,7 +83,9 @@ builder.Services.AddScoped<ITutorAvailabilityRepository, TutorAvailabilityReposi
 builder.Services.AddScoped<IBookingSessionRepository, BookingSessionRepository>();
 builder.Services.AddScoped<ITutorAvailabilityService, TutorAvailabilityService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
-
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

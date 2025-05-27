@@ -20,9 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\PeerTutoringSystem.Domain\PeerTutoringSystem.Domain.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Repositories\Payment\" />
-  </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
