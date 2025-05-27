@@ -20,5 +20,8 @@
   <ItemGroup>
     <ProjectReference Include="..\PeerTutoringSystem.Infrastructure\PeerTutoringSystem.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DTOs\Payment\" />
+  </ItemGroup>
 
 </Project>
