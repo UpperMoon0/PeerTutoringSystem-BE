@@ -24,6 +24,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
         public DbSet<TutorAvailability> TutorAvailabilities { get; set; }
         public DbSet<BookingSession> BookingSessions { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<Session> Sessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -223,6 +224,13 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(r => r.TutorID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Session>(entity =>
+            {
+                entity.HasKey(e => e.SessionId);
+                entity.Property(e => e.VideoCallLink).HasMaxLength(255);
+                entity.Property(e => e.SessionNotes).HasMaxLength(500);
+            });
         }
     }
 
