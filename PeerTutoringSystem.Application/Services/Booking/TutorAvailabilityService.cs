@@ -22,9 +22,12 @@ namespace PeerTutoringSystem.Application.Services.Booking
             IBookingSessionRepository bookingRepository,
             ILogger<TutorAvailabilityService> logger)
         {
-            _availabilityRepository = availabilityRepository ?? throw new ArgumentNullException(nameof(availabilityRepository));
-            _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _availabilityRepository = availabilityRepository
+                ?? throw new ArgumentNullException(nameof(availabilityRepository));
+            _bookingRepository = bookingRepository
+                ?? throw new ArgumentNullException(nameof(bookingRepository));
+            _logger = logger
+                ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<TutorAvailabilityDto> AddAsync(Guid tutorId, CreateTutorAvailabilityDto dto)
@@ -79,7 +82,11 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 if (availability == null)
                     return false;
 
-                var hasBooking = await _bookingRepository.IsSlotAvailableAsync(availability.TutorId, availability.StartTime, availability.EndTime);
+                var hasBooking = await _bookingRepository.IsSlotAvailableAsync(
+                    availability.TutorId,
+                    availability.StartTime,
+                    availability.EndTime
+                );
                 if (!hasBooking)
                     throw new ValidationException("Cannot delete availability with existing bookings.");
 
@@ -93,7 +100,10 @@ namespace PeerTutoringSystem.Application.Services.Booking
             }
         }
 
-        public async Task<(IEnumerable<TutorAvailabilityDto> Availabilities, int TotalCount)> GetByTutorIdAsync(Guid tutorId, BookingFilterDto filter)
+        public async Task<(IEnumerable<TutorAvailabilityDto> Availabilities, int TotalCount)> GetByTutorIdAsync(
+            Guid tutorId,
+            BookingFilterDto filter
+        )
         {
             var availabilities = await _availabilityRepository.GetByTutorIdAsync(tutorId);
             var query = availabilities.AsEnumerable();
@@ -117,7 +127,12 @@ namespace PeerTutoringSystem.Application.Services.Booking
             return (filtered.Select(MapToDto), totalCount);
         }
 
-        public async Task<(IEnumerable<TutorAvailabilityDto> Availabilities, int TotalCount)> GetAvailableSlotsAsync(Guid tutorId, DateTime startDate, DateTime endDate, BookingFilterDto filter)
+        public async Task<(IEnumerable<TutorAvailabilityDto> Availabilities, int TotalCount)> GetAvailableSlotsAsync(
+            Guid tutorId,
+            DateTime startDate,
+            DateTime endDate,
+            BookingFilterDto filter
+        )
         {
             if (startDate > endDate)
                 throw new ValidationException("Start date must be before end date.");
@@ -127,8 +142,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 startDate = currentDateTimeUtc;
 
             var availabilities = await _availabilityRepository.GetAvailableSlotsByTutorIdAsync(tutorId, startDate, endDate);
-            var dynamicAvailabilities = GenerateDynamicSlots(availabilities, startDate, endDate);
-            var query = dynamicAvailabilities.AsEnumerable();
+            var query = availabilities.AsEnumerable();
 
             if (filter.StartDate.HasValue)
             {
@@ -153,87 +167,6 @@ namespace PeerTutoringSystem.Application.Services.Booking
         {
             var availability = await _availabilityRepository.GetByIdAsync(availabilityId);
             return availability != null ? MapToDto(availability) : null;
-        }
-
-        private IEnumerable<TutorAvailability> GenerateDynamicSlots(IEnumerable<TutorAvailability> availabilities, DateTime startDate, DateTime endDate)
-        {
-            var result = new List<TutorAvailability>();
-
-            foreach (var availability in availabilities)
-            {
-                if (!availability.IsRecurring && !availability.IsDailyRecurring)
-                {
-                    if (!availability.IsBooked && availability.StartTime >= startDate && availability.EndTime <= endDate)
-                    {
-                        result.Add(availability);
-                    }
-                }
-                else if (availability.IsDailyRecurring)
-                {
-                    var currentDate = startDate.Date;
-                    var recurrenceEnd = availability.RecurrenceEndDate ?? endDate;
-
-                    while (currentDate <= endDate && currentDate <= recurrenceEnd)
-                    {
-                        var slotStart = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day,
-                            availability.StartTime.Hour, availability.StartTime.Minute, 0, DateTimeKind.Utc);
-                        var slotEnd = slotStart + (availability.EndTime - availability.StartTime);
-
-                        if (slotStart >= DateTime.UtcNow && !IsSlotBooked(availability.TutorId, slotStart, slotEnd).Result)
-                        {
-                            result.Add(new TutorAvailability
-                            {
-                                AvailabilityId = availability.AvailabilityId,
-                                TutorId = availability.TutorId,
-                                StartTime = slotStart,
-                                EndTime = slotEnd,
-                                IsRecurring = false,
-                                IsDailyRecurring = false,
-                                IsBooked = false
-                            });
-                        }
-                        currentDate = currentDate.AddDays(1);
-                    }
-                }
-                else if (availability.IsRecurring && availability.RecurringDay.HasValue)
-                {
-                    var currentDate = startDate.Date;
-                    var recurrenceEnd = availability.RecurrenceEndDate ?? endDate;
-                    var day = availability.RecurringDay.Value;
-
-                    while (currentDate <= endDate && currentDate <= recurrenceEnd)
-                    {
-                        if (currentDate.DayOfWeek == day)
-                        {
-                            var slotStart = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day,
-                                availability.StartTime.Hour, availability.StartTime.Minute, 0, DateTimeKind.Utc);
-                            var slotEnd = slotStart + (availability.EndTime - availability.StartTime);
-
-                            if (slotStart >= DateTime.UtcNow && !IsSlotBooked(availability.TutorId, slotStart, slotEnd).Result)
-                            {
-                                result.Add(new TutorAvailability
-                                {
-                                    AvailabilityId = availability.AvailabilityId,
-                                    TutorId = availability.TutorId,
-                                    StartTime = slotStart,
-                                    EndTime = slotEnd,
-                                    IsRecurring = false,
-                                    IsDailyRecurring = false,
-                                    IsBooked = false
-                                });
-                            }
-                        }
-                        currentDate = currentDate.AddDays(1);
-                    }
-                }
-            }
-
-            return result.OrderBy(a => a.StartTime);
-        }
-
-        private async Task<bool> IsSlotBooked(Guid tutorId, DateTime startTime, DateTime endTime)
-        {
-            return await _bookingRepository.IsSlotAvailableAsync(tutorId, startTime, endTime) == false;
         }
 
         private TutorAvailabilityDto MapToDto(TutorAvailability availability)

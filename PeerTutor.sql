@@ -181,7 +181,7 @@ BEGIN
         SkillId UNIQUEIDENTIFIER NULL,
         Topic NVARCHAR(100) NOT NULL,
         Description NVARCHAR(500) NULL,
-        Status NVARCHAR(20) NOT NULL CHECK (Status IN ('Pending', 'Confirmed', 'Cancelled', 'Completed')),
+        Status NVARCHAR(20) NOT NULL CHECK (Status IN ('Pending', 'Confirmed', 'Cancelled', 'Completed','Rejected')),
         CreatedAt DATETIME NOT NULL,
         UpdatedAt DATETIME NULL,
         CONSTRAINT FK_BookingSessions_Students FOREIGN KEY (StudentId) REFERENCES Users(UserID),

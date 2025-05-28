@@ -24,6 +24,7 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
         Pending,
         Confirmed,
         Cancelled,
-        Completed
+        Completed,
+        Rejected
     }
 }

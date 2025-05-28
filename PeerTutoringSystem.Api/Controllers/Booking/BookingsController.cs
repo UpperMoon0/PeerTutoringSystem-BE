@@ -243,7 +243,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         [Authorize(Roles = "Student,Tutor,Admin")]
         public async Task<IActionResult> UpdateBookingStatus(Guid bookingId, [FromBody] UpdateBookingStatusDto dto)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Status))
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Status?.Trim()))
             {
                 return BadRequest(new { error = "Status is required.", timestamp = DateTime.UtcNow });
             }
@@ -255,9 +255,14 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                     return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
                 }
 
-                if (!Enum.TryParse<BookingStatus>(dto.Status, true, out var status))
+                var statusString = dto.Status.Trim();
+                if (!Enum.TryParse<BookingStatus>(statusString, true, out var status))
                 {
-                    return BadRequest(new { error = "Invalid booking status. Valid values are: Pending, Confirmed, Completed, Cancelled.", timestamp = DateTime.UtcNow });
+                    return BadRequest(new
+                    {
+                        error = $"Invalid booking status. Valid values are: Pending, Confirmed, Completed, Cancelled, Rejected. Example: 'Pending'.",
+                        timestamp = DateTime.UtcNow
+                    });
                 }
 
                 var booking = await _bookingService.GetBookingByIdAsync(bookingId);
@@ -266,25 +271,68 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                     return NotFound(new { error = "Booking not found.", timestamp = DateTime.UtcNow });
                 }
 
-                var isAdmin = User.IsInRole("Admin");
-                if (dto.Status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) && booking.StudentId != userId && !isAdmin)
+                // Parse booking.Status (string) to BookingStatus enum
+                if (!Enum.TryParse<BookingStatus>(booking.Status, true, out var currentBookingStatus))
                 {
-                    return StatusCode(403, new { error = "You do not have permission to cancel this booking.", timestamp = DateTime.UtcNow });
+                    return BadRequest(new { error = "Invalid current booking status.", timestamp = DateTime.UtcNow });
                 }
 
-                if ((dto.Status.Equals("Confirmed", StringComparison.OrdinalIgnoreCase) ||
-                     dto.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase)) &&
-                    booking.TutorId != userId && !isAdmin)
+                var isAdmin = User.IsInRole("Admin");
+
+                switch (status)
                 {
-                    return StatusCode(403, new { error = "You do not have permission to update this booking status.", timestamp = DateTime.UtcNow });
+                    case BookingStatus.Cancelled:
+                        if (booking.StudentId != userId && !isAdmin)
+                        {
+                            return StatusCode(403, new { error = "Only the student or admin can cancel this booking.", timestamp = DateTime.UtcNow });
+                        }
+                        break;
+
+                    case BookingStatus.Confirmed:
+                    case BookingStatus.Completed:
+                        if (booking.TutorId != userId && !isAdmin)
+                        {
+                            return StatusCode(403, new { error = "Only the assigned tutor or admin can update this booking status.", timestamp = DateTime.UtcNow });
+                        }
+                        break;
+
+                    case BookingStatus.Rejected:
+                        if (booking.TutorId != userId && !isAdmin)
+                        {
+                            return StatusCode(403, new { error = "Only the assigned tutor or admin can reject this booking.", timestamp = DateTime.UtcNow });
+                        }
+                        if (currentBookingStatus != BookingStatus.Pending)
+                        {
+                            return BadRequest(new { error = "Only bookings in Pending status can be rejected.", timestamp = DateTime.UtcNow });
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+
+                if (currentBookingStatus == status)
+                {
+                    return BadRequest(new { error = "The booking already has this status.", timestamp = DateTime.UtcNow });
                 }
 
                 var updatedBooking = await _bookingService.UpdateBookingStatusAsync(bookingId, dto);
-                return Ok(new { data = updatedBooking, message = "Booking status updated successfully.", timestamp = DateTime.UtcNow });
+
+                return Ok(new
+                {
+                    data = updatedBooking,
+                    message = "Booking status updated successfully.",
+                    timestamp = DateTime.UtcNow
+                });
             }
             catch (ValidationException ex)
             {
                 _logger.LogWarning(ex, "Validation error while updating booking status for booking {BookingId}.", bookingId);
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Argument error while updating booking status for booking {BookingId}.", bookingId);
                 return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
