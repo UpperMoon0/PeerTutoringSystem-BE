@@ -278,3 +278,23 @@ BEGIN
     CREATE NONCLUSTERED INDEX IX_Reviews_TutorID ON Reviews(TutorID);
 END;
 GO
+
+================================================Quản lý buổi học=====================================
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Sessions')
+BEGIN
+    CREATE TABLE Sessions (
+        SessionId UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+        BookingId UNIQUEIDENTIFIER NOT NULL,
+        VideoCallLink NVARCHAR(255) NULL,
+        SessionNotes NVARCHAR(500) NULL,
+        StartTime DATETIME NOT NULL,
+        EndTime DATETIME NOT NULL,
+        CreatedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+        UpdatedAt DATETIME NULL,
+        CONSTRAINT FK_Sessions_BookingSessions FOREIGN KEY (BookingId) REFERENCES BookingSessions(BookingId) ON DELETE CASCADE
+    );
+
+    -- Thêm chỉ mục cho BookingId
+    CREATE NONCLUSTERED INDEX IX_Sessions_BookingId ON Sessions(BookingId);
+END;
+GO
