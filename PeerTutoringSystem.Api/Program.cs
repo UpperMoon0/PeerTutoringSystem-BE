@@ -85,6 +85,8 @@ builder.Services.AddScoped<ITutorAvailabilityService, TutorAvailabilityService>(
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 
 
 // Add CORS
