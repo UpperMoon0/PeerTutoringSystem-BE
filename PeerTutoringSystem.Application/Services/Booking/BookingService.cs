@@ -207,13 +207,14 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (!Enum.TryParse<BookingStatus>(dto.Status, true, out var newStatus))
                 throw new ValidationException("Invalid booking status.");
 
-            // Kiểm tra trạng thái chuyển đổi hợp lệ
+            // Check for valid status transition
             if (!IsValidStatusTransition(booking.Status, newStatus))
                 throw new ValidationException($"Invalid status transition from {booking.Status} to {newStatus}.");
 
             switch (newStatus)
             {
                 case BookingStatus.Cancelled:
+                case BookingStatus.Rejected:
                     var availability = await _availabilityRepository.GetByIdAsync(booking.AvailabilityId);
                     if (availability != null)
                     {
@@ -240,12 +241,13 @@ namespace PeerTutoringSystem.Application.Services.Booking
             switch (currentStatus)
             {
                 case BookingStatus.Pending:
-                    return newStatus == BookingStatus.Confirmed || newStatus == BookingStatus.Cancelled;
+                    return newStatus == BookingStatus.Confirmed || newStatus == BookingStatus.Cancelled || newStatus == BookingStatus.Rejected;
                 case BookingStatus.Confirmed:
                     return newStatus == BookingStatus.Completed || newStatus == BookingStatus.Cancelled;
                 case BookingStatus.Cancelled:
                 case BookingStatus.Completed:
-                    return false; // Không cho phép chuyển đổi từ Cancelled hoặc Completed
+                case BookingStatus.Rejected:
+                    return false; // No transitions allowed from Cancelled, Completed, or Rejected
                 default:
                     return false;
             }
@@ -253,12 +255,14 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
         private IEnumerable<BookingSession> ApplyFilters(IEnumerable<BookingSession> query, BookingFilterDto filter)
         {
-            if (!string.IsNullOrEmpty(filter.Status))
+            // Apply status filter only if Status is provided and valid
+            if (!string.IsNullOrWhiteSpace(filter.Status))
             {
                 if (Enum.TryParse<BookingStatus>(filter.Status, true, out var status))
                 {
                     query = query.Where(b => b.Status == status);
                 }
+                // Ignore invalid Status values to return all bookings
             }
 
             if (filter.SkillId.HasValue)

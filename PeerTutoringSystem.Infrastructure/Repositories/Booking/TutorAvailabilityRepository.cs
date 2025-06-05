@@ -80,68 +80,89 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
 
         public async Task<IEnumerable<TutorAvailability>> GetAvailableSlotsByTutorIdAsync(Guid tutorId, DateTime startDate, DateTime endDate)
         {
-            // Đảm bảo startDate và endDate là UTC
+            // Ensure startDate and endDate are in UTC
             startDate = startDate.ToUniversalTime();
             endDate = endDate.ToUniversalTime();
 
-            // Lấy các slot không lặp lại
-            var nonRecurringSlots = await _context.TutorAvailabilities
+            // Get all non-booked availabilities for the tutor
+            var availabilities = await _context.TutorAvailabilities
                 .Where(a => a.TutorId == tutorId &&
-                           !a.IsRecurring &&
-                           !a.IsDailyRecurring &&
                            !a.IsBooked &&
-                           a.StartTime >= startDate &&
-                           a.StartTime <= endDate)
+                           (a.StartTime <= endDate &&
+                            (a.RecurrenceEndDate == null || a.RecurrenceEndDate >= startDate)))
                 .ToListAsync();
 
-            // Lấy các slot lặp lại hàng tuần
-            var weeklyRecurringSlots = await _context.TutorAvailabilities
-                .Where(a => a.TutorId == tutorId &&
-                           a.IsRecurring &&
-                           !a.IsDailyRecurring &&
-                           !a.IsBooked &&
-                           (a.RecurrenceEndDate == null || a.RecurrenceEndDate >= startDate))
-                .ToListAsync();
+            var result = new List<TutorAvailability>();
 
-            // Lấy các slot lặp lại hàng ngày
-            var dailyRecurringSlots = await _context.TutorAvailabilities
-                .Where(a => a.TutorId == tutorId &&
-                           a.IsDailyRecurring &&
-                           !a.IsBooked &&
-                           (a.RecurrenceEndDate == null || a.RecurrenceEndDate >= startDate))
-                .ToListAsync();
-
-            var filteredRecurringSlots = new List<TutorAvailability>();
-
-            // Xử lý slot lặp lại hàng tuần
-            foreach (var slot in weeklyRecurringSlots)
+            foreach (var availability in availabilities)
             {
-                var instances = GenerateWeeklyRecurringInstances(slot, startDate, endDate);
-                filteredRecurringSlots.AddRange(instances);
+                // For non-recurring slots, check if they fall within the requested time range
+                if (!availability.IsRecurring && !availability.IsDailyRecurring)
+                {
+                    if (availability.StartTime >= startDate && availability.StartTime <= endDate)
+                    {
+                        result.Add(availability);
+                    }
+                }
+                // For recurring slots (weekly or daily), return the original slot if it matches the criteria
+                else
+                {
+                    bool isValidSlot = false;
+
+                    if (availability.IsDailyRecurring)
+                    {
+                        // Daily recurring: check if the time range overlaps with the requested period
+                        isValidSlot = startDate.Date <= (availability.RecurrenceEndDate?.Date ?? endDate.Date);
+                    }
+                    else if (availability.IsRecurring && availability.RecurringDay.HasValue)
+                    {
+                        // Weekly recurring: check if any occurrence falls within the requested time range
+                        var currentDate = startDate.Date;
+                        var recurrenceEnd = availability.RecurrenceEndDate?.ToUniversalTime() ?? endDate;
+
+                        while (currentDate <= endDate && currentDate <= recurrenceEnd)
+                        {
+                            if (currentDate.DayOfWeek == availability.RecurringDay.Value)
+                            {
+                                var startTime = new DateTime(
+                                    currentDate.Year,
+                                    currentDate.Month,
+                                    currentDate.Day,
+                                    availability.StartTime.Hour,
+                                    availability.StartTime.Minute,
+                                    0,
+                                    DateTimeKind.Utc);
+
+                                if (startTime >= startDate && startTime <= endDate && startTime >= DateTime.UtcNow)
+                                {
+                                    isValidSlot = true;
+                                    break;
+                                }
+                            }
+                            currentDate = currentDate.AddDays(1);
+                        }
+                    }
+
+                    if (isValidSlot && !await IsTimeSlotBooked(availability.TutorId, availability.StartTime, availability.EndTime))
+                    {
+                        result.Add(availability);
+                    }
+                }
             }
 
-            // Xử lý slot lặp lại hàng ngày
-            foreach (var slot in dailyRecurringSlots)
-            {
-                var instances = GenerateDailyRecurringInstances(slot, startDate, endDate);
-                filteredRecurringSlots.AddRange(instances);
-            }
-
-            return nonRecurringSlots.Concat(filteredRecurringSlots)
-                .OrderBy(a => a.StartTime)
-                .ToList();
+            return result.OrderBy(a => a.StartTime).ToList();
         }
 
         public async Task<(IEnumerable<TutorAvailability> Availabilities, int TotalCount)> GetAvailableSlotsByTutorIdAsync(Guid tutorId, DateTime startDate, DateTime endDate, BookingFilter filter)
         {
-            // Đảm bảo startDate và endDate là UTC
+            // Ensure startDate and endDate are in UTC
             startDate = startDate.ToUniversalTime();
             endDate = endDate.ToUniversalTime();
 
-            // Lấy tất cả slot khả dụng
+            // Get all available slots
             var allSlots = await GetAvailableSlotsByTutorIdAsync(tutorId, startDate, endDate);
 
-            // Áp dụng bộ lọc
+            // Apply additional filters
             var query = allSlots.AsQueryable();
 
             if (filter.StartDate.HasValue)
@@ -161,108 +182,6 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                 .ToList();
 
             return (pagedSlots, totalCount);
-        }
-
-        private List<TutorAvailability> GenerateWeeklyRecurringInstances(TutorAvailability recurring, DateTime startDate, DateTime endDate)
-        {
-            var instances = new List<TutorAvailability>();
-            if (!recurring.RecurringDay.HasValue)
-                return instances;
-
-            var day = recurring.RecurringDay.Value;
-            var currentDate = startDate.Date;
-            var recurrenceEnd = recurring.RecurrenceEndDate?.ToUniversalTime() ?? endDate;
-
-            // Tìm ngày đầu tiên phù hợp với RecurringDay
-            while (currentDate <= endDate && currentDate.DayOfWeek != day)
-            {
-                currentDate = currentDate.AddDays(1);
-            }
-
-            while (currentDate <= endDate && currentDate <= recurrenceEnd)
-            {
-                var startTime = new DateTime(
-                    currentDate.Year,
-                    currentDate.Month,
-                    currentDate.Day,
-                    recurring.StartTime.Hour,
-                    recurring.StartTime.Minute,
-                    0,
-                    DateTimeKind.Utc);
-
-                var endTime = new DateTime(
-                    currentDate.Year,
-                    currentDate.Month,
-                    currentDate.Day,
-                    recurring.EndTime.Hour,
-                    recurring.EndTime.Minute,
-                    0,
-                    DateTimeKind.Utc);
-
-                if (startTime >= DateTime.UtcNow && !IsTimeSlotBooked(recurring.TutorId, startTime, endTime).Result)
-                {
-                    instances.Add(new TutorAvailability
-                    {
-                        AvailabilityId = recurring.AvailabilityId,
-                        TutorId = recurring.TutorId,
-                        StartTime = startTime,
-                        EndTime = endTime,
-                        IsRecurring = false,
-                        IsDailyRecurring = false,
-                        IsBooked = false
-                    });
-                }
-
-                currentDate = currentDate.AddDays(7);
-            }
-
-            return instances;
-        }
-
-        private List<TutorAvailability> GenerateDailyRecurringInstances(TutorAvailability recurring, DateTime startDate, DateTime endDate)
-        {
-            var instances = new List<TutorAvailability>();
-            var currentDate = startDate.Date;
-            var recurrenceEnd = recurring.RecurrenceEndDate?.ToUniversalTime() ?? endDate;
-
-            while (currentDate <= endDate && currentDate <= recurrenceEnd)
-            {
-                var startTime = new DateTime(
-                    currentDate.Year,
-                    currentDate.Month,
-                    currentDate.Day,
-                    recurring.StartTime.Hour,
-                    recurring.StartTime.Minute,
-                    0,
-                    DateTimeKind.Utc);
-
-                var endTime = new DateTime(
-                    currentDate.Year,
-                    currentDate.Month,
-                    currentDate.Day,
-                    recurring.EndTime.Hour,
-                    recurring.EndTime.Minute,
-                    0,
-                    DateTimeKind.Utc);
-
-                if (startTime >= DateTime.UtcNow && !IsTimeSlotBooked(recurring.TutorId, startTime, endTime).Result)
-                {
-                    instances.Add(new TutorAvailability
-                    {
-                        AvailabilityId = recurring.AvailabilityId,
-                        TutorId = recurring.TutorId,
-                        StartTime = startTime,
-                        EndTime = endTime,
-                        IsRecurring = false,
-                        IsDailyRecurring = false,
-                        IsBooked = false
-                    });
-                }
-
-                currentDate = currentDate.AddDays(1);
-            }
-
-            return instances;
         }
 
         private async Task<bool> IsTimeSlotBooked(Guid tutorId, DateTime startTime, DateTime endTime)
