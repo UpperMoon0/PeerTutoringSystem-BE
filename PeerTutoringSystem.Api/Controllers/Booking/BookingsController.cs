@@ -91,7 +91,11 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> GetStudentBookings([FromQuery] BookingFilterDto filter)
         {
-            if (filter == null || filter.Page < 1 || filter.PageSize < 1)
+            // Initialize default filter if none provided
+            filter ??= new BookingFilterDto();
+
+            // Ensure valid pagination parameters
+            if (filter.Page < 1 || filter.PageSize < 1)
             {
                 return BadRequest(new { error = "Invalid pagination parameters.", timestamp = DateTime.UtcNow });
             }
@@ -129,7 +133,11 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         [Authorize(Roles = "Tutor")]
         public async Task<IActionResult> GetTutorBookings([FromQuery] BookingFilterDto filter)
         {
-            if (filter == null || filter.Page < 1 || filter.PageSize < 1)
+            // Initialize default filter if none provided
+            filter ??= new BookingFilterDto();
+
+            // Ensure valid pagination parameters
+            if (filter.Page < 1 || filter.PageSize < 1)
             {
                 return BadRequest(new { error = "Invalid pagination parameters.", timestamp = DateTime.UtcNow });
             }
@@ -167,7 +175,11 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         [Authorize(Roles = "Student,Tutor")]
         public async Task<IActionResult> GetUpcomingBookings([FromQuery] BookingFilterDto filter)
         {
-            if (filter == null || filter.Page < 1 || filter.PageSize < 1)
+            // Initialize default filter if none provided
+            filter ??= new BookingFilterDto();
+
+            // Ensure valid pagination parameters
+            if (filter.Page < 1 || filter.PageSize < 1)
             {
                 return BadRequest(new { error = "Invalid pagination parameters.", timestamp = DateTime.UtcNow });
             }
