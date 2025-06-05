@@ -1,327 +1,345 @@
-﻿using PeerTutoringSystem.Application.DTOs.Booking;
-using PeerTutoringSystem.Application.Interfaces.Authentication;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.Interfaces.Booking;
-using PeerTutoringSystem.Domain.Entities.Booking;
-using PeerTutoringSystem.Domain.Interfaces.Booking;
-using PeerTutoringSystem.Domain.Interfaces.Skills;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
+using Microsoft.Extensions.Logging;
+using PeerTutoringSystem.Domain.Entities.Booking;
+using System;
 
-namespace PeerTutoringSystem.Application.Services.Booking
+namespace PeerTutoringSystem.Api.Controllers.Booking
 {
-    public class BookingService : IBookingService
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public class BookingsController : ControllerBase
     {
-        private readonly IBookingSessionRepository _bookingRepository;
-        private readonly ITutorAvailabilityRepository _availabilityRepository;
-        private readonly IUserService _userService;
-        private readonly ISkillRepository _skillRepository;
+        private readonly IBookingService _bookingService;
+        private readonly ILogger<BookingsController> _logger;
 
-        public BookingService(
-            IBookingSessionRepository bookingRepository,
-            ITutorAvailabilityRepository availabilityRepository,
-            IUserService userService,
-            ISkillRepository skillRepository)
+        public BookingsController(IBookingService bookingService, ILogger<BookingsController> logger)
         {
-            _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
-            _availabilityRepository = availabilityRepository ?? throw new ArgumentNullException(nameof(availabilityRepository));
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            _skillRepository = skillRepository ?? throw new ArgumentNullException(nameof(skillRepository));
+            _bookingService = bookingService ?? throw new ArgumentNullException(nameof(bookingService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<BookingSessionDto> CreateBookingAsync(Guid studentId, CreateBookingDto dto)
+        [HttpPost]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> CreateBooking([FromBody] CreateBookingDto dto)
         {
-            var availability = await _availabilityRepository.GetByIdAsync(dto.AvailabilityId);
-            if (availability == null)
-                throw new ValidationException("The selected time slot is not available.");
-
-            if (availability.TutorId != dto.TutorId)
-                throw new ValidationException("The selected time slot does not belong to the specified tutor.");
-
-            if (availability.IsBooked)
-                throw new ValidationException("This time slot has already been booked.");
-
-            if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, availability.StartTime, availability.EndTime))
-                throw new ValidationException("This time slot is no longer available.");
-
-            if (dto.SkillId.HasValue)
+            if (dto == null)
             {
-                var skill = await _skillRepository.GetByIdAsync(dto.SkillId.Value);
-                if (skill == null)
-                    throw new ValidationException("The specified skill does not exist.");
+                return BadRequest(new { error = "Request body is required.", timestamp = DateTime.UtcNow });
             }
 
-            var booking = new BookingSession
+            try
             {
-                BookingId = Guid.NewGuid(),
-                StudentId = studentId,
-                TutorId = dto.TutorId,
-                AvailabilityId = dto.AvailabilityId,
-                SessionDate = availability.StartTime.Date,
-                StartTime = availability.StartTime,
-                EndTime = availability.EndTime,
-                SkillId = dto.SkillId,
-                Topic = dto.Topic ?? "General tutoring session",
-                Description = dto.Description,
-                Status = BookingStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var studentId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
 
-            await _bookingRepository.AddAsync(booking);
-
-            availability.IsBooked = true;
-            await _availabilityRepository.UpdateAsync(availability);
-
-            return await EnrichBookingWithNames(booking);
+                var booking = await _bookingService.CreateBookingAsync(studentId, dto);
+                return Ok(new { data = booking, message = "Booking created successfully.", timestamp = DateTime.UtcNow });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while creating booking for student.");
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while creating booking for student.");
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
         }
 
-        public async Task<BookingSessionDto> CreateInstantBookingAsync(Guid studentId, InstantBookingDto dto)
+        [HttpPost("instant")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> CreateInstantBooking([FromBody] InstantBookingDto dto)
         {
-            var currentDateTimeUtc = DateTime.UtcNow;
-
-            if (dto.StartTime < currentDateTimeUtc)
-                throw new ValidationException("Start time cannot be in the past.");
-            if (dto.EndTime <= dto.StartTime)
-                throw new ValidationException("End time must be after start time.");
-            if (dto.EndTime.Subtract(dto.StartTime).TotalMinutes < 30)
-                throw new ValidationException("Session must be at least 30 minutes long.");
-
-            if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, dto.StartTime, dto.EndTime))
-                throw new ValidationException("This time slot is not available.");
-
-            if (dto.SkillId.HasValue)
+            if (dto == null)
             {
-                var skill = await _skillRepository.GetByIdAsync(dto.SkillId.Value);
-                if (skill == null)
-                    throw new ValidationException("The specified skill does not exist.");
+                return BadRequest(new { error = "Request body is required.", timestamp = DateTime.UtcNow });
             }
 
-            var availability = new TutorAvailability
+            try
             {
-                AvailabilityId = Guid.NewGuid(),
-                TutorId = dto.TutorId,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                IsRecurring = false,
-                IsDailyRecurring = false,
-                IsBooked = true
-            };
-            await _availabilityRepository.AddAsync(availability);
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var studentId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
 
-            var booking = new BookingSession
+                var booking = await _bookingService.CreateInstantBookingAsync(studentId, dto);
+                return Ok(new { data = booking, message = "Instant booking created successfully.", timestamp = DateTime.UtcNow });
+            }
+            catch (ValidationException ex)
             {
-                BookingId = Guid.NewGuid(),
-                StudentId = studentId,
-                TutorId = dto.TutorId,
-                AvailabilityId = availability.AvailabilityId,
-                SessionDate = dto.StartTime.Date,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
-                SkillId = dto.SkillId,
-                Topic = dto.Topic ?? "General tutoring session",
-                Description = dto.Description,
-                Status = BookingStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _bookingRepository.AddAsync(booking);
-            return await EnrichBookingWithNames(booking);
+                _logger.LogWarning(ex, "Validation error while creating instant booking.");
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while creating instant booking.");
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
         }
 
-        public async Task<BookingSessionDto> GetBookingByIdAsync(Guid bookingId)
+        [HttpGet("student")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> GetStudentBookings([FromQuery] BookingFilterDto filter)
         {
-            var booking = await _bookingRepository.GetByIdAsync(bookingId);
-            if (booking == null) return null;
-
-            return await EnrichBookingWithNames(booking);
-        }
-
-        public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetBookingsByStudentAsync(Guid studentId, BookingFilterDto filter)
-        {
-            var query = await _bookingRepository.GetByStudentIdAsync(studentId);
-            query = ApplyFilters(query, filter);
-
-            var totalCount = query.Count();
-            var bookings = query
-                .Skip((filter.Page - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToList();
-
-            var dtos = new List<BookingSessionDto>();
-            foreach (var booking in bookings)
+            if (filter == null || filter.Page < 1 || filter.PageSize < 1)
             {
-                dtos.Add(await EnrichBookingWithNames(booking));
+                return BadRequest(new { error = "Invalid pagination parameters.", timestamp = DateTime.UtcNow });
             }
 
-            return (dtos, totalCount);
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var studentId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var (bookings, totalCount) = await _bookingService.GetBookingsByStudentAsync(studentId, filter);
+                return Ok(new
+                {
+                    data = bookings,
+                    totalCount,
+                    page = filter.Page,
+                    pageSize = filter.PageSize,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while retrieving student bookings.");
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while retrieving student bookings.");
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
         }
 
-        public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetBookingsByTutorAsync(Guid tutorId, BookingFilterDto filter)
+        [HttpGet("tutor")]
+        [Authorize(Roles = "Tutor")]
+        public async Task<IActionResult> GetTutorBookings([FromQuery] BookingFilterDto filter)
         {
-            var query = await _bookingRepository.GetByTutorIdAsync(tutorId);
-            query = ApplyFilters(query, filter);
-
-            var totalCount = query.Count();
-            var bookings = query
-                .Skip((filter.Page - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToList();
-
-            var dtos = new List<BookingSessionDto>();
-            foreach (var booking in bookings)
+            if (filter == null || filter.Page < 1 || filter.PageSize < 1)
             {
-                dtos.Add(await EnrichBookingWithNames(booking));
+                return BadRequest(new { error = "Invalid pagination parameters.", timestamp = DateTime.UtcNow });
             }
 
-            return (dtos, totalCount);
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var tutorId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var (bookings, totalCount) = await _bookingService.GetBookingsByTutorAsync(tutorId, filter);
+                return Ok(new
+                {
+                    data = bookings,
+                    totalCount,
+                    page = filter.Page,
+                    pageSize = filter.PageSize,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while retrieving tutor bookings.");
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while retrieving tutor bookings.");
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
         }
 
-        public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetUpcomingBookingsAsync(Guid userId, bool isTutor, BookingFilterDto filter)
+        [HttpGet("upcoming")]
+        [Authorize(Roles = "Student,Tutor")]
+        public async Task<IActionResult> GetUpcomingBookings([FromQuery] BookingFilterDto filter)
         {
-            var query = await _bookingRepository.GetUpcomingBookingsByUserAsync(userId, isTutor);
-            query = ApplyFilters(query, filter);
-
-            var totalCount = query.Count();
-            var bookings = query
-                .Skip((filter.Page - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToList();
-
-            var dtos = new List<BookingSessionDto>();
-            foreach (var booking in bookings)
+            if (filter == null || filter.Page < 1 || filter.PageSize < 1)
             {
-                dtos.Add(await EnrichBookingWithNames(booking));
+                return BadRequest(new { error = "Invalid pagination parameters.", timestamp = DateTime.UtcNow });
             }
 
-            return (dtos, totalCount);
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var isTutor = User.IsInRole("Tutor");
+                var (bookings, totalCount) = await _bookingService.GetUpcomingBookingsAsync(userId, isTutor, filter);
+                return Ok(new
+                {
+                    data = bookings,
+                    totalCount,
+                    page = filter.Page,
+                    pageSize = filter.PageSize,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while retrieving upcoming bookings.");
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while retrieving upcoming bookings.");
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
         }
 
-        public async Task<BookingSessionDto> UpdateBookingStatusAsync(Guid bookingId, UpdateBookingStatusDto dto)
+        [HttpGet("{bookingId:guid}")]
+        [Authorize(Roles = "Student,Tutor,Admin")]
+        public async Task<IActionResult> GetBooking(Guid bookingId)
         {
-            var booking = await _bookingRepository.GetByIdAsync(bookingId);
-            if (booking == null)
-                throw new ValidationException("Booking not found.");
-
-            if (!Enum.TryParse<BookingStatus>(dto.Status, true, out var newStatus))
-                throw new ValidationException("Invalid booking status.");
-
-            // Check for valid status transition
-            if (!IsValidStatusTransition(booking.Status, newStatus))
-                throw new ValidationException($"Invalid status transition from {booking.Status} to {newStatus}.");
-
-            switch (newStatus)
+            try
             {
-                case BookingStatus.Cancelled:
-                case BookingStatus.Rejected:
-                    var availability = await _availabilityRepository.GetByIdAsync(booking.AvailabilityId);
-                    if (availability != null)
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var booking = await _bookingService.GetBookingByIdAsync(bookingId);
+                if (booking == null)
+                {
+                    return NotFound(new { error = "Booking not found.", timestamp = DateTime.UtcNow });
+                }
+
+                var isAdmin = User.IsInRole("Admin");
+                if (booking.StudentId != userId && booking.TutorId != userId && !isAdmin)
+                {
+                    return StatusCode(403, new { error = "You do not have permission to view this booking.", timestamp = DateTime.UtcNow });
+                }
+
+                return Ok(new { data = booking, timestamp = DateTime.UtcNow });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while retrieving booking {BookingId}.", bookingId);
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while retrieving booking {BookingId}.", bookingId);
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
+        }
+
+        [HttpPut("{bookingId:guid}/status")]
+        [Authorize(Roles = "Student,Tutor,Admin")]
+        public async Task<IActionResult> UpdateBookingStatus(Guid bookingId, [FromBody] UpdateBookingStatusDto dto)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Status?.Trim()))
+            {
+                return BadRequest(new { error = "Status is required.", timestamp = DateTime.UtcNow });
+            }
+
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var statusString = dto.Status.Trim();
+                if (!Enum.TryParse<BookingStatus>(statusString, true, out var status))
+                {
+                    return BadRequest(new
                     {
-                        availability.IsBooked = false;
-                        await _availabilityRepository.UpdateAsync(availability);
-                    }
-                    break;
-
-                case BookingStatus.Completed:
-                    if (booking.EndTime > DateTime.UtcNow)
-                        throw new ValidationException("Cannot mark a future booking as completed.");
-                    break;
-            }
-
-            booking.Status = newStatus;
-            booking.UpdatedAt = DateTime.UtcNow;
-            await _bookingRepository.UpdateAsync(booking);
-
-            return await EnrichBookingWithNames(booking);
-        }
-
-        private bool IsValidStatusTransition(BookingStatus currentStatus, BookingStatus newStatus)
-        {
-            switch (currentStatus)
-            {
-                case BookingStatus.Pending:
-                    return newStatus == BookingStatus.Confirmed || newStatus == BookingStatus.Cancelled || newStatus == BookingStatus.Rejected;
-                case BookingStatus.Confirmed:
-                    return newStatus == BookingStatus.Completed || newStatus == BookingStatus.Cancelled;
-                case BookingStatus.Cancelled:
-                case BookingStatus.Completed:
-                case BookingStatus.Rejected:
-                    return false; // No transitions allowed from Cancelled, Completed, or Rejected
-                default:
-                    return false;
-            }
-        }
-
-        private IEnumerable<BookingSession> ApplyFilters(IEnumerable<BookingSession> query, BookingFilterDto filter)
-        {
-            if (!string.IsNullOrEmpty(filter.Status))
-            {
-                if (Enum.TryParse<BookingStatus>(filter.Status, true, out var status))
-                {
-                    query = query.Where(b => b.Status == status);
+                        error = $"Invalid booking status. Valid values are: Pending, Confirmed, Completed, Cancelled, Rejected. Example: 'Pending'.",
+                        timestamp = DateTime.UtcNow
+                    });
                 }
-            }
 
-            if (filter.SkillId.HasValue)
-            {
-                query = query.Where(b => b.SkillId == filter.SkillId.Value);
-            }
-
-            if (filter.StartDate.HasValue)
-            {
-                query = query.Where(b => b.StartTime >= filter.StartDate.Value);
-            }
-
-            if (filter.EndDate.HasValue)
-            {
-                query = query.Where(b => b.EndTime <= filter.EndDate.Value);
-            }
-
-            return query.OrderByDescending(b => b.StartTime);
-        }
-
-        private async Task<BookingSessionDto> EnrichBookingWithNames(BookingSession booking)
-        {
-            var studentName = "Unknown Student";
-            var tutorName = "Unknown Tutor";
-
-            try
-            {
-                var student = await _userService.GetUserByIdAsync(booking.StudentId);
-                if (student != null)
+                var booking = await _bookingService.GetBookingByIdAsync(bookingId);
+                if (booking == null)
                 {
-                    studentName = $"{student.FullName}";
+                    return NotFound(new { error = "Booking not found.", timestamp = DateTime.UtcNow });
                 }
-            }
-            catch { }
 
-            try
-            {
-                var tutor = await _userService.GetUserByIdAsync(booking.TutorId);
-                if (tutor != null)
+                // Parse booking.Status (string) to BookingStatus enum
+                if (!Enum.TryParse<BookingStatus>(booking.Status, true, out var currentBookingStatus))
                 {
-                    tutorName = $"{tutor.FullName}";
+                    return BadRequest(new { error = "Invalid current booking status.", timestamp = DateTime.UtcNow });
                 }
-            }
-            catch { }
 
-            return new BookingSessionDto
+                var isAdmin = User.IsInRole("Admin");
+
+                switch (status)
+                {
+                    case BookingStatus.Cancelled:
+                        if (booking.StudentId != userId && !isAdmin)
+                        {
+                            return StatusCode(403, new { error = "Only the student or admin can cancel this booking.", timestamp = DateTime.UtcNow });
+                        }
+                        break;
+
+                    case BookingStatus.Confirmed:
+                    case BookingStatus.Completed:
+                        if (booking.TutorId != userId && !isAdmin)
+                        {
+                            return StatusCode(403, new { error = "Only the assigned tutor or admin can update this booking status.", timestamp = DateTime.UtcNow });
+                        }
+                        break;
+
+                    case BookingStatus.Rejected:
+                        if (booking.TutorId != userId && !isAdmin)
+                        {
+                            return StatusCode(403, new { error = "Only the assigned tutor or admin can reject this booking.", timestamp = DateTime.UtcNow });
+                        }
+                        if (currentBookingStatus != BookingStatus.Pending)
+                        {
+                            return BadRequest(new { error = "Only bookings in Pending status can be rejected.", timestamp = DateTime.UtcNow });
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+
+                if (currentBookingStatus == status)
+                {
+                    return BadRequest(new { error = "The booking already has this status.", timestamp = DateTime.UtcNow });
+                }
+
+                var updatedBooking = await _bookingService.UpdateBookingStatusAsync(bookingId, dto);
+
+                return Ok(new
+                {
+                    data = updatedBooking,
+                    message = "Booking status updated successfully.",
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (ValidationException ex)
             {
-                BookingId = booking.BookingId,
-                StudentId = booking.StudentId,
-                TutorId = booking.TutorId,
-                SessionDate = booking.SessionDate,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-                SkillId = booking.SkillId,
-                Topic = booking.Topic,
-                Description = booking.Description,
-                Status = booking.Status.ToString(),
-                CreatedAt = booking.CreatedAt,
-                StudentName = studentName,
-                TutorName = tutorName
-            };
+                _logger.LogWarning(ex, "Validation error while updating booking status for booking {BookingId}.", bookingId);
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "Argument error while updating booking status for booking {BookingId}.", bookingId);
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while updating booking status for booking {BookingId}.", bookingId);
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
         }
     }
 }
