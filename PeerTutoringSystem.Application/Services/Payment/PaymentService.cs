@@ -20,16 +20,16 @@ namespace PeerTutoringSystem.Application.Services.Payment
         // private readonly IHubContext<PaymentHub> _paymentHubContext;
 
         public PaymentService(
-            HttpClient httpClient, 
-            IConfiguration config, 
+            HttpClient httpClient,
+            IConfiguration config,
             IPaymentRepository paymentRepository)
-            // IHubContext<PaymentHub> paymentHubContext)
+        // IHubContext<PaymentHub> paymentHubContext)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
             // _paymentHubContext = paymentHubContext ?? throw new ArgumentNullException(nameof(paymentHubContext));
-            
+
             _httpClient.BaseAddress = new Uri(_config["SePay:BaseUrl"]);
             if (!string.IsNullOrEmpty(_config["SePay:ApiKey"]))
             {
@@ -64,7 +64,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
 
                 // Deserialize the response
                 var sePayResponse = await response.Content.ReadFromJsonAsync<dynamic>();
-                
+
                 // Create local payment record
                 var payment = new PaymentEntity
                 {
@@ -123,34 +123,52 @@ namespace PeerTutoringSystem.Application.Services.Payment
         {
             try
             {
+                Console.WriteLine($"Received SePay Webhook: {System.Text.Json.JsonSerializer.Serialize(webhookData)}");
+
                 // Get payment by transaction ID
                 var payment = await _paymentRepository.GetPaymentByTransactionIdAsync(webhookData.Id.ToString());
 
                 if (payment != null)
                 {
+                    Console.WriteLine($"Found payment record for Transaction ID {webhookData.Id}. Current Status: {payment.Status}");
+
                     // Determine payment status based on webhook data
-                    PaymentStatus status;
-                    
+                    PaymentStatus newStatus;
+
                     // Logic to determine payment status from webhookData
                     // For example, if "transferType" is "in", payment is successful
                     if (webhookData.TransferType?.ToLower() == "in")
                     {
-                        status = PaymentStatus.Success;
+                        newStatus = PaymentStatus.Success;
                     }
                     else
                     {
-                        status = PaymentStatus.Failed;
+                        newStatus = PaymentStatus.Failed;
                     }
-                    
-                    // Update payment details
-                    payment.Status = status;
-                    payment.UpdatedAt = DateTime.UtcNow;
-                    
-                    // Save to database
-                    await _paymentRepository.UpdatePaymentAsync(payment);
+                    Console.WriteLine($"Determined new status: {newStatus} for Transaction ID {webhookData.Id}");
 
-                    // Notify frontend via SignalR
-                    await NotifyPaymentStatusChange(payment.Id, status);
+                    if (payment.Status != newStatus)
+                    {
+                        // Update payment details
+                        payment.Status = newStatus;
+                        payment.UpdatedAt = DateTime.UtcNow;
+
+                        // Save to database
+                        await _paymentRepository.UpdatePaymentAsync(payment);
+                        Console.WriteLine($"Payment status updated to {newStatus} for Transaction ID {webhookData.Id}");
+
+                        // Notify frontend via SignalR
+                        await NotifyPaymentStatusChange(payment.Id, newStatus);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Payment status for Transaction ID {webhookData.Id} is already {newStatus}. No update performed.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"No payment record found for Transaction ID {webhookData.Id}. Webhook data: {System.Text.Json.JsonSerializer.Serialize(webhookData)}");
+                    // Consider how to handle webhooks for unknown transaction IDs based on business rules.
                 }
             }
             catch (Exception ex)
@@ -165,7 +183,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
         {
             // If using SignalR, notify clients about payment status change
             // await _paymentHubContext.Clients.All.SendAsync("PaymentStatusChanged", paymentId, status);
-            
+
             // For now, just return a completed task if SignalR is not implemented
             await Task.CompletedTask;
         }

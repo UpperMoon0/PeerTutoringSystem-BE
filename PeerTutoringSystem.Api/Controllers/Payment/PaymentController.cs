@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using PeerTutoringSystem.Application.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 
 namespace PeerTutoringSystem.Api.Controllers.Payment

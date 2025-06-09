@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using PeerTutoringSystem.Application.DTOs.Authentication;
+using PeerTutoringSystem.Domain.Interfaces.Skills;
 
 namespace PeerTutoringSystem.Tests.Application.Services
 {
@@ -20,6 +22,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
         private Mock<IBookingSessionRepository> _mockBookingRepository;
         private Mock<ITutorAvailabilityRepository> _mockAvailabilityRepository;
         private Mock<IUserService> _mockUserService;
+        private Mock<ISkillRepository> _mockSkillRepository;
         private BookingService _bookingService;
 
         private Guid _studentId = Guid.NewGuid();
@@ -33,11 +36,13 @@ namespace PeerTutoringSystem.Tests.Application.Services
             _mockBookingRepository = new Mock<IBookingSessionRepository>();
             _mockAvailabilityRepository = new Mock<ITutorAvailabilityRepository>();
             _mockUserService = new Mock<IUserService>();
+            _mockSkillRepository = new Mock<ISkillRepository>();
 
             _bookingService = new BookingService(
                 _mockBookingRepository.Object,
                 _mockAvailabilityRepository.Object,
-                _mockUserService.Object);
+                _mockUserService.Object,
+                _mockSkillRepository.Object);
         }
 
         [Test]
@@ -161,19 +166,19 @@ namespace PeerTutoringSystem.Tests.Application.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            var student = new User { FirstName = "John", LastName = "Student" };
-            var tutor = new User { FirstName = "Jane", LastName = "Tutor" };
+            var student = new UserDto() { FullName = "Student"};
+            var tutor = new UserDto() { FullName = "Tutor"};
 
             _mockBookingRepository
                 .Setup(r => r.GetByIdAsync(_bookingId))
                 .ReturnsAsync(booking);
 
             _mockUserService
-                .Setup(s => s.GetUserByIdAsync(_studentId.ToString()))
+                .Setup(s => s.GetUserByIdAsync(_studentId))
                 .ReturnsAsync(student);
 
             _mockUserService
-                .Setup(s => s.GetUserByIdAsync(_tutorId.ToString()))
+                .Setup(s => s.GetUserByIdAsync(_tutorId))
                 .ReturnsAsync(tutor);
 
             // Act
@@ -182,8 +187,8 @@ namespace PeerTutoringSystem.Tests.Application.Services
             // Assert
             Assert.That(result, Is.Not.Null);
             Assert.That(result.BookingId, Is.EqualTo(_bookingId));
-            Assert.That(result.StudentName, Is.EqualTo("John Student"));
-            Assert.That(result.TutorName, Is.EqualTo("Jane Tutor"));
+            Assert.That(result.StudentName, Is.EqualTo("Student"));
+            Assert.That(result.TutorName, Is.EqualTo("Tutor"));
         }
 
         [Test]
@@ -208,11 +213,10 @@ namespace PeerTutoringSystem.Tests.Application.Services
                 .ReturnsAsync(bookings);
 
             // Act
-            var result = await _bookingService.GetBookingsByStudentAsync(_studentId);
+            var result = await _bookingService.GetBookingsByStudentAsync(_studentId, new BookingFilterDto());
 
             // Assert
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.Count(), Is.EqualTo(1));
+            Assert.That(result.TotalCount, Is.EqualTo(1));
         }
 
         [Test]

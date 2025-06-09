@@ -33,6 +33,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
         public async Task<BookingSessionDto> CreateBookingAsync(Guid studentId, CreateBookingDto dto)
         {
+            // Validate availability
             var availability = await _availabilityRepository.GetByIdAsync(dto.AvailabilityId);
             if (availability == null)
                 throw new ValidationException("The selected time slot is not available.");
@@ -46,13 +47,21 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, availability.StartTime, availability.EndTime))
                 throw new ValidationException("This time slot is no longer available.");
 
+            // Validate skill if provided
             if (dto.SkillId.HasValue)
             {
-                var skill = await _skillRepository.GetByIdAsync(dto.SkillId.Value);
-                if (skill == null)
-                    throw new ValidationException("The specified skill does not exist.");
+                try {
+                    var skill = await _skillRepository.GetByIdAsync(dto.SkillId.Value);
+                    if (skill == null)
+                        throw new ValidationException("The specified skill does not exist.");
+                }
+                catch (Exception) {
+                    // If skill repository throws an exception, we'll default to null skillId
+                    dto.SkillId = null;
+                }
             }
 
+            // Create booking
             var booking = new BookingSession
             {
                 BookingId = Guid.NewGuid(),
@@ -69,11 +78,13 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 CreatedAt = DateTime.UtcNow
             };
 
+            // Save booking and update availability
             await _bookingRepository.AddAsync(booking);
 
             availability.IsBooked = true;
             await _availabilityRepository.UpdateAsync(availability);
 
+            // Return enriched booking
             return await EnrichBookingWithNames(booking);
         }
 

@@ -1,5 +1,5 @@
-﻿using FirebaseAdmin;
-using FirebaseAdmin.Auth;
+﻿using System.Text;
+using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +28,6 @@ using PeerTutoringSystem.Infrastructure.Repositories.Reviews;
 using PeerTutoringSystem.Infrastructure.Repositories.Skills;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Infrastructure.Repositories.Payment;
-using PeerTutoringSystem.Application.Interfaces.Payment;
 using PeerTutoringSystem.Application.Services.Payment;
 
 var builder = WebApplication.CreateBuilder(args);

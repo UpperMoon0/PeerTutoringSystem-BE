@@ -1,3 +1,4 @@
+using System;
 using PeerTutoringSystem.Domain.Entities.Booking;
 
 namespace PeerTutoringSystem.Domain.Entities.PaymentEntities
@@ -15,7 +16,7 @@ namespace PeerTutoringSystem.Domain.Entities.PaymentEntities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
         
-        // Navigation property
-        public BookingSession Booking { get; set; }
+        // Navigation property with virtual keyword for lazy loading
+        public virtual BookingSession? Booking { get; set; }
     }
 }
