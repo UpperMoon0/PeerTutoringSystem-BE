@@ -26,7 +26,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         }
 
         [HttpPost]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Tutor")]
         public async Task<IActionResult> CreateBooking([FromBody] CreateBookingDto dto)
         {
             if (dto == null)
@@ -57,7 +57,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         }
 
         [HttpPost("instant")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Tutor")]
         public async Task<IActionResult> CreateInstantBooking([FromBody] InstantBookingDto dto)
         {
             if (dto == null)
@@ -88,7 +88,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         }
 
         [HttpGet("student")]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Tutor")]
         public async Task<IActionResult> GetStudentBookings([FromQuery] BookingFilterDto filter)
         {
             // Initialize default filter if none provided
