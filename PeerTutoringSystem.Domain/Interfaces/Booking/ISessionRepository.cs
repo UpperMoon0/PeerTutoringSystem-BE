@@ -8,6 +8,7 @@ namespace PeerTutoringSystem.Domain.Interfaces.Booking
     public interface ISessionRepository
     {
         Task<Session> GetByIdAsync(Guid sessionId);
+        Task<Session> GetByBookingIdAsync(Guid bookingId);
         Task<IEnumerable<Session>> GetByUserIdAsync(Guid userId, bool isTutor);
         Task<Session> AddAsync(Session session);
         Task UpdateAsync(Session session);

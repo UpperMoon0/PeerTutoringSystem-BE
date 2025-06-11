@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace PeerTutoringSystem.Application.Services.Booking
 {
@@ -15,11 +17,16 @@ namespace PeerTutoringSystem.Application.Services.Booking
     {
         private readonly ISessionRepository _sessionRepository;
         private readonly IBookingSessionRepository _bookingRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SessionService(ISessionRepository sessionRepository, IBookingSessionRepository bookingRepository)
+        public SessionService(
+            ISessionRepository sessionRepository,
+            IBookingSessionRepository bookingRepository,
+            IHttpContextAccessor httpContextAccessor)
         {
             _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
             _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
         public async Task<SessionDto> CreateSessionAsync(Guid userId, CreateSessionDto dto)
@@ -58,9 +65,21 @@ namespace PeerTutoringSystem.Application.Services.Booking
             return MapToDto(session);
         }
 
+        public async Task<SessionDto> GetSessionByBookingIdAsync(Guid bookingId)
+        {
+            var booking = await _bookingRepository.GetByIdAsync(bookingId);
+            if (booking == null)
+                throw new ValidationException("Booking not found.");
+
+            var session = await _sessionRepository.GetByBookingIdAsync(bookingId);
+            if (session == null)
+                return null;
+
+            return MapToDto(session);
+        }
+
         public async Task<(IEnumerable<SessionDto> Sessions, int TotalCount)> GetSessionsByUserAsync(Guid userId, bool isTutor, BookingFilterDto filter)
         {
-            // Map BookingFilterDto to BookingFilter
             var domainFilter = new BookingFilter(
                 Page: filter.Page,
                 PageSize: filter.PageSize,
@@ -81,8 +100,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (session == null)
                 throw new ValidationException("Session not found.");
 
-            // Lấy userId từ context (giả sử từ JWT token)
-            var userId = Guid.Parse(System.Security.Claims.ClaimsPrincipal.Current?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+            var userId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
                 ?? throw new ValidationException("Invalid user token."));
 
             var booking = await _bookingRepository.GetByIdAsync(session.BookingId);
