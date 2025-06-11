@@ -211,22 +211,21 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (!IsValidStatusTransition(booking.Status, newStatus))
                 throw new ValidationException($"Invalid status transition from {booking.Status} to {newStatus}.");
 
-            switch (newStatus)
+            // Update availability status for Cancelled or Rejected
+            if (newStatus == BookingStatus.Cancelled || newStatus == BookingStatus.Rejected)
             {
-                case BookingStatus.Cancelled:
-                case BookingStatus.Rejected:
-                    var availability = await _availabilityRepository.GetByIdAsync(booking.AvailabilityId);
-                    if (availability != null)
-                    {
-                        availability.IsBooked = false;
-                        await _availabilityRepository.UpdateAsync(availability);
-                    }
-                    break;
+                var availability = await _availabilityRepository.GetByIdAsync(booking.AvailabilityId);
+                if (availability != null)
+                {
+                    availability.IsBooked = false;
+                    await _availabilityRepository.UpdateAsync(availability);
+                }
+            }
 
-                case BookingStatus.Completed:
-                    if (booking.EndTime > DateTime.UtcNow)
-                        throw new ValidationException("Cannot mark a future booking as completed.");
-                    break;
+            if (newStatus == BookingStatus.Completed)
+            {
+                if (booking.EndTime > DateTime.UtcNow)
+                    throw new ValidationException("Cannot mark a future booking as completed.");
             }
 
             booking.Status = newStatus;

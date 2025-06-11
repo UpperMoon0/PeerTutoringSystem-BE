@@ -21,7 +21,7 @@ namespace PeerTutoringSystem.Api.Controllers.Reviews
         }
 
         [HttpPost]
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student,Tutor")]
         public async Task<IActionResult> CreateReview([FromBody] CreateReviewDto dto)
         {
             try

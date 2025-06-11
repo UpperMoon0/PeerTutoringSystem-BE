@@ -31,6 +31,12 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                 .FirstOrDefaultAsync(s => s.SessionId == sessionId);
         }
 
+        public async Task<Session> GetByBookingIdAsync(Guid bookingId)
+        {
+            return await _context.Sessions
+                .FirstOrDefaultAsync(s => s.BookingId == bookingId);
+        }
+
         public async Task<IEnumerable<Session>> GetByUserIdAsync(Guid userId, bool isTutor)
         {
             var query = _context.Sessions

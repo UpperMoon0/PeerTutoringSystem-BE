@@ -18,11 +18,16 @@ namespace PeerTutoringSystem.Api.Controllers
     public class SessionsController : ControllerBase
     {
         private readonly ISessionService _sessionService;
+        private readonly IBookingService _bookingService;
         private readonly ILogger<SessionsController> _logger;
 
-        public SessionsController(ISessionService sessionService, ILogger<SessionsController> logger)
+        public SessionsController(
+            ISessionService sessionService,
+            IBookingService bookingService,
+            ILogger<SessionsController> logger)
         {
             _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
+            _bookingService = bookingService ?? throw new ArgumentNullException(nameof(bookingService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -74,6 +79,49 @@ namespace PeerTutoringSystem.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error while retrieving session {SessionId}.", sessionId);
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
+        }
+
+        [HttpGet("booking/{bookingId:guid}")]
+        [Authorize(Roles = "Student,Tutor,Admin")]
+        public async Task<IActionResult> GetSessionByBookingId(Guid bookingId)
+        {
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var booking = await _bookingService.GetBookingByIdAsync(bookingId);
+                if (booking == null)
+                {
+                    return NotFound(new { error = "Booking not found.", timestamp = DateTime.UtcNow });
+                }
+
+                var isAdmin = User.IsInRole("Admin");
+                if (booking.StudentId != userId && booking.TutorId != userId && !isAdmin)
+                {
+                    return StatusCode(403, new { error = "You do not have permission to view this session.", timestamp = DateTime.UtcNow });
+                }
+
+                var session = await _sessionService.GetSessionByBookingIdAsync(bookingId);
+                if (session == null)
+                {
+                    return NotFound(new { error = "Session not found for this booking.", timestamp = DateTime.UtcNow });
+                }
+
+                return Ok(new { data = session, timestamp = DateTime.UtcNow });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while retrieving session for booking {BookingId}.", bookingId);
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while retrieving session for booking {BookingId}.", bookingId);
                 return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
