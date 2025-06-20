@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{36D4C334-5283-4FB4-851C-1CC37949E869}|PeerTutoringSystem.Tests\\PeerTutoringSystem.Tests.csproj|c:\\users\\luong quang huy\\source\\repos\\peertutoringsystem-be\\peertutoringsystem.tests\\application\\services\\paymentservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{36D4C334-5283-4FB4-851C-1CC37949E869}|PeerTutoringSystem.Tests\\PeerTutoringSystem.Tests.csproj|solutionrelative:peertutoringsystem.tests\\application\\services\\paymentservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{36D4C334-5283-4FB4-851C-1CC37949E869}|PeerTutoringSystem.Tests\\PeerTutoringSystem.Tests.csproj|c:\\users\\luong quang huy\\source\\repos\\peertutoringsystem-be\\peertutoringsystem.tests\\application\\services\\advanced\\bookingserviceadvancedtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{36D4C334-5283-4FB4-851C-1CC37949E869}|PeerTutoringSystem.Tests\\PeerTutoringSystem.Tests.csproj|solutionrelative:peertutoringsystem.tests\\application\\services\\advanced\\bookingserviceadvancedtests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -180,10 +184,6 @@
       "RelativeMoniker": "D:0:0:{53E78578-C1D6-4527-8582-2E3A0D7359AF}|PeerTutoringSystem.Domain\\PeerTutoringSystem.Domain.csproj|solutionrelative:peertutoringsystem.domain\\interfaces\\payment\\ipaymentrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{36D4C334-5283-4FB4-851C-1CC37949E869}|PeerTutoringSystem.Tests\\PeerTutoringSystem.Tests.csproj|c:\\users\\luong quang huy\\source\\repos\\peertutoringsystem-be\\peertutoringsystem.tests\\application\\services\\paymentservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{36D4C334-5283-4FB4-851C-1CC37949E869}|PeerTutoringSystem.Tests\\PeerTutoringSystem.Tests.csproj|solutionrelative:peertutoringsystem.tests\\application\\services\\paymentservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{36D4C334-5283-4FB4-851C-1CC37949E869}|PeerTutoringSystem.Tests\\PeerTutoringSystem.Tests.csproj|c:\\users\\luong quang huy\\source\\repos\\peertutoringsystem-be\\peertutoringsystem.tests\\application\\services\\tutoravailabilityservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{36D4C334-5283-4FB4-851C-1CC37949E869}|PeerTutoringSystem.Tests\\PeerTutoringSystem.Tests.csproj|solutionrelative:peertutoringsystem.tests\\application\\services\\tutoravailabilityservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -199,7 +199,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -207,59 +207,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "UserDto.cs",
-              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
-              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-09T13:55:31.298Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "BookingServiceTests.cs",
-              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\BookingServiceTests.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Tests\\Application\\Services\\BookingServiceTests.cs",
-              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\BookingServiceTests.cs*",
-              "RelativeToolTip": "PeerTutoringSystem.Tests\\Application\\Services\\BookingServiceTests.cs*",
-              "ViewState": "AgIAAMMAAAAAAAAAAAAtwNoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:39:01.995Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "BookingService.cs",
-              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Booking\\BookingService.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Booking\\BookingService.cs",
-              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Booking\\BookingService.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Booking\\BookingService.cs",
-              "ViewState": "AgIAAHgAAAAAAAAAAAAtwI8AAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:14:26.119Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "BookingDTOs.cs",
-              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Booking\\BookingDTOs.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Booking\\BookingDTOs.cs",
-              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Booking\\BookingDTOs.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Booking\\BookingDTOs.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAMwBkAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:04:36.998Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "BookingIntegrationTests.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Integration\\BookingIntegrationTests.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Tests\\Integration\\BookingIntegrationTests.cs",
@@ -267,12 +215,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Tests\\Integration\\BookingIntegrationTests.cs",
               "ViewState": "AgIAAFoAAAAAAAAAAAAAAHgAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:41:36.609Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T13:41:36.609Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Authentication\\User.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Authentication\\User.cs",
@@ -280,12 +227,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Domain\\Entities\\Authentication\\User.cs",
               "ViewState": "AgIAAA0AAAAAAAAAAAAgwBEAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T12:55:09.941Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T12:55:09.941Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "BookingServiceAdvancedTests.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\Advanced\\BookingServiceAdvancedTests.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Tests\\Application\\Services\\Advanced\\BookingServiceAdvancedTests.cs",
@@ -293,12 +239,72 @@
               "RelativeToolTip": "PeerTutoringSystem.Tests\\Application\\Services\\Advanced\\BookingServiceAdvancedTests.cs",
               "ViewState": "AgIAALIAAAAAAAAAAAAewMAAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:42:41.887Z",
+              "WhenOpened": "2025-05-18T13:42:41.887Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PaymentServiceTests.cs",
+              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\PaymentServiceTests.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Tests\\Application\\Services\\PaymentServiceTests.cs",
+              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\PaymentServiceTests.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Tests\\Application\\Services\\PaymentServiceTests.cs",
+              "ViewState": "AgIAAI8AAAAAAAAAAAAtwJ0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-09T13:02:22.613Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "BookingDTOs.cs",
+              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Booking\\BookingDTOs.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Booking\\BookingDTOs.cs",
+              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Booking\\BookingDTOs.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Booking\\BookingDTOs.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAMwBkAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-18T13:04:36.998Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "BookingServiceTests.cs",
+              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\BookingServiceTests.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Tests\\Application\\Services\\BookingServiceTests.cs",
+              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\BookingServiceTests.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Tests\\Application\\Services\\BookingServiceTests.cs",
+              "ViewState": "AgIAAMMAAAAAAAAAAAAtwNoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-18T13:39:01.995Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "BookingService.cs",
+              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Booking\\BookingService.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Booking\\BookingService.cs",
+              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Booking\\BookingService.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Booking\\BookingService.cs",
+              "ViewState": "AgIAAHgAAAAAAAAAAAAtwI8AAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-18T13:14:26.119Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 7,
+              "Title": "UserDto.cs",
+              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
+              "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
+              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
+              "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Authentication\\UserDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-09T13:55:31.298Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "BookingFilterDto.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\DTOs\\Booking\\BookingFilterDto.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\DTOs\\Booking\\BookingFilterDto.cs",
@@ -306,12 +312,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Application\\DTOs\\Booking\\BookingFilterDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-09T13:53:51.388Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-09T13:53:51.388Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "WebhookControllerTests.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Api\\Controllers\\WebhookControllerTests.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Tests\\Api\\Controllers\\WebhookControllerTests.cs",
@@ -319,12 +324,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Tests\\Api\\Controllers\\WebhookControllerTests.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-09T13:36:12.194Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-09T13:36:12.194Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "PaymentService.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Payment\\PaymentService.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Payment\\PaymentService.cs",
@@ -332,12 +336,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Application\\Services\\Payment\\PaymentService.cs",
               "ViewState": "AgIAAA0AAAAAAAAAAAA3wCMAAABcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-25T02:35:05.332Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-25T02:35:05.332Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "PaymentEntity.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\PaymentEntity.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\PaymentEntity.cs",
@@ -345,12 +348,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\PaymentEntity.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-27T13:57:26.554Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-27T13:57:26.554Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "TutorVerification.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Authentication\\TutorVerification.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Authentication\\TutorVerification.cs",
@@ -358,12 +360,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Domain\\Entities\\Authentication\\TutorVerification.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T12:55:08.595Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T12:55:08.595Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "BookingSession.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Booking\\BookingSession.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Booking\\BookingSession.cs",
@@ -371,12 +372,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Domain\\Entities\\Booking\\BookingSession.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:01:00.185Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T13:01:00.185Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "Microsoft.NET.Sdk.StaticWebAssets.Compression.targets",
               "DocumentMoniker": "C:\\Program Files\\dotnet\\sdk\\9.0.300\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.Compression.targets",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\9.0.300\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.Compression.targets",
@@ -384,12 +384,11 @@
               "RelativeToolTip": "..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\9.0.300\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.Compression.targets",
               "ViewState": "AgIAAAwBAAAAAAAAAAAlwCABAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
-              "WhenOpened": "2025-06-03T08:29:45.772Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-03T08:29:45.772Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "TutorAvailabilityController.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Api\\Controllers\\TutorAvailabilityController.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Tests\\Api\\Controllers\\TutorAvailabilityController.cs",
@@ -397,16 +396,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Tests\\Api\\Controllers\\TutorAvailabilityController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-09T13:38:18.506Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+              "WhenOpened": "2025-06-09T13:38:18.506Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "PeerTutoringSystem.Infrastructure.csproj",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\Source\\Repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\PeerTutoringSystem.Infrastructure.csproj",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\PeerTutoringSystem.Infrastructure.csproj",
@@ -414,12 +408,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Infrastructure\\PeerTutoringSystem.Infrastructure.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-05-18T13:44:47.311Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T13:44:47.311Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "PeerTutoringSystem.Api.csproj",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\Source\\Repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\PeerTutoringSystem.Api.csproj",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\PeerTutoringSystem.Api.csproj",
@@ -427,12 +420,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Api\\PeerTutoringSystem.Api.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-05-18T12:56:01.874Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T12:56:01.874Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Program.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Program.cs",
@@ -444,19 +436,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
-              "Title": "PaymentServiceTests.cs",
-              "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\PaymentServiceTests.cs",
-              "RelativeDocumentMoniker": "PeerTutoringSystem.Tests\\Application\\Services\\PaymentServiceTests.cs",
-              "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\PaymentServiceTests.cs",
-              "RelativeToolTip": "PeerTutoringSystem.Tests\\Application\\Services\\PaymentServiceTests.cs",
-              "ViewState": "AgIAACQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-09T13:02:22.613Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 23,
               "Title": "SePayWebhookData.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\SePayWebhookData.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\SePayWebhookData.cs",
@@ -468,7 +448,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "PaymentStatus.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\PaymentStatus.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\PaymentStatus.cs",
@@ -480,7 +460,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "PaymentRepository.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Payment\\PaymentRepository.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Repositories\\Payment\\PaymentRepository.cs",
@@ -492,7 +472,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 24,
               "Title": "CreatePaymentRequest.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\CreatePaymentRequest.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\CreatePaymentRequest.cs",
@@ -504,7 +484,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "PaymentController.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Payment\\PaymentController.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Controllers\\Payment\\PaymentController.cs",
@@ -516,7 +496,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "PaymentResponse.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\PaymentResponse.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\PaymentEntities\\PaymentResponse.cs",
@@ -528,7 +508,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 25,
               "Title": "WebhookController.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Payment\\WebhookController.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Controllers\\Payment\\WebhookController.cs",
@@ -540,7 +520,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 26,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Data\\AppDbContext.cs",
@@ -552,7 +532,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 27,
               "Title": "PeerTutor.sql",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\Desktop\\Uni\\EXE\\Project\\PeerTutor.sql",
               "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\Uni\\EXE\\Project\\PeerTutor.sql",
@@ -564,7 +544,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 45,
               "Title": "IPaymentRepository.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Interfaces\\Payment\\IPaymentRepository.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Interfaces\\Payment\\IPaymentRepository.cs",
@@ -576,7 +556,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 30,
               "Title": "BookingsController.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Booking\\BookingsController.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Controllers\\Booking\\BookingsController.cs",
@@ -584,12 +564,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Api\\Controllers\\Booking\\BookingsController.cs",
               "ViewState": "AgIAAAYBAAAAAAAAAAAAwBwAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:30:57.247Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T13:30:57.247Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 29,
               "Title": "TutorAvailabilityController.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Booking\\TutorAvailabilityController.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Controllers\\Booking\\TutorAvailabilityController.cs",
@@ -597,12 +576,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Api\\Controllers\\Booking\\TutorAvailabilityController.cs",
               "ViewState": "AgIAADUAAAAAAAAAAAAAAEsAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:00:28.608Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T13:00:28.608Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 28,
               "Title": "IPaymentService.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Interfaces\\Payment\\IPaymentService.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Interfaces\\Payment\\IPaymentService.cs",
@@ -614,7 +592,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 31,
               "Title": "serviceAccountKey.json",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\serviceAccountKey.json",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\serviceAccountKey.json",
@@ -626,7 +604,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 32,
               "Title": "Skill.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Skills\\Skill.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Skills\\Skill.cs",
@@ -638,7 +616,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 33,
               "Title": "UserSkill.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Skills\\UserSkill.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Skills\\UserSkill.cs",
@@ -657,12 +635,11 @@
               "ToolTip": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Tests\\Application\\Services\\TutorAvailabilityServiceTests.cs",
               "RelativeToolTip": "PeerTutoringSystem.Tests\\Application\\Services\\TutorAvailabilityServiceTests.cs",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-24T11:07:14.825Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-24T11:07:14.825Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 37,
               "Title": "BookingSessionRepository.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Booking\\BookingSessionRepository.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Repositories\\Booking\\BookingSessionRepository.cs",
@@ -682,12 +659,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Tests\\Api\\Controllers\\BookingsControllerTests.cs",
               "ViewState": "AgIAABsBAAAAAAAAAAAwwEUBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:41:07.425Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T13:41:07.425Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 38,
               "Title": "TutorAvailabilityService.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Services\\Booking\\TutorAvailabilityService.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Services\\Booking\\TutorAvailabilityService.cs",
@@ -699,7 +675,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 35,
               "Title": "BookingController.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\Controllers\\Authentication\\BookingController.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\Controllers\\Authentication\\BookingController.cs",
@@ -711,7 +687,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 39,
               "Title": "ITutorAvailabilityService.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Interfaces\\Booking\\ITutorAvailabilityService.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Interfaces\\Booking\\ITutorAvailabilityService.cs",
@@ -723,7 +699,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 36,
               "Title": "PeerTutor.sql",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Api\\PeerTutor.sql",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Api\\PeerTutor.sql",
@@ -734,7 +710,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 40,
               "Title": "TutorAvailabilityRepository.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Infrastructure\\Repositories\\Booking\\TutorAvailabilityRepository.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Infrastructure\\Repositories\\Booking\\TutorAvailabilityRepository.cs",
@@ -746,7 +722,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 41,
               "Title": "ITutorAvailabilityRepository.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Interfaces\\Booking\\ITutorAvailabilityRepository.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Interfaces\\Booking\\ITutorAvailabilityRepository.cs",
@@ -758,7 +734,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 42,
               "Title": "IBookingSessionRepository.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Interfaces\\Booking\\IBookingSessionRepository.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Interfaces\\Booking\\IBookingSessionRepository.cs",
@@ -766,12 +742,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Domain\\Interfaces\\Booking\\IBookingSessionRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:24:05.395Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T13:24:05.395Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 43,
               "Title": "TutorAvailability.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Domain\\Entities\\Booking\\TutorAvailability.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Domain\\Entities\\Booking\\TutorAvailability.cs",
@@ -783,7 +758,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 44,
               "Title": "IBookingService.cs",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\source\\repos\\PeerTutoringSystem-BE\\PeerTutoringSystem.Application\\Interfaces\\Booking\\IBookingService.cs",
               "RelativeDocumentMoniker": "PeerTutoringSystem.Application\\Interfaces\\Booking\\IBookingService.cs",
@@ -791,12 +766,11 @@
               "RelativeToolTip": "PeerTutoringSystem.Application\\Interfaces\\Booking\\IBookingService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-18T13:13:37.137Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-18T13:13:37.137Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 34,
               "Title": "PeerTutor.sql",
               "DocumentMoniker": "C:\\Users\\Luong Quang Huy\\Desktop\\Uni\\EXE\\Project\\PeerTutor.sql",
               "RelativeDocumentMoniker": "..\\..\\..\\Desktop\\Uni\\EXE\\Project\\PeerTutor.sql",
@@ -804,6 +778,10 @@
               "RelativeToolTip": "..\\..\\..\\Desktop\\Uni\\EXE\\Project\\PeerTutor.sql",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000826|",
               "WhenOpened": "2025-05-18T12:55:34.584Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
             }
           ]
         }

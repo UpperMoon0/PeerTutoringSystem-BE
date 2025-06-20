@@ -15,6 +15,8 @@ using PeerTutoringSystem.Application.Services.Authentication;
 using PeerTutoringSystem.Application.Services.Booking;
 using PeerTutoringSystem.Application.Services.Profile_Bio;
 using PeerTutoringSystem.Application.Services.Reviews;
+using PeerTutoringSystem.Application.Interfaces.Chat;
+using PeerTutoringSystem.Application.Services.Chat;
 using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
@@ -33,10 +35,13 @@ using PeerTutoringSystem.Application.Services.Payment;
 var builder = WebApplication.CreateBuilder(args);
 
 // Initialize Firebase
-FirebaseApp.Create(new AppOptions()
+if (FirebaseApp.DefaultInstance == null)
 {
-    Credential = GoogleCredential.FromFile(builder.Configuration["Firebase:CredentialPath"])
-});
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromFile("firebase-adminsdk.json"),
+    });
+}
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -91,6 +96,8 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddSingleton(new Firebase.Database.FirebaseClient(builder.Configuration["Firebase:DatabaseURL"]));
+builder.Services.AddScoped<IChatService, ChatService>();
 
 // Add CORS
 builder.Services.AddCors(options =>

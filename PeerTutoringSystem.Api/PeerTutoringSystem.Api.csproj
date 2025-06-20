@@ -28,4 +28,10 @@
     <Folder Include="wwwroot\documents\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="firebase-adminsdk.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
