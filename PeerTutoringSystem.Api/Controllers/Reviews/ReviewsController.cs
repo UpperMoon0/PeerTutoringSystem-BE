@@ -62,12 +62,51 @@ namespace PeerTutoringSystem.Api.Controllers.Reviews
         }
 
         [HttpGet("tutor/{tutorId:guid}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetReviewsByTutor(Guid tutorId)
         {
             try
             {
                 var reviews = await _reviewService.GetReviewsByTutorIdAsync(tutorId);
                 return Ok(reviews);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+            }
+        }
+
+        [HttpGet("tutor/{tutorId:guid}/average-rating")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAverageRatingByTutor(Guid tutorId)
+        {
+            try
+            {
+                var averageRating = await _reviewService.GetAverageRatingByTutorIdAsync(tutorId);
+                return Ok(new { TutorId = tutorId, AverageRating = averageRating });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+            }
+        }
+
+        [HttpGet("top-tutors")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTopTutorsByRating([FromQuery] int count = 10)
+        {
+            try
+            {
+                var topTutors = await _reviewService.GetTopTutorsByRatingAsync(count);
+                return Ok(topTutors);
             }
             catch (ValidationException ex)
             {

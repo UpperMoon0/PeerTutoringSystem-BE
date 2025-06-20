@@ -48,5 +48,47 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Reviews
                 .Include(r => r.Booking)
                 .FirstOrDefaultAsync(r => r.BookingID == bookingId);
         }
+
+        public async Task<double> GetAverageRatingByTutorIdAsync(Guid tutorId)
+        {
+            var reviews = await _context.Reviews
+                .Where(r => r.TutorID == tutorId)
+                .ToListAsync();
+
+            if (!reviews.Any())
+                return 0.0;
+
+            return reviews.Average(r => r.Rating);
+        }
+
+        public async Task<IEnumerable<(Guid TutorId, double AverageRating, int ReviewCount)>> GetTopTutorsByRatingAsync(int count)
+        {
+            var tutorsWithRatings = await _context.Reviews
+                .GroupBy(r => r.TutorID)
+                .Select(g => new
+                {
+                    TutorId = g.Key,
+                    AverageRating = g.Average(r => r.Rating),
+                    ReviewCount = g.Count()
+                })
+                .OrderByDescending(t => t.AverageRating)
+                .Take(count)
+                .ToListAsync();
+
+            var result = tutorsWithRatings.Select(t => (t.TutorId, t.AverageRating, t.ReviewCount)).ToList();
+
+            if (result.Count < count)
+            {
+                var existingTutorIds = result.Select(r => r.TutorId).ToHashSet();
+                var additionalTutors = await _context.Users
+                    .Where(u => u.Role.RoleName == "Tutor" && !existingTutorIds.Contains(u.UserID))
+                    .ToListAsync();
+
+                var tutorsToAdd = additionalTutors.Take(count - result.Count);
+                result.AddRange(tutorsToAdd.Select(u => (u.UserID, 0.0, 0)));
+            }
+
+            return result;
+        }
     }
 }

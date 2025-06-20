@@ -4,6 +4,7 @@ using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Entities.Reviews;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Reviews;
+using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -112,6 +113,42 @@ namespace PeerTutoringSystem.Application.Services.Reviews
             }).ToList();
         }
 
+        public async Task<double> GetAverageRatingByTutorIdAsync(Guid tutorId)
+        {
+            var tutor = await _userRepository.GetByIdAsync(tutorId);
+            if (tutor == null || tutor.Role.RoleName != "Tutor")
+                throw new ValidationException("Tutor not found.");
+
+            return await _reviewRepository.GetAverageRatingByTutorIdAsync(tutorId);
+        }
+
+        public async Task<IEnumerable<TutorRatingDto>> GetTopTutorsByRatingAsync(int count)
+        {
+            if (count <= 0)
+                throw new ValidationException("Count must be greater than 0.");
+
+            var topTutors = await _reviewRepository.GetTopTutorsByRatingAsync(count);
+            var result = new List<TutorRatingDto>();
+
+            foreach (var (tutorId, averageRating, reviewCount) in topTutors)
+            {
+                var tutor = await _userRepository.GetByIdAsync(tutorId);
+                if (tutor != null)
+                {
+                    result.Add(new TutorRatingDto
+                    {
+                        TutorId = tutorId,
+                        TutorName = tutor.FullName,
+                        Email = tutor.Email,
+                        AverageRating = averageRating,
+                        ReviewCount = reviewCount
+                    });
+                }
+            }
+
+            return result;
+        }
+
         private void ValidateDto<T>(T dto)
         {
             var validationContext = new ValidationContext(dto);
@@ -122,7 +159,6 @@ namespace PeerTutoringSystem.Application.Services.Reviews
                 throw new ValidationException(errors);
             }
 
-            // Additional validation for Rating
             var createReviewDto = dto as CreateReviewDto;
             if (createReviewDto != null && (createReviewDto.Rating < 1 || createReviewDto.Rating > 5))
                 throw new ValidationException("Rating must be between 1 and 5.");
