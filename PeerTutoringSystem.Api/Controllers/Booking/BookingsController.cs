@@ -353,5 +353,46 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                 return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllBookings([FromQuery] BookingFilterDto filter)
+        {
+            // Initialize default filter if none provided
+            filter ??= new BookingFilterDto();
+
+            // Ensure valid pagination parameters
+            if (filter.Page < 1 || filter.PageSize < 1)
+            {
+                return BadRequest(new { error = "Invalid pagination parameters.", timestamp = DateTime.UtcNow });
+            }
+
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var (bookings, totalCount) = await _bookingService.GetAllBookingsForAdminAsync(filter);
+                return Ok(new
+                {
+                    data = bookings,
+                    totalCount,
+                    page = filter.Page,
+                    pageSize = filter.PageSize,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while retrieving all bookings for admin.");
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while retrieving all bookings for admin.");
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
+        }
     }
 }
