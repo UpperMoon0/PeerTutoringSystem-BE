@@ -324,5 +324,24 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 TutorName = tutorName
             };
         }
+        public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetAllBookingsForAdminAsync(BookingFilterDto filter)
+        {
+            var query = await _bookingRepository.GetAllAsync(); 
+            query = ApplyFilters(query, filter);
+
+            var totalCount = query.Count();
+            var bookings = query
+                .Skip((filter.Page - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToList();
+
+            var dtos = new List<BookingSessionDto>();
+            foreach (var booking in bookings)
+            {
+                dtos.Add(await EnrichBookingWithNames(booking));
+            }
+
+            return (dtos, totalCount);
+        }
     }
 }

@@ -170,5 +170,11 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
 
             return query;
         }
+        public async Task<IEnumerable<BookingSession>> GetAllAsync()
+        {
+            return await _context.BookingSessions
+                .OrderByDescending(b => b.StartTime)
+                .ToListAsync();
+        }
     }
 }
