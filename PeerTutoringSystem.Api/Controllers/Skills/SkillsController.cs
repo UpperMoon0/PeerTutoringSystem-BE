@@ -134,6 +134,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         }
 
         [HttpGet("user-skills/{userId:guid}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetUserSkills(Guid userId)
         {
             var userSkills = await _userSkillService.GetByUserIdAsync(userId);

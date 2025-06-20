@@ -16,17 +16,20 @@ namespace PeerTutoringSystem.Application.Services.Booking
     {
         private readonly IBookingSessionRepository _bookingRepository;
         private readonly ITutorAvailabilityRepository _availabilityRepository;
+        private readonly ITutorAvailabilityService _tutorAvailabilityService;
         private readonly IUserService _userService;
         private readonly ISkillRepository _skillRepository;
 
         public BookingService(
             IBookingSessionRepository bookingRepository,
             ITutorAvailabilityRepository availabilityRepository,
+            ITutorAvailabilityService tutorAvailabilityService,
             IUserService userService,
             ISkillRepository skillRepository)
         {
             _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
             _availabilityRepository = availabilityRepository ?? throw new ArgumentNullException(nameof(availabilityRepository));
+            _tutorAvailabilityService = tutorAvailabilityService ?? throw new ArgumentNullException(nameof(tutorAvailabilityService));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _skillRepository = skillRepository ?? throw new ArgumentNullException(nameof(skillRepository));
         }
@@ -342,6 +345,31 @@ namespace PeerTutoringSystem.Application.Services.Booking
             }
 
             return (dtos, totalCount);
+        }
+
+        public async Task<TutorDashboardStatsDto> GetTutorDashboardStatsAsync(Guid tutorId)
+        {
+            var allBookings = await _bookingRepository.GetByTutorIdAsync(tutorId);
+            var allAvailabilities = await _tutorAvailabilityService.GetByTutorIdAsync(tutorId, new BookingFilterDto { PageSize = int.MaxValue });
+
+            var totalBookings = allBookings.Count();
+            var completedSessions = allBookings.Count(b => b.Status == BookingStatus.Completed);
+            var pendingBookings = allBookings.Count(b => b.Status == BookingStatus.Pending);
+            var confirmedBookings = allBookings.Count(b => b.Status == BookingStatus.Confirmed);
+            
+            var availableSlots = allAvailabilities.Availabilities.Count(a => !a.IsBooked && a.StartTime > DateTime.UtcNow);
+            
+            var totalEarnings = completedSessions * 50m;
+
+            return new TutorDashboardStatsDto
+            {
+                TotalBookings = totalBookings,
+                AvailableSlots = availableSlots,
+                CompletedSessions = completedSessions,
+                TotalEarnings = totalEarnings,
+                PendingBookings = pendingBookings,
+                ConfirmedBookings = confirmedBookings
+            };
         }
     }
 }

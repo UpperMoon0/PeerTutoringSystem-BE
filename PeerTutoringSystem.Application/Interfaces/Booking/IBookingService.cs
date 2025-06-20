@@ -12,5 +12,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Booking
         Task<BookingSessionDto> UpdateBookingStatusAsync(Guid bookingId, UpdateBookingStatusDto dto);
         Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetUpcomingBookingsAsync(Guid userId, bool isTutor, BookingFilterDto filter);
         Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetAllBookingsForAdminAsync(BookingFilterDto filter);
+        Task<TutorDashboardStatsDto> GetTutorDashboardStatsAsync(Guid tutorId);
     }
 }
