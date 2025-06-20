@@ -48,6 +48,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         }
 
         [HttpGet("tutors")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllTutors()
         {
             try
@@ -172,9 +173,9 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             }
         }
 
-        [HttpGet("dashboard-statistics")]
+        [HttpGet("admin-dashboard-statistics")]
         [AuthorizeAdmin]
-        public async Task<IActionResult> GetDashboardStatistics()
+        public async Task<IActionResult> GetAdminDashboardStatistics()
         {
             try
             {

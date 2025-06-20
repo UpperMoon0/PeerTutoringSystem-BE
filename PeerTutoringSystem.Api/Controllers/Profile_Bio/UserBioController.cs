@@ -43,7 +43,8 @@ namespace PeerTutoringSystem.Api.Controllers.Profile_Bio
             }
         }
 
-        [HttpGet("{bioId:int}")] 
+        [HttpGet("{bioId:int}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetUserBio(int bioId)
         {
             try
@@ -62,6 +63,7 @@ namespace PeerTutoringSystem.Api.Controllers.Profile_Bio
         }
 
         [HttpGet("user/{userId:guid}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetUserBioByUserId(Guid userId)
         {
             try
