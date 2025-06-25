@@ -11,5 +11,7 @@ namespace PeerTutoringSystem.Domain.Interfaces.Reviews
         Task<Review> GetByIdAsync(int reviewId);
         Task<IEnumerable<Review>> GetByTutorIdAsync(Guid tutorId);
         Task<Review> GetByBookingIdAsync(Guid bookingId);
+        Task<double> GetAverageRatingByTutorIdAsync(Guid tutorId);
+        Task<IEnumerable<(Guid TutorId, double AverageRating, int ReviewCount)>> GetTopTutorsByRatingAsync(int count);
     }
 }

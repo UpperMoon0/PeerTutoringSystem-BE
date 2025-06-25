@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Api.Middleware;
 using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
+using System.Linq;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
@@ -18,11 +19,13 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
     {
         private readonly IUserService _userService;
         private readonly ITutorVerificationService _tutorVerificationService;
+        private readonly ISkillService _skillService;
 
-        public UsersController(IUserService userService, ITutorVerificationService tutorVerificationService)
+        public UsersController(IUserService userService, ITutorVerificationService tutorVerificationService, ISkillService skillService)
         {
             _userService = userService;
             _tutorVerificationService = tutorVerificationService;
+            _skillService = skillService;
         }
 
         [HttpGet]
@@ -45,6 +48,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         }
 
         [HttpGet("tutors")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllTutors()
         {
             try
@@ -158,6 +162,47 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
 
                 var verificationId = await _tutorVerificationService.RequestTutorAsync(userId, dto);
                 return Ok(new { VerificationID = verificationId, message = "Tutor verification request submitted successfully." });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+            }
+        }
+
+        [HttpGet("admin-dashboard-statistics")]
+        [AuthorizeAdmin]
+        public async Task<IActionResult> GetAdminDashboardStatistics()
+        {
+            try
+            {
+                // Get all users count
+                var allUsers = await _userService.GetAllUsersAsync();
+                var totalUsers = allUsers.Count;
+
+                // Get pending verifications count
+                var allVerifications = await _tutorVerificationService.GetAllVerificationsAsync();
+                var pendingVerifications = allVerifications.Count(v => v.VerificationStatus == "Pending");
+
+                // Get all skills count
+                var allSkills = await _skillService.GetAllAsync();
+                var totalSkills = allSkills.Count();
+
+                // Get active admins count
+                var activeAdmins = allUsers.Count(u => u.Role == "Admin" && u.Status == "Active");
+
+                var statistics = new
+                {
+                    totalUsers = totalUsers,
+                    pendingVerifications = pendingVerifications,
+                    totalSkills = totalSkills,
+                    activeAdmins = activeAdmins
+                };
+
+                return Ok(statistics);
             }
             catch (ValidationException ex)
             {

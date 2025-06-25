@@ -394,5 +394,30 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                 return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
+
+        [HttpGet("tutor/dashboard-stats")]
+        [Authorize(Roles = "Tutor")]
+        public async Task<IActionResult> GetTutorDashboardStats()
+        {
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var tutorId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var stats = await _bookingService.GetTutorDashboardStatsAsync(tutorId);
+                return Ok(new
+                {
+                    data = stats,
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while retrieving tutor dashboard stats.");
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
+        }
     }
 }
