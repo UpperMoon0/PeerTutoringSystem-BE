@@ -1,8 +1,7 @@
--- Create Database
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'PeerTutoringSystem')
-BEGIN
-    CREATE DATABASE PeerTutoringSystem;
-END;
+-- Drop and Create Database
+DROP DATABASE IF EXISTS PeerTutoringSystem;
+GO
+CREATE DATABASE PeerTutoringSystem;
 GO
 
 USE PeerTutoringSystem;
@@ -15,12 +14,6 @@ BEGIN
         RoleID INT PRIMARY KEY,
         RoleName NVARCHAR(50) NOT NULL UNIQUE
     );
-
-    -- Insert initial roles
-    INSERT INTO Roles (RoleID, RoleName) VALUES
-        (1, 'Student'),
-        (2, 'Tutor'),
-        (3, 'Admin');
 END;
 GO
 
@@ -244,18 +237,6 @@ CREATE NONCLUSTERED INDEX IX_TutorVerifications_CitizenID ON TutorVerifications(
 CREATE NONCLUSTERED INDEX IX_TutorVerifications_StudentID ON TutorVerifications(StudentID);
 GO
 
--- Insert initial admin user
-INSERT INTO Users (
-    UserID, FullName, Email, PasswordHash, DateOfBirth, PhoneNumber, 
-    Gender, Hometown, CreatedDate, LastActive, IsOnline, Status, RoleID
-)
-VALUES (
-    NEWID(), 'Admin User', 'admin@example.com', 'AQAAAAIAAYagAAAAEBu/GxeoOcRJL1/6fxnjfarakRdfsAj/7K5s0ne2VbAgAPflGYuWWVjKGlEbKpNpCQ==', 
-    '1990-01-01', '1234567890', 'Male', 'Hanoi', GETUTCDATE(), GETUTCDATE(), 
-    1, 'Active', 3
-);
-GO
-
 -- Create Review table
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Reviews')
 BEGIN
@@ -279,7 +260,7 @@ BEGIN
 END;
 GO
 
-================================================Quản lý buổi học=====================================
+-- Session Management
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Sessions')
 BEGIN
     CREATE TABLE Sessions (
