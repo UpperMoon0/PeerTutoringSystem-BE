@@ -47,6 +47,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var skills = await _skillService.GetAllAsync();

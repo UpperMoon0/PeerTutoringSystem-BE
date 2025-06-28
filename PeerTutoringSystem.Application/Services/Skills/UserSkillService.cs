@@ -27,17 +27,17 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new InvalidOperationException($"User with ID '{userSkillDto.UserID}' does not exist.");
             }
 
-            var skill = await _skillRepository.GetByIdAsync(userSkillDto.SkillID);
+            var skill = await _skillRepository.GetByIdAsync(userSkillDto.Skill.SkillID);
             if (skill == null)
             {
-                throw new InvalidOperationException($"Skill with ID '{userSkillDto.SkillID}' does not exist.");
+                throw new InvalidOperationException($"Skill with ID '{userSkillDto.Skill.SkillID}' does not exist.");
             }
 
             var userSkill = new UserSkill
             {
                 UserSkillID = Guid.NewGuid(),
                 UserID = userSkillDto.UserID,
-                SkillID = userSkillDto.SkillID,
+                SkillID = userSkillDto.Skill.SkillID,
                 IsTutor = userSkillDto.IsTutor
             };
             var added = await _userSkillRepository.AddAsync(userSkill);
@@ -46,8 +46,14 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 UserSkillID = added.UserSkillID,
                 UserID = added.UserID,
-                SkillID = added.SkillID,
-                IsTutor = added.IsTutor
+                IsTutor = added.IsTutor,
+                Skill = new SkillDto
+                {
+                    SkillID = added.SkillID,
+                    SkillName = skill.SkillName,
+                    Description = skill.Description,
+                    SkillLevel = skill.SkillLevel
+                }
             };
         }
 
@@ -57,12 +63,11 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             var userSkillDtos = new List<UserSkillDto>();
             foreach (var us in userSkills)
             {
-                var skill = await _skillRepository.GetByIdAsync(us.SkillID);
+                var skill = await _skillRepository.GetByIdAsync(us.Skill.SkillID);
                 userSkillDtos.Add(new UserSkillDto
                 {
                     UserSkillID = us.UserSkillID,
                     UserID = us.UserID,
-                    SkillID = us.SkillID,
                     IsTutor = us.IsTutor,
                     Skill = skill != null ? new SkillDto
                     {
@@ -82,12 +87,11 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             var userSkillDtos = new List<UserSkillDto>();
             foreach (var us in userSkills)
             {
-                var skill = await _skillRepository.GetByIdAsync(us.SkillID);
+                var skill = await _skillRepository.GetByIdAsync(us.Skill.SkillID);
                 userSkillDtos.Add(new UserSkillDto
                 {
                     UserSkillID = us.UserSkillID,
                     UserID = us.UserID,
-                    SkillID = us.SkillID,
                     IsTutor = us.IsTutor,
                     Skill = skill != null ? new SkillDto
                     {
@@ -117,8 +121,14 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             {
                 UserSkillID = userSkill.UserSkillID,
                 UserID = userSkill.UserID,
-                SkillID = userSkill.SkillID,
-                IsTutor = userSkill.IsTutor
+                IsTutor = userSkill.IsTutor,
+                Skill = userSkill.Skill != null ? new SkillDto
+                {
+                    SkillID = userSkill.Skill.SkillID,
+                    SkillName = userSkill.Skill.SkillName,
+                    Description = userSkill.Skill.Description,
+                    SkillLevel = userSkill.Skill.SkillLevel
+                } : null
             };
         }
     }
