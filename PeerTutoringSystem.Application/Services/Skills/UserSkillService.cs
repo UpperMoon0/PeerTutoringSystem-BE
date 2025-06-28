@@ -1,14 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PeerTutoringSystem.Application.DTOs.Authentication;
+﻿using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.DTOs.Skills;
 using PeerTutoringSystem.Application.Interfaces.Skills;
 using PeerTutoringSystem.Domain.Entities.Skills;
-using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Skills;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Services.Authentication
 {
@@ -60,25 +54,51 @@ namespace PeerTutoringSystem.Application.Services.Authentication
         public async Task<IEnumerable<UserSkillDto>> GetByUserIdAsync(Guid userId)
         {
             var userSkills = await _userSkillRepository.GetByUserIdAsync(userId);
-            return userSkills.Select(us => new UserSkillDto
+            var userSkillDtos = new List<UserSkillDto>();
+            foreach (var us in userSkills)
             {
-                UserSkillID = us.UserSkillID,
-                UserID = us.UserID,
-                SkillID = us.SkillID,
-                IsTutor = us.IsTutor
-            });
+                var skill = await _skillRepository.GetByIdAsync(us.SkillID);
+                userSkillDtos.Add(new UserSkillDto
+                {
+                    UserSkillID = us.UserSkillID,
+                    UserID = us.UserID,
+                    SkillID = us.SkillID,
+                    IsTutor = us.IsTutor,
+                    Skill = skill != null ? new SkillDto
+                    {
+                        SkillID = skill.SkillID,
+                        SkillName = skill.SkillName,
+                        Description = skill.Description,
+                        SkillLevel = skill.SkillLevel
+                    } : null
+                });
+            }
+            return userSkillDtos;
         }
 
         public async Task<IEnumerable<UserSkillDto>> GetAllAsync()
         {
             var userSkills = await _userSkillRepository.GetAllAsync();
-            return userSkills.Select(us => new UserSkillDto
+            var userSkillDtos = new List<UserSkillDto>();
+            foreach (var us in userSkills)
             {
-                UserSkillID = us.UserSkillID,
-                UserID = us.UserID,
-                SkillID = us.SkillID,
-                IsTutor = us.IsTutor
-            });
+                var skill = await _skillRepository.GetByIdAsync(us.SkillID);
+                userSkillDtos.Add(new UserSkillDto
+                {
+                    UserSkillID = us.UserSkillID,
+                    UserID = us.UserID,
+                    SkillID = us.SkillID,
+                    IsTutor = us.IsTutor,
+                    Skill = skill != null ? new SkillDto
+                    {
+                        SkillID = skill.SkillID,
+                        SkillName = skill.SkillName,
+                        Description = skill.Description,
+                        SkillLevel = skill.SkillLevel
+                    } : null
+                });
+            }
+            return userSkillDtos;
         }
 
         public async Task<bool> DeleteAsync(Guid userSkillId)

@@ -4,12 +4,7 @@ using PeerTutoringSystem.Application.Helpers;
 using PeerTutoringSystem.Application.Interfaces.Reviews;
 using PeerTutoringSystem.Application.Interfaces.Skills;
 using PeerTutoringSystem.Application.Interfaces.Tutor;
-using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Services.Tutor
 {
@@ -43,14 +38,14 @@ namespace PeerTutoringSystem.Application.Services.Tutor
                 }
 
                 var enrichedTutors = new List<EnrichedTutorDto>();
-                var tasks = tutors.Select(async tutor =>
+                foreach (var tutor in tutors)
                 {
                     var userBio = await _userBioRepository.GetByUserIdAsync(tutor.UserID);
                     var skills = await _userSkillService.GetByUserIdAsync(tutor.UserID);
                     var averageRating = await _reviewService.GetAverageRatingByTutorIdAsync(tutor.UserID);
                     var reviewCount = (await _reviewService.GetReviewsByTutorIdAsync(tutor.UserID)).Count();
 
-                    return new EnrichedTutorDto
+                    enrichedTutors.Add(new EnrichedTutorDto
                     {
                         UserID = tutor.UserID,
                         FullName = tutor.FullName,
@@ -64,10 +59,8 @@ namespace PeerTutoringSystem.Application.Services.Tutor
                         AverageRating = averageRating,
                         ReviewCount = reviewCount,
                         Skills = skills ?? Enumerable.Empty<UserSkillDto>()
-                    };
-                }).ToList();
-
-                enrichedTutors.AddRange(await Task.WhenAll(tasks));
+                    });
+                }
 
                 return Result<IEnumerable<EnrichedTutorDto>>.Success(enrichedTutors);
             }

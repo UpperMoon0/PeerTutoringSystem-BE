@@ -9,5 +9,6 @@ namespace PeerTutoringSystem.Application.DTOs.Skills
         public Guid UserID { get; set; }
         public Guid SkillID { get; set; }
         public bool IsTutor { get; set; }
+        public SkillDto Skill { get; set; }
     }
 }
