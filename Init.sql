@@ -1,3 +1,9 @@
+-- Set necessary options for index creation and consistent behavior
+SET QUOTED_IDENTIFIER ON;
+GO
+SET ANSI_NULLS ON;
+GO
+
 -- Drop and Create Database
 DROP DATABASE IF EXISTS PeerTutoringSystem;
 GO
