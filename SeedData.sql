@@ -19,7 +19,7 @@ INSERT INTO Users (
     Gender, Hometown, CreatedDate, LastActive, IsOnline, Status, RoleID
 )
 VALUES (
-    '4a1f2c3d-5e6f-7a8b-9c0d-1e2f3a4b5c6d', 'Admin User', 'admin@example.com', 'AQAAAAIAAYagAAAAEBu/GxeoOcRJL1/6fxnjfarakRdfsAj/7K5s0ne2VbAgAPflGYuWWVjKGlEbKpNpCQ==',
+    '4a1f2c3d-5e6f-7a8b-9c0d-1e2f3a4b5c6d', 'Admin User', 'admin@example.com', 'AQAAAAIAAYagAAAAEMIM2J9p/TTtaOBJcSwMTmnRzZdLWs+oMVkDo+fFkrW2FVI2j4aOBvMc2lsqgqDZpA==',
     '1990-01-01', '0901234567', 'Male', 'Hanoi', GETUTCDATE(), GETUTCDATE(), 
     1, 'Active', 3
 );
@@ -28,11 +28,11 @@ GO
 -- Seed Data for Users 
 -- Students
 INSERT INTO Users (UserID, FullName, FirebaseUid, Email, PasswordHash, DateOfBirth, PhoneNumber, Gender, Hometown, School, AvatarUrl, CreatedDate, LastActive, IsOnline, Status, RoleID) VALUES
-('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c61', 'Nguyen Van An', NULL, 'an.nguyen@example.com', 'hashedpassword1', '2002-05-10', '0912345678', 'Male', 'Ho Chi Minh City', 'National University', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1),
-('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c62', 'Tran Thi Binh', NULL, 'binh.tran@example.com', 'hashedpassword2', '2003-01-15', '0912345679', 'Female', 'Da Nang', 'Foreign Trade University', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1),
-('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c63', 'Le Van Cuong', NULL, 'cuong.le@example.com', 'hashedpassword3', '2001-11-20', '0912345680', 'Male', 'Can Tho', 'Hanoi University of Science and Technology', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1),
-('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c64', 'Pham Thi Dao', NULL, 'dao.pham@example.com', 'hashedpassword4', '2004-03-25', '0912345681', 'Female', 'Hai Phong', 'RMIT University Vietnam', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1),
-('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c65', 'Hoang Van Duc', NULL, 'duc.hoang@example.com', 'hashedpassword5', '2002-09-01', '0912345682', 'Male', 'Hue', 'FPT University', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1);
+('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c61', 'Nguyen Van An', NULL, 'an.nguyen@example.com', 'AQAAAAIAAYagAAAAEMIM2J9p/TTtaOBJcSwMTmnRzZdLWs+oMVkDo+fFkrW2FVI2j4aOBvMc2lsqgqDZpA==', '2002-05-10', '0912345678', 'Male', 'Ho Chi Minh City', 'National University', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1),
+('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c62', 'Tran Thi Binh', NULL, 'binh.tran@example.com', 'AQAAAAIAAYagAAAAEMIM2J9p/TTtaOBJcSwMTmnRzZdLWs+oMVkDo+fFkrW2FVI2j4aOBvMc2lsqgqDZpA==', '2003-01-15', '0912345679', 'Female', 'Da Nang', 'Foreign Trade University', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1),
+('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c63', 'Le Van Cuong', NULL, 'cuong.le@example.com', 'AQAAAAIAAYagAAAAEMIM2J9p/TTtaOBJcSwMTmnRzZdLWs+oMVkDo+fFkrW2FVI2j4aOBvMc2lsqgqDZpA==', '2001-11-20', '0912345680', 'Male', 'Can Tho', 'Hanoi University of Science and Technology', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1),
+('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c64', 'Pham Thi Dao', NULL, 'dao.pham@example.com', 'AQAAAAIAAYagAAAAEMIM2J9p/TTtaOBJcSwMTmnRzZdLWs+oMVkDo+fFkrW2FVI2j4aOBvMc2lsqgqDZpA==', '2004-03-25', '0912345681', 'Female', 'Hai Phong', 'RMIT University Vietnam', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1),
+('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c65', 'Hoang Van Duc', NULL, 'duc.hoang@example.com', 'AQAAAAIAAYagAAAAEMIM2J9p/TTtaOBJcSwMTmnRzZdLWs+oMVkDo+fFkrW2FVI2j4aOBvMc2lsqgqDZpA==', '2002-09-01', '0912345682', 'Male', 'Hue', 'FPT University', NULL, GETUTCDATE(), GETUTCDATE(), 0, 'Active', 1);
 
 -- Tutors
 INSERT INTO Users (UserID, FullName, FirebaseUid, Email, PasswordHash, DateOfBirth, PhoneNumber, Gender, Hometown, School, AvatarUrl, CreatedDate, LastActive, IsOnline, Status, RoleID) VALUES
@@ -64,8 +64,8 @@ GO
 
 -- Seed Data for UserBio
 INSERT INTO UserBio (UserID, Bio, Experience, HourlyRate, Availability, CreatedDate, UpdatedDate) VALUES
-('2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c71', 'Experienced English tutor with 5 years of teaching.', '5 years teaching English, IELTS preparation.', 150000.00, 'Mon-Fri 18:00-21:00', GETUTCDATE(), NULL),
-('2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c72', 'Passionate Computer Science tutor, specializing in algorithms.', '3 years tutoring C++, Python, Data Structures.', 200000.00, 'Sat-Sun 09:00-12:00', GETUTCDATE(), NULL),
+('2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c71', 'Experienced English tutor with 5 years of teaching.', '5 years teaching English, IELTS preparation.', 8, 'Mon-Fri 18:00-21:00', GETUTCDATE(), NULL),
+('2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c72', 'Passionate Computer Science tutor, specializing in algorithms.', '3 years tutoring C++, Python, Data Structures.', 8, 'Sat-Sun 09:00-12:00', GETUTCDATE(), NULL),
 ('1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c61', 'Student looking for help in Calculus.', NULL, 0.00, NULL, GETUTCDATE(), NULL);
 GO
 
