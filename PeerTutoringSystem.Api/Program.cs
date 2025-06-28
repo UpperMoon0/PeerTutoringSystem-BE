@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using PeerTutoringSystem.Application.Services;
+using Firebase.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -90,6 +91,11 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<FirebaseStorageService>();
+builder.Services.AddSingleton(provider =>
+{
+    var firebaseDatabaseUrl = builder.Configuration["Firebase:DatabaseUrl"];
+    return new FirebaseClient(firebaseDatabaseUrl);
+});
 builder.Services.AddScoped<IChatService, ChatService>();
 
 // Add CORS

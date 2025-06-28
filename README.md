@@ -105,8 +105,10 @@ Follow these steps to set up the project locally:
      "Firebase": {
        "AuthEmail": "your-service-account-email@your-project-id.iam.gserviceaccount.com",
        "PrivateKey": "-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_CONTENT_HERE\n-----END PRIVATE KEY-----\n",
-       "BucketName": "your-firebase-storage-bucket-name.appspot.com"
+       "BucketName": "your-firebase-storage-bucket-name.appspot.com",
+       "DatabaseUrl": "https://your-project-id-default-rtdb.firebaseio.com/"
      }
+     - **`DatabaseUrl`**: The URL of your Firebase Realtime Database. You can find this in the Firebase Console under **Project settings** > **Project settings** > **General** tab, usually in the format `https://your-project-id-default-rtdb.firebaseio.com/`.
      ```
      - **Important**: Ensure the `PrivateKey` value is copied exactly as it appears in the JSON file, including all `\n` newline characters.
 
