@@ -29,9 +29,9 @@ namespace PeerTutoringSystem.Application.Services.Booking
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
-        public async Task<SessionDto> CreateSessionAsync(Guid userId, CreateSessionDto dto)
+        public async Task<SessionDto> CreateSessionAsync(Guid userId, Guid bookingId, string videoCallLink, string sessionNotes, DateTimeOffset startTime, DateTimeOffset endTime)
         {
-            var booking = await _bookingRepository.GetByIdAsync(dto.BookingId);
+            var booking = await _bookingRepository.GetByIdAsync(bookingId);
             if (booking == null)
                 throw new ValidationException("Booking not found.");
 
@@ -44,11 +44,11 @@ namespace PeerTutoringSystem.Application.Services.Booking
             var session = new Session
             {
                 SessionId = Guid.NewGuid(),
-                BookingId = dto.BookingId,
-                VideoCallLink = dto.VideoCallLink,
-                SessionNotes = dto.SessionNotes,
-                StartTime = dto.StartTime,
-                EndTime = dto.EndTime,
+                BookingId = bookingId,
+                VideoCallLink = videoCallLink,
+                SessionNotes = sessionNotes,
+                StartTime = startTime.UtcDateTime,
+                EndTime = endTime.UtcDateTime,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -94,7 +94,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
             return (dtos, sessions.TotalCount);
         }
 
-        public async Task<SessionDto> UpdateSessionAsync(Guid sessionId, UpdateSessionDto dto)
+        public async Task<SessionDto> UpdateSessionAsync(Guid sessionId, string videoCallLink, string sessionNotes, DateTimeOffset startTime, DateTimeOffset endTime)
         {
             var session = await _sessionRepository.GetByIdAsync(sessionId);
             if (session == null)
@@ -107,8 +107,10 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (booking.TutorId != userId && booking.StudentId != userId)
                 throw new ValidationException("You do not have permission to update this session.");
 
-            session.VideoCallLink = dto.VideoCallLink ?? session.VideoCallLink;
-            session.SessionNotes = dto.SessionNotes ?? session.SessionNotes;
+            session.VideoCallLink = videoCallLink ?? session.VideoCallLink;
+            session.SessionNotes = sessionNotes ?? session.SessionNotes;
+            session.StartTime = startTime.UtcDateTime;
+            session.EndTime = endTime.UtcDateTime;
             session.UpdatedAt = DateTime.UtcNow;
 
             await _sessionRepository.UpdateAsync(session);

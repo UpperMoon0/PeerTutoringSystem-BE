@@ -2,10 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Application.DTOs;
 using PeerTutoringSystem.Application.Interfaces.Booking;
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using PeerTutoringSystem.Application.DTOs.Booking;
 using System.ComponentModel.DataAnnotations;
@@ -47,7 +44,7 @@ namespace PeerTutoringSystem.Api.Controllers
                     return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
                 }
 
-                var session = await _sessionService.CreateSessionAsync(userId, dto);
+                var session = await _sessionService.CreateSessionAsync(userId, dto.BookingId, dto.VideoCallLink, dto.SessionNotes, dto.StartTime, dto.EndTime);
                 return Ok(new { data = session, message = "Session created successfully.", timestamp = DateTime.UtcNow });
             }
             catch (ValidationException ex)
@@ -176,7 +173,7 @@ namespace PeerTutoringSystem.Api.Controllers
                     return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
                 }
 
-                var session = await _sessionService.UpdateSessionAsync(sessionId, dto);
+                var session = await _sessionService.UpdateSessionAsync(sessionId, dto.VideoCallLink, dto.SessionNotes, dto.StartTime, dto.EndTime);
                 return Ok(new { data = session, message = "Session updated successfully.", timestamp = DateTime.UtcNow });
             }
             catch (ValidationException ex)
