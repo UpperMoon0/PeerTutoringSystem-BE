@@ -4,6 +4,7 @@ using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Entities.Profile_Bio;
 using PeerTutoringSystem.Domain.Entities.Reviews;
 using PeerTutoringSystem.Domain.Entities.Skills;
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 
 namespace PeerTutoringSystem.Infrastructure.Data
 {
@@ -25,6 +26,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
         public DbSet<BookingSession> BookingSessions { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Session> Sessions { get; set; }
+        public DbSet<PaymentEntity> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -230,6 +232,21 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 entity.HasKey(e => e.SessionId);
                 entity.Property(e => e.VideoCallLink).HasMaxLength(255);
                 entity.Property(e => e.SessionNotes).HasMaxLength(500);
+            });
+
+            // Configure PaymentEntity
+            modelBuilder.Entity<PaymentEntity>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Amount).HasColumnType("DECIMAL(18,2)");
+                entity.Property(e => e.Currency).HasMaxLength(10);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.TransactionId).HasMaxLength(100);
+                entity.Property(e => e.Status).HasConversion<string>();
+                entity.HasOne(e => e.Booking)
+                      .WithMany()
+                      .HasForeignKey(e => e.BookingId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

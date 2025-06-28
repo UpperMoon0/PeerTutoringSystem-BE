@@ -1,0 +1,50 @@
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Text.Json;
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
+
+// Ensure you have a using directive for your SePayWebhookData and IPaymentService if they are in different namespaces
+// using PeerTutoringSystem.Domain.Entities.PaymentEntity; (Example)
+// using PeerTutoringSystem.Application.Interfaces.PaymentEntity; (Example)
+
+namespace PeerTutoringSystem.Api.Controllers.Payment
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class WebhookController : ControllerBase
+    {
+        private readonly IConfiguration _config;
+        private readonly IPaymentService _paymentService;
+
+        public WebhookController(IConfiguration config, IPaymentService paymentService)
+        {
+            _config = config;
+            _paymentService = paymentService;
+        }
+
+        [HttpPost("sepay")]
+        public async Task<IActionResult> HandleSePayWebhook([FromBody] SePayWebhookData webhookData)
+        {
+            try
+            {
+                if (webhookData == null || !ModelState.IsValid)
+                {
+                    // Handle invalid or empty payload
+                    return BadRequest(new { success = false, message = "Invalid payload." });
+                }
+
+                // Process the payment update
+                await _paymentService.ProcessPaymentWebhook(webhookData);
+
+                // Return 200 OK with { "success": true } as per SePay documentation
+                // for API Key or No Authentication webhooks.
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, message = "An error occurred while processing the webhook." });
+            }
+        }
+    }
+}
