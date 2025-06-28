@@ -1,6 +1,5 @@
 ﻿using System.Text;
-using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
+using PeerTutoringSystem.Application.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -34,14 +33,6 @@ using PeerTutoringSystem.Application.Services.Payment;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Initialize Firebase
-if (FirebaseApp.DefaultInstance == null)
-{
-    FirebaseApp.Create(new AppOptions()
-    {
-        Credential = GoogleCredential.FromFile("firebase-adminsdk.json"),
-    });
-}
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -98,7 +89,7 @@ builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddSingleton(new Firebase.Database.FirebaseClient(builder.Configuration["Firebase:DatabaseURL"]));
+builder.Services.AddScoped<FirebaseStorageService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 
 // Add CORS
@@ -166,7 +157,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseStaticFiles(); // Thêm dòng này để phục vụ tệp tĩnh từ wwwroot
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthentication();

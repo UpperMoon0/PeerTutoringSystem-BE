@@ -85,12 +85,9 @@ namespace PeerTutoringSystem.Application.Services.Authentication
 
             foreach (var doc in dto.Documents)
             {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", doc.DocumentPath.TrimStart('/'));
-                if (!File.Exists(filePath))
-                {
-                    _logger.LogError("Document at path {DocumentPath} does not exist on server for user ID: {UserId}", doc.DocumentPath, userId);
-                    throw new ValidationException($"Document at path {doc.DocumentPath} does not exist on server.");
-                }
+                // Document path is now a Firebase Storage URL, no need to check local existence
+                // The DocumentService already handles the upload to Firebase Storage.
+                // We just need to ensure the DocumentPath is stored correctly.
 
                 var document = new Document
                 {

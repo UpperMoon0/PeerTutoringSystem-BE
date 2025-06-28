@@ -1,27 +1,19 @@
 ﻿using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Entities.Authentication;
-using PeerTutoringSystem.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Services.Authentication
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly string _avatarStoragePath;
+        private readonly FirebaseStorageService _firebaseStorageService;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, FirebaseStorageService firebaseStorageService)
         {
             _userRepository = userRepository;
-            _avatarStoragePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
-            if (!Directory.Exists(_avatarStoragePath))
-                Directory.CreateDirectory(_avatarStoragePath);
+            _firebaseStorageService = firebaseStorageService;
         }
 
         public async Task<UserDto> GetUserByIdAsync(Guid userId)
@@ -135,15 +127,8 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 if (dto.Avatar.Length > maxFileSize)
                     throw new ValidationException($"Avatar exceeds maximum size of 2MB.");
 
-                var fileName = $"{Guid.NewGuid()}{extension}";
-                var filePath = Path.Combine(_avatarStoragePath, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await dto.Avatar.CopyToAsync(stream);
-                }
-
-                user.AvatarUrl = $"/avatars/{fileName}";
+                var avatarUrl = await _firebaseStorageService.UploadFileAsync(dto.Avatar, "avatars");
+                user.AvatarUrl = avatarUrl;
             }
 
             await _userRepository.UpdateAsync(user);
