@@ -82,5 +82,13 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
                 .Include(u => u.Role)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName)
+        {
+            return await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role.RoleName == roleName)
+                .ToListAsync();
+        }
     }
 }
