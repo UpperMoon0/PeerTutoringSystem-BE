@@ -33,8 +33,26 @@ using PeerTutoringSystem.Infrastructure.Repositories.Skills;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Infrastructure.Repositories.Payment;
 using PeerTutoringSystem.Application.Services.Payment;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Initialize Firebase Admin SDK
+var firebaseConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "serviceAccountKey.json");
+if (File.Exists(firebaseConfigPath))
+{
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromFile(firebaseConfigPath),
+        ProjectId = builder.Configuration["Firebase:ProjectId"]
+    });
+}
+else
+{
+    Console.WriteLine($"Firebase service account key not found at: {firebaseConfigPath}");
+}
 
 
 // Add services to the container.
