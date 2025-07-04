@@ -37,7 +37,7 @@ namespace PeerTutoringSystem.Application.Services.Chat
                 .Select(c => new ConversationDto
             {
                 Id = c.Id,
-                Participant = new ParticipantInfoDto
+                Participant = new ConversationParticipantDto
                 {
                     Id = c.Participant.UserID.ToString(),
                     FullName = c.Participant.FullName,
@@ -53,7 +53,7 @@ namespace PeerTutoringSystem.Application.Services.Chat
             return new ConversationDto
             {
                 Id = conversation.Id,
-                Participant = new ParticipantInfoDto
+                Participant = new ConversationParticipantDto
                 {
                     Id = conversation.Participant.UserID.ToString(),
                     FullName = conversation.Participant.FullName,
