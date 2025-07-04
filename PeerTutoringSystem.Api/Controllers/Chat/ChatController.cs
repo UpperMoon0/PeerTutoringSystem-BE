@@ -27,11 +27,12 @@ namespace PeerTutoringSystem.Api.Controllers.Chat
     }
 
     [HttpPost("send")]
-    public async Task<IActionResult> SendMessage(ChatMessage message)
+    public async Task<IActionResult> SendMessage([FromBody] ChatMessage message)
     {
       await _chatService.SendMessageAsync(message);
       return Ok();
     }
+    
     [HttpGet("messages")]
     public IActionResult GetMessages()
     {
