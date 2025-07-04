@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PeerTutoringSystem.Application\PeerTutoringSystem.Application.csproj" />
+    <ProjectReference Include="..\PeerTutoringSystem.Domain\PeerTutoringSystem.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

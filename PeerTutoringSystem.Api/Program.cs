@@ -19,6 +19,7 @@ using PeerTutoringSystem.Application.Services.Reviews;
 using PeerTutoringSystem.Application.Services.Tutor;
 using PeerTutoringSystem.Application.Interfaces.Chat;
 using PeerTutoringSystem.Application.Services.Chat;
+using PeerTutoringSystem.Domain.Interfaces.Chat;
 using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
@@ -30,12 +31,12 @@ using PeerTutoringSystem.Infrastructure.Repositories.Booking;
 using PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio;
 using PeerTutoringSystem.Infrastructure.Repositories.Reviews;
 using PeerTutoringSystem.Infrastructure.Repositories.Skills;
+using PeerTutoringSystem.Infrastructure.Repositories.Chat;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Infrastructure.Repositories.Payment;
 using PeerTutoringSystem.Application.Services.Payment;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
-using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -119,6 +120,7 @@ builder.Services.AddSingleton(provider =>
     return new FirebaseClient(firebaseDatabaseUrl);
 });
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
 
 builder.Services.AddCors(options =>
 {

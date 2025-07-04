@@ -1,36 +1,64 @@
-using Firebase.Database;
-using Firebase.Database.Query;
+using PeerTutoringSystem.Application.DTOs.Chat;
 using PeerTutoringSystem.Application.Interfaces.Chat;
 using PeerTutoringSystem.Domain.Entities.Chat;
-using System;
+using PeerTutoringSystem.Domain.Interfaces.Chat;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
-using Firebase.Database.Streaming;
+using System.Reactive.Subjects;
 
 namespace PeerTutoringSystem.Application.Services.Chat
 {
-  public class ChatService : IChatService
-  {
-    private readonly FirebaseClient _firebaseClient;
-
-    public ChatService(FirebaseClient firebaseClient)
+    public class ChatService : IChatService
     {
-      _firebaseClient = firebaseClient;
-    }
+        private readonly IChatRepository _chatRepository;
+        private readonly ISubject<ChatMessage> _messageSubject = new ReplaySubject<ChatMessage>(1);
 
-    public async Task SendMessageAsync(ChatMessage message)
-    {
-      await _firebaseClient
-          .Child("chats")
-          .PostAsync(message);
-    }
+        public ChatService(IChatRepository chatRepository)
+        {
+            _chatRepository = chatRepository;
+        }
 
-    public IObservable<ChatMessage> ObserveMessages()
-    {
-      return _firebaseClient
-          .Child("chats")
-          .AsObservable<ChatMessage>()
-          .Select(fbe => fbe.Object);
+        public async Task<ChatMessage> SendMessageAsync(ChatMessage message)
+        {
+            var sentMessage = await _chatRepository.SendMessageAsync(message);
+            _messageSubject.OnNext(sentMessage);
+            return sentMessage;
+        }
+
+        public IObservable<ChatMessage> ObserveMessages()
+        {
+            return _messageSubject.AsObservable();
+        }
+
+        public async Task<IEnumerable<ConversationDto>> GetConversationsAsync(string userId)
+        {
+            var conversations = await _chatRepository.GetConversationsAsync(userId);
+            return conversations.Select(c => new ConversationDto
+            {
+                Id = c.Id,
+                Participant = new ParticipantInfoDto
+                {
+                    Id = c.Participant.UserID.ToString(),
+                    FullName = c.Participant.FullName,
+                    AvatarUrl = c.Participant.AvatarUrl
+                },
+                LastMessage = c.LastMessage
+            });
+        }
+
+        public async Task<ConversationDto> FindOrCreateConversationAsync(string userId, string participantId)
+        {
+            var conversation = await _chatRepository.FindOrCreateConversationAsync(userId, participantId);
+            return new ConversationDto
+            {
+                Id = conversation.Id,
+                Participant = new ParticipantInfoDto
+                {
+                    Id = conversation.Participant.UserID.ToString(),
+                    FullName = conversation.Participant.FullName,
+                    AvatarUrl = conversation.Participant.AvatarUrl
+                },
+                LastMessage = conversation.LastMessage
+            };
+        }
     }
-  }
 }
