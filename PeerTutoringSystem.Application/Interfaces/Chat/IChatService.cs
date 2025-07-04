@@ -8,6 +8,7 @@ namespace PeerTutoringSystem.Application.Interfaces.Chat
         Task<ChatMessage> SendMessageAsync(ChatMessage message);
         Task<IEnumerable<ConversationDto>> GetConversationsAsync(string userId);
         Task<ConversationDto> FindOrCreateConversationAsync(string userId, string participantId);
+        Task<IEnumerable<ChatMessage>> GetMessagesAsync(string conversationId);
         IObservable<ChatMessage> ObserveMessages();
     }
 }

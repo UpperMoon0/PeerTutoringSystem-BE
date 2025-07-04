@@ -55,11 +55,11 @@ else
     Console.WriteLine($"Firebase service account key not found at: {firebaseConfigPath}");
 }
 
-
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
+
 // Configure DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

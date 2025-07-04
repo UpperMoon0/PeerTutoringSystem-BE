@@ -62,5 +62,10 @@ namespace PeerTutoringSystem.Application.Services.Chat
                 LastMessage = conversation.LastMessage
             };
         }
+
+        public async Task<IEnumerable<ChatMessage>> GetMessagesAsync(string conversationId)
+        {
+            return await _chatRepository.GetMessagesAsync(conversationId);
+        }
     }
 }

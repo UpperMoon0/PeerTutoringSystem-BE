@@ -63,7 +63,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Chat
                     userConversations[group.Key] = new Conversation
                     {
                         Id = group.Key,
-                        ParticipantIds = group.Key.Split('-').ToList(),
+                        ParticipantIds = new List<string> { group.Key.Substring(0, 36), group.Key.Substring(37) },
                     };
                 }
                 userConversations[group.Key].LastMessage = group.OrderByDescending(msg => msg.Timestamp).First();
@@ -131,6 +131,32 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Chat
             }
 
             return conversation;
+        }
+
+        public async Task<IEnumerable<ChatMessage>> GetMessagesAsync(string conversationId)
+        {
+            // A conversationId is composed of two GUIDs, sorted and joined by a hyphen.
+            // Each GUID string is 36 characters long. Total length is 36 + 1 + 36 = 73.
+            if (conversationId.Length != 73)
+            {
+                // Invalid conversationId format
+                return Enumerable.Empty<ChatMessage>();
+            }
+
+            var id1 = conversationId.Substring(0, 36);
+            var id2 = conversationId.Substring(37);
+            var participantIds = new List<string> { id1, id2 };
+
+            var allMessages = await _firebaseClient
+                .Child("chats")
+                .OnceAsync<ChatMessage>();
+
+            return allMessages
+                .Select(item => item.Object)
+                .Where(msg =>
+                    (participantIds.Contains(msg.SenderId) && participantIds.Contains(msg.ReceiverId)))
+                .OrderBy(msg => msg.Timestamp)
+                .ToList();
         }
     }
 }

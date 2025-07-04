@@ -29,6 +29,7 @@ namespace PeerTutoringSystem.Api.Controllers.Chat
                 SenderId = messageDto.SenderId,
                 ReceiverId = messageDto.ReceiverId,
                 Message = messageDto.Message,
+                Timestamp = DateTime.UtcNow
             };
             var sentMessage = await _chatService.SendMessageAsync(message);
             await _hubContext.Clients.All.SendAsync("ReceiveMessage", sentMessage);
@@ -51,6 +52,13 @@ namespace PeerTutoringSystem.Api.Controllers.Chat
             }
             var conversation = await _chatService.FindOrCreateConversationAsync(userId, request.ParticipantId);
             return Ok(conversation);
+        }
+
+        [HttpGet("{conversationId}/messages")]
+        public async Task<IActionResult> GetMessages(string conversationId)
+        {
+            var messages = await _chatService.GetMessagesAsync(conversationId);
+            return Ok(messages);
         }
     }
 }
