@@ -32,7 +32,9 @@ namespace PeerTutoringSystem.Application.Services.Chat
         public async Task<IEnumerable<ConversationDto>> GetConversationsAsync(string userId)
         {
             var conversations = await _chatRepository.GetConversationsAsync(userId);
-            return conversations.Select(c => new ConversationDto
+            return conversations
+                .Where(c => c.Participant != null)
+                .Select(c => new ConversationDto
             {
                 Id = c.Id,
                 Participant = new ParticipantInfoDto

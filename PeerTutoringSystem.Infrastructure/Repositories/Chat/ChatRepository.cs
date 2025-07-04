@@ -2,7 +2,6 @@ using Firebase.Database;
 using Firebase.Database.Query;
 using PeerTutoringSystem.Domain.Entities.Chat;
 using PeerTutoringSystem.Domain.Interfaces.Chat;
-using PeerTutoringSystem.Domain.Interfaces.Authentication;
 
 namespace PeerTutoringSystem.Infrastructure.Repositories.Chat
 {
@@ -32,11 +31,20 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Chat
 
         public async Task<IEnumerable<Conversation>> GetConversationsAsync(string userId)
         {
+            var explicitConversations = await _firebaseClient
+                .Child("conversations")
+                .OnceAsync<Conversation>();
+
+            var userConversations = explicitConversations
+                .Where(c => c.Object.ParticipantIds.Contains(userId))
+                .Select(c => c.Object)
+                .ToDictionary(c => c.Id, c => c);
+
             var allMessages = await _firebaseClient
                 .Child("chats")
                 .OnceAsync<ChatMessage>();
 
-            var conversations = allMessages
+            var messageBasedConversations = allMessages
                 .Select(item => item.Object)
                 .Where(msg => msg.SenderId == userId || msg.ReceiverId == userId)
                 .GroupBy(msg =>
@@ -46,15 +54,24 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Chat
                     ids.Sort();
                     return string.Join("-", ids);
                 })
-                .Select(group => new Conversation
-                {
-                    Id = group.Key,
-                    ParticipantIds = group.Key.Split('-').ToList(),
-                    LastMessage = group.OrderByDescending(msg => msg.Timestamp).First()
-                })
                 .ToList();
 
-            var participantIds = conversations
+            foreach (var group in messageBasedConversations)
+            {
+                if (!userConversations.ContainsKey(group.Key))
+                {
+                    userConversations[group.Key] = new Conversation
+                    {
+                        Id = group.Key,
+                        ParticipantIds = group.Key.Split('-').ToList(),
+                    };
+                }
+                userConversations[group.Key].LastMessage = group.OrderByDescending(msg => msg.Timestamp).First();
+            }
+
+            var finalConversations = userConversations.Values.ToList();
+
+            var participantIds = finalConversations
                 .Select(c => c.ParticipantIds.FirstOrDefault(id => id != userId))
                 .Where(id => id != null && Guid.TryParse(id, out _))
                 .Select(id => Guid.Parse(id))
@@ -66,7 +83,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Chat
                 var participants = await _userRepository.GetUsersByIdsAsync(participantIds);
                 var participantDict = participants.ToDictionary(p => p.UserID.ToString(), p => p);
 
-                foreach (var conversation in conversations)
+                foreach (var conversation in finalConversations)
                 {
                     var otherParticipantId = conversation.ParticipantIds.FirstOrDefault(id => id != userId);
                     if (otherParticipantId != null && participantDict.TryGetValue(otherParticipantId, out var participant))
@@ -76,7 +93,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Chat
                 }
             }
 
-            return conversations;
+            return finalConversations;
         }
 
         public async Task<Conversation> FindOrCreateConversationAsync(string userId, string participantId)
