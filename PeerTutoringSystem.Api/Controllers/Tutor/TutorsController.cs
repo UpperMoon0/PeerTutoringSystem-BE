@@ -29,5 +29,17 @@ namespace PeerTutoringSystem.Api.Controllers.Tutor
             }
             return BadRequest(new { error = result.Error });
         }
+        
+        [HttpGet("enriched/{id}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetEnrichedTutorById(string id)
+        {
+            var result = await _tutorService.GetEnrichedTutorByIdAsync(id);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return NotFound(new { error = result.Error });
+        }
     }
 }

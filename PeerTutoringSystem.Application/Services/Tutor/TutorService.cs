@@ -69,5 +69,48 @@ namespace PeerTutoringSystem.Application.Services.Tutor
                 return Result<IEnumerable<EnrichedTutorDto>>.Failure($"Failed to retrieve enriched tutor data: {ex.Message}");
             }
         }
+        public async Task<Result<EnrichedTutorDto>> GetEnrichedTutorByIdAsync(string id)
+        {
+            try
+            {
+                if (!Guid.TryParse(id, out var userId))
+                {
+                    return Result<EnrichedTutorDto>.Failure("Invalid user ID format.");
+                }
+
+                var tutor = await _userRepository.GetByIdAsync(userId);
+                if (tutor == null || tutor.Role.RoleName != "Tutor")
+                {
+                    return Result<EnrichedTutorDto>.Failure("Tutor not found.");
+                }
+
+                var userBio = await _userBioRepository.GetByUserIdAsync(tutor.UserID);
+                var skills = await _userSkillService.GetByUserIdAsync(tutor.UserID);
+                var averageRating = await _reviewService.GetAverageRatingByTutorIdAsync(tutor.UserID);
+                var reviewCount = (await _reviewService.GetReviewsByTutorIdAsync(tutor.UserID)).Count();
+
+                var enrichedTutor = new EnrichedTutorDto
+                {
+                    UserID = tutor.UserID,
+                    FullName = tutor.FullName,
+                    Email = tutor.Email,
+                    AvatarUrl = tutor.AvatarUrl,
+                    Bio = userBio?.Bio ?? string.Empty,
+                    Experience = userBio?.Experience ?? string.Empty,
+                    HourlyRate = userBio?.HourlyRate ?? 0,
+                    Availability = userBio?.Availability ?? string.Empty,
+                    School = tutor.School,
+                    AverageRating = averageRating,
+                    ReviewCount = reviewCount,
+                    Skills = skills ?? Enumerable.Empty<UserSkillDto>()
+                };
+
+                return Result<EnrichedTutorDto>.Success(enrichedTutor);
+            }
+            catch (Exception ex)
+            {
+                return Result<EnrichedTutorDto>.Failure($"Failed to retrieve enriched tutor data: {ex.Message}");
+            }
+        }
     }
 }

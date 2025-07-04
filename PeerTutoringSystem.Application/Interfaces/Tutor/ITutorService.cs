@@ -8,5 +8,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Tutor
     public interface ITutorService
     {
         Task<Result<IEnumerable<EnrichedTutorDto>>> GetAllEnrichedTutorsAsync();
+        Task<Result<EnrichedTutorDto>> GetEnrichedTutorByIdAsync(string id);
     }
 }
