@@ -120,13 +120,16 @@ builder.Services.AddSingleton(provider =>
 });
 builder.Services.AddScoped<IChatService, ChatService>();
 
-// Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-    });
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:5173")
+                   .AllowAnyMethod()
+                   .AllowAnyHeader()
+                   .AllowCredentials();
+        });
 });
 
 builder.Services.AddEndpointsApiExplorer();
