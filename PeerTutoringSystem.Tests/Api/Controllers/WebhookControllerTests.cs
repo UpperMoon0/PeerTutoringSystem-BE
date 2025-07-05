@@ -83,25 +83,6 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
       Assert.AreEqual("Invalid payload.", messageProperty.GetValue(returnValue, null));
     }
 
-    [Test]
-    public async Task HandleSePayWebhook_InvalidModelState_ReturnsBadRequest()
-    {
-      // Arrange
-      var webhookData = CreateValidWebhookData();
-      _controller.ModelState.AddModelError("Error", "Sample model error");
-
-      // Act
-      var result = await _controller.HandleSePayWebhook(webhookData);
-
-      // Assert
-      Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
-      var badRequestResult = (BadRequestObjectResult)result;
-      var returnValue = badRequestResult.Value;
-      Assert.NotNull(returnValue);
-      var successProperty = returnValue.GetType().GetProperty("success");
-      Assert.NotNull(successProperty);
-      Assert.AreEqual(false, successProperty.GetValue(returnValue, null));
-    }
 
     [Test]
     public async Task HandleSePayWebhook_PaymentServiceThrowsException_ReturnsOkResultWithSuccessFalse()

@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
@@ -29,6 +30,12 @@
 
   <ItemGroup>
     <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\PeerTutoringSystem.Api\bin\Debug\net8.0\PeerTutoringSystem.Api.deps.json" Link="PeerTutoringSystem.Api.deps.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
