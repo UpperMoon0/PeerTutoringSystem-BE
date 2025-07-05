@@ -60,6 +60,56 @@ namespace PeerTutoringSystem.Application.Services
             }
         }
 
+        public async Task<(byte[] content, string contentType, string fileName)> DownloadFileAsync(string fileUrl)
+        {
+            if (string.IsNullOrEmpty(fileUrl))
+            {
+                throw new ArgumentException("File URL is empty or null.");
+            }
+
+            var uri = new Uri(fileUrl);
+            var path = Uri.UnescapeDataString(uri.AbsolutePath);
+            var parts = path.Split(new[] { "/o/" }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length <= 1)
+            {
+                throw new ArgumentException("Invalid Firebase Storage URL format.");
+            }
+
+            var filePathInBucket = parts[1];
+            var folderAndFileName = filePathInBucket.Split('/');
+            if (folderAndFileName.Length < 2)
+            {
+                throw new ArgumentException("Invalid file path in bucket.");
+            }
+
+            var folder = folderAndFileName[0];
+            var fileName = string.Join("/", folderAndFileName.Skip(1));
+
+            var downloadUrl = await _firebaseStorage
+                .Child(folder)
+                .Child(fileName)
+                .GetDownloadUrlAsync();
+
+            using (var httpClient = new System.Net.Http.HttpClient())
+            {
+                var fileBytes = await httpClient.GetByteArrayAsync(downloadUrl);
+                var contentType = GetContentType(fileName);
+                return (fileBytes, contentType, fileName);
+            }
+        }
+
+        private string GetContentType(string fileName)
+        {
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            return extension switch
+            {
+                ".pdf" => "application/pdf",
+                ".doc" => "application/msword",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                _ => "application/octet-stream",
+            };
+        }
+
         public async Task DeleteFileAsync(string fileUrl)
         {
             if (string.IsNullOrEmpty(fileUrl))

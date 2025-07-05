@@ -37,5 +37,17 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 FileSize = (int)file.Length
             };
         }
+
+        public async Task<DocumentDto> GetDocumentAsync(string id)
+        {
+            var (content, contentType, fileName) = await _firebaseStorageService.DownloadFileAsync(id);
+
+            return new DocumentDto
+            {
+                Content = content,
+                ContentType = contentType,
+                FileName = fileName
+            };
+        }
     }
 }

@@ -126,7 +126,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                     VerificationStatus = verification.VerificationStatus,
                     VerificationDate = verification.VerificationDate,
                     AdminNotes = verification.AdminNotes,
-                    Documents = documents.Select(d => new DocumentDto
+                    Documents = documents.Select(d => new DocumentResponseDto
                     {
                         DocumentID = d.DocumentID,
                         DocumentType = d.DocumentType,
@@ -161,7 +161,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                     VerificationStatus = verification.VerificationStatus,
                     VerificationDate = verification.VerificationDate,
                     AdminNotes = verification.AdminNotes,
-                    Documents = documents.Select(d => new DocumentDto
+                    Documents = documents.Select(d => new DocumentResponseDto
                     {
                         DocumentID = d.DocumentID,
                         DocumentType = d.DocumentType,
@@ -198,7 +198,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 VerificationStatus = verification.VerificationStatus,
                 VerificationDate = verification.VerificationDate,
                 AdminNotes = verification.AdminNotes,
-                Documents = documents.Select(d => new DocumentDto
+                Documents = documents.Select(d => new DocumentResponseDto
                 {
                     DocumentID = d.DocumentID,
                     DocumentType = d.DocumentType,
