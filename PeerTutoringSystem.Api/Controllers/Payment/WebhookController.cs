@@ -43,7 +43,7 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             }
             catch (Exception ex)
             {
-                return Ok(new { success = false, message = "An error occurred while processing the webhook." });
+                return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
             }
         }
     }

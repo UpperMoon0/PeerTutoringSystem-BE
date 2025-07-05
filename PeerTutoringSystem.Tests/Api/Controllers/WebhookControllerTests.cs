@@ -33,7 +33,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
         TransferType = "in",
         TransferAmount = 100000,
         Accumulated = 500000,
-        ReferenceCode = "REF123"
+        ReferenceCode = "REF123",
+        Description = "Test Description",
+        PaymentStatus = PaymentStatus.Pending
       };
     }
 
@@ -113,16 +115,17 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
       var result = await _controller.HandleSePayWebhook(webhookData);
 
       // Assert
-      Assert.That(result, Is.InstanceOf<OkObjectResult>());
-      var okResult = (OkObjectResult)result;
-      var returnValue = okResult.Value;
+      Assert.That(result, Is.InstanceOf<ObjectResult>());
+      var objectResult = (ObjectResult)result;
+      Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+      var returnValue = objectResult.Value;
       Assert.NotNull(returnValue);
       var successProperty = returnValue.GetType().GetProperty("success");
       Assert.NotNull(successProperty);
       Assert.AreEqual(false, successProperty.GetValue(returnValue, null));
       var messageProperty = returnValue.GetType().GetProperty("message");
       Assert.NotNull(messageProperty);
-      Assert.AreEqual("An error occurred while processing the webhook.", messageProperty.GetValue(returnValue, null));
+      Assert.AreEqual("An unexpected error occurred.", messageProperty.GetValue(returnValue, null));
     }
   }
 }

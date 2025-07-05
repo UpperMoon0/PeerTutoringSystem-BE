@@ -74,8 +74,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
-            dynamic returnValue = okResult.Value;
-            Assert.That(returnValue.data.BookingId, Is.EqualTo(_bookingId));
+            var responseObj = okResult.Value;
+            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(bookingData.BookingId, Is.EqualTo(_bookingId));
         }
 
         [Test]
@@ -120,9 +121,11 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
-            dynamic returnValue = okResult.Value;
-            Assert.That(returnValue.data, Is.Not.Null);
-            Assert.That(returnValue.totalCount, Is.EqualTo(2));
+            var responseObj = okResult.Value;
+            var bookings = (IEnumerable<BookingSessionDto>)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            var totalCount = (int)responseObj.GetType().GetProperty("totalCount").GetValue(responseObj);
+            Assert.That(bookings, Is.Not.Null);
+            Assert.That(totalCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -146,8 +149,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
-            dynamic returnValue = okResult.Value;
-            Assert.That(returnValue.data.BookingId, Is.EqualTo(_bookingId));
+            var responseObj = okResult.Value;
+            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(bookingData.BookingId, Is.EqualTo(_bookingId));
         }
 
         [Test]
@@ -236,8 +240,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
-            dynamic returnValue = okResult.Value;
-            Assert.That(returnValue.data.Status, Is.EqualTo("Cancelled"));
+            var responseObj = okResult.Value;
+            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(bookingData.Status, Is.EqualTo("Cancelled"));
         }
 
         [Test]
@@ -314,8 +319,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
-            dynamic returnValue = okResult.Value;
-            Assert.That(returnValue.data.Status, Is.EqualTo("Confirmed"));
+            var responseObj = okResult.Value;
+            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(bookingData.Status, Is.EqualTo("Confirmed"));
         }
     }
 }

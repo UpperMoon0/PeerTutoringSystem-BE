@@ -191,7 +191,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
                 MockAvailabilityRepository = new Mock<ITutorAvailabilityRepository>();
                 MockUserService = new Mock<IUserService>();
                 MockSkillRepository = new Mock<ISkillRepository>(); // Initialize MockSkillRepository
-               MockTutorAvailabilityService = new Mock<ITutorAvailabilityService>();
+                MockTutorAvailabilityService = new Mock<ITutorAvailabilityService>();
 
                 BookingService = new BookingService(
                     MockBookingRepository.Object,
