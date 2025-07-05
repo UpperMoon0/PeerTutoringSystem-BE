@@ -79,11 +79,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
-
-            var returnValue = okResult.Value as TutorAvailabilityDto;
-            Assert.That(returnValue, Is.Not.Null);
-            Assert.That(returnValue.AvailabilityId, Is.EqualTo(_availabilityId));
-            Assert.That(returnValue.TutorId, Is.EqualTo(_tutorId));
+            Assert.That(okResult, Is.Not.Null);
+            dynamic returnValue = okResult.Value;
+            Assert.That(returnValue.data.AvailabilityId, Is.EqualTo(_availabilityId));
+            Assert.That(returnValue.data.TutorId, Is.EqualTo(_tutorId));
         }
 
         [Test]
@@ -122,22 +121,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
-
-            var returnValue = okResult.Value;
-            Assert.That(returnValue, Is.Not.Null);
-
-            var availabilitiesProperty = returnValue.GetType().GetProperty("Availabilities");
-            var totalCountProperty = returnValue.GetType().GetProperty("TotalCount");
-
-            Assert.That(availabilitiesProperty, Is.Not.Null);
-            Assert.That(totalCountProperty, Is.Not.Null);
-
-            var returnedAvailabilities = availabilitiesProperty.GetValue(returnValue) as IEnumerable<TutorAvailabilityDto>;
-            var returnedTotalCount = (int)totalCountProperty.GetValue(returnValue);
-
-            Assert.That(returnedAvailabilities, Is.Not.Null);
-            Assert.That(returnedAvailabilities.Count(), Is.EqualTo(2));
-            Assert.That(returnedTotalCount, Is.EqualTo(2));
+            Assert.That(okResult, Is.Not.Null);
+            dynamic returnValue = okResult.Value;
+            Assert.That(returnValue.data, Is.Not.Null);
+            Assert.That(returnValue.totalCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -180,22 +167,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
-
-            var returnValue = okResult.Value;
-            Assert.That(returnValue, Is.Not.Null);
-
-            var availabilitiesProperty = returnValue.GetType().GetProperty("Availabilities");
-            var totalCountProperty = returnValue.GetType().GetProperty("TotalCount");
-
-            Assert.That(availabilitiesProperty, Is.Not.Null);
-            Assert.That(totalCountProperty, Is.Not.Null);
-
-            var returnedAvailabilities = availabilitiesProperty.GetValue(returnValue) as IEnumerable<TutorAvailabilityDto>;
-            var returnedTotalCount = (int)totalCountProperty.GetValue(returnValue);
-
-            Assert.That(returnedAvailabilities, Is.Not.Null);
-            Assert.That(returnedAvailabilities.Count(), Is.EqualTo(2));
-            Assert.That(returnedTotalCount, Is.EqualTo(2));
+            Assert.That(okResult, Is.Not.Null);
+            dynamic returnValue = okResult.Value;
+            Assert.That(returnValue.data, Is.Not.Null);
+            Assert.That(returnValue.totalCount, Is.EqualTo(2));
         }
 
         [Test]

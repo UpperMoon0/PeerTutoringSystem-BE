@@ -2,38 +2,38 @@ using Moq;
 using NUnit.Framework;
 using PeerTutoringSystem.Application.Services.Chat;
 using PeerTutoringSystem.Domain.Entities.Chat;
-using Firebase.Database;
+using PeerTutoringSystem.Domain.Interfaces.Chat;
 using System.Threading.Tasks;
-using Firebase.Database.Query;
-using System.Collections.Generic;
 
 namespace PeerTutoringSystem.Tests.Application.Services
 {
-  [TestFixture]
-  public class ChatServiceTests
-  {
-    private Mock<FirebaseClient> _mockFirebaseClient;
-    private ChatService _chatService;
-
-    [SetUp]
-    public void Setup()
+    [TestFixture]
+    public class ChatServiceTests
     {
-      _mockFirebaseClient = new Mock<FirebaseClient>("https://test.firebaseio.com");
-      _chatService = new ChatService(_mockFirebaseClient.Object);
+        private Mock<IChatRepository> _mockChatRepository;
+        private ChatService _chatService;
+
+        [SetUp]
+        public void Setup()
+        {
+            _mockChatRepository = new Mock<IChatRepository>();
+            _chatService = new ChatService(_mockChatRepository.Object);
+        }
+
+        [Test]
+        public async Task SendMessageAsync_ValidMessage_ReturnsSentMessage()
+        {
+            // Arrange
+            var chatMessage = new ChatMessage { SenderId = "user1", ReceiverId = "user2", Message = "Hello" };
+            _mockChatRepository.Setup(r => r.SendMessageAsync(It.IsAny<ChatMessage>()))
+                .ReturnsAsync(chatMessage);
+
+            // Act
+            var result = await _chatService.SendMessageAsync(chatMessage);
+
+            // Assert
+            Assert.That(result, Is.EqualTo(chatMessage));
+            _mockChatRepository.Verify(r => r.SendMessageAsync(chatMessage), Times.Once);
+        }
     }
-
-    [Test]
-    public async Task SendMessageAsync_ValidMessage_DoesNotThrow()
-    {
-      // Arrange
-      var chatMessage = new ChatMessage { SenderId = "user1", ReceiverId = "user2", Message = "Hello" };
-      var mockChild = new Mock<ChildQuery>();
-
-      _mockFirebaseClient.Setup(c => c.Child(It.IsAny<string>())).Returns(mockChild.Object);
-      mockChild.Setup(c => c.PostAsync(It.IsAny<ChatMessage>(), It.IsAny<bool>())).ReturnsAsync(default(FirebaseObject<ChatMessage>));
-
-      // Act & Assert
-      Assert.DoesNotThrowAsync(async () => await _chatService.SendMessageAsync(chatMessage));
-    }
-  }
 }

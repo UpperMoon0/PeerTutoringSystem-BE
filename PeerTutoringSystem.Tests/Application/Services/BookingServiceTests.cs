@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
+using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Application.Services.Booking;
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using PeerTutoringSystem.Domain.Entities.Booking;
@@ -23,6 +24,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
         private Mock<ITutorAvailabilityRepository> _mockAvailabilityRepository;
         private Mock<IUserService> _mockUserService;
         private Mock<ISkillRepository> _mockSkillRepository;
+        private Mock<ITutorAvailabilityService> _mockTutorAvailabilityService;
         private BookingService _bookingService;
 
         private Guid _studentId = Guid.NewGuid();
@@ -37,10 +39,12 @@ namespace PeerTutoringSystem.Tests.Application.Services
             _mockAvailabilityRepository = new Mock<ITutorAvailabilityRepository>();
             _mockUserService = new Mock<IUserService>();
             _mockSkillRepository = new Mock<ISkillRepository>();
+           _mockTutorAvailabilityService = new Mock<ITutorAvailabilityService>();
 
-            _bookingService = new BookingService(
+           _bookingService = new BookingService(
                 _mockBookingRepository.Object,
                 _mockAvailabilityRepository.Object,
+                _mockTutorAvailabilityService.Object,
                 _mockUserService.Object,
                 _mockSkillRepository.Object);
         }
@@ -231,7 +235,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
                 AvailabilityId = _availabilityId,
                 StartTime = DateTime.UtcNow.AddHours(-2),
                 EndTime = DateTime.UtcNow.AddHours(-1),
-                Status = BookingStatus.Pending
+                Status = BookingStatus.Confirmed
             };
 
             var updateDto = new UpdateBookingStatusDto { Status = "Completed" };

@@ -113,7 +113,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
       var result = await _controller.HandleSePayWebhook(webhookData);
 
       // Assert
-      Assert.That(result, Is.InstanceOf<OkObjectResult>()); // Controller catches exception and returns Ok
+      Assert.That(result, Is.InstanceOf<OkObjectResult>());
       var okResult = (OkObjectResult)result;
       var returnValue = okResult.Value;
       Assert.NotNull(returnValue);

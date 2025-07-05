@@ -73,11 +73,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var returnValue = okResult.Value as BookingSessionDto;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual(_bookingId, returnValue.BookingId);
+            Assert.That(okResult, Is.Not.Null);
+            dynamic returnValue = okResult.Value;
+            Assert.That(returnValue.data.BookingId, Is.EqualTo(_bookingId));
         }
 
         [Test]
@@ -121,27 +119,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            // Assuming the controller returns the same tuple structure or an object that contains it.
-            // Let's inspect the actual controller method's return type if this fails.
-            // For now, let's assume it directly returns the tuple from the service.
-            var returnValue = okResult.Value;
-            Assert.IsNotNull(returnValue);
-
-            // Use reflection to check properties if it's an anonymous type, or cast if it's a known type
-            var bookingsProperty = returnValue.GetType().GetProperty("Bookings");
-            var totalCountProperty = returnValue.GetType().GetProperty("TotalCount");
-
-            Assert.IsNotNull(bookingsProperty);
-            Assert.IsNotNull(totalCountProperty);
-
-            var returnedBookings = bookingsProperty.GetValue(returnValue) as IEnumerable<BookingSessionDto>;
-            var returnedTotalCount = (int)totalCountProperty.GetValue(returnValue);
-
-            Assert.IsNotNull(returnedBookings);
-            Assert.AreEqual(2, returnedBookings.Count());
-            Assert.AreEqual(2, returnedTotalCount);
+            Assert.That(okResult, Is.Not.Null);
+            dynamic returnValue = okResult.Value;
+            Assert.That(returnValue.data, Is.Not.Null);
+            Assert.That(returnValue.totalCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -164,11 +145,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var returnValue = okResult.Value as BookingSessionDto;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual(_bookingId, returnValue.BookingId);
+            Assert.That(okResult, Is.Not.Null);
+            dynamic returnValue = okResult.Value;
+            Assert.That(returnValue.data.BookingId, Is.EqualTo(_bookingId));
         }
 
         [Test]
@@ -256,11 +235,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var returnValue = okResult.Value as BookingSessionDto;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual("Cancelled", returnValue.Status);
+            Assert.That(okResult, Is.Not.Null);
+            dynamic returnValue = okResult.Value;
+            Assert.That(returnValue.data.Status, Is.EqualTo("Cancelled"));
         }
 
         [Test]
@@ -336,11 +313,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var returnValue = okResult.Value as BookingSessionDto;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual("Confirmed", returnValue.Status);
+            Assert.That(okResult, Is.Not.Null);
+            dynamic returnValue = okResult.Value;
+            Assert.That(returnValue.data.Status, Is.EqualTo("Confirmed"));
         }
     }
 }

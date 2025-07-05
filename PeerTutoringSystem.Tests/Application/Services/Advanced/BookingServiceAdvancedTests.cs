@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
+using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Application.Services.Booking;
 using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
@@ -9,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using PeerTutoringSystem.Domain.Interfaces.Skills; // Added using directive
+using PeerTutoringSystem.Domain.Interfaces.Skills; 
 
 namespace PeerTutoringSystem.Tests.Application.Services.Advanced
 {
@@ -181,6 +182,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
             public Mock<ITutorAvailabilityRepository> MockAvailabilityRepository { get; }
             public Mock<IUserService> MockUserService { get; }
             public Mock<ISkillRepository> MockSkillRepository { get; } // Added MockSkillRepository property
+           public Mock<ITutorAvailabilityService> MockTutorAvailabilityService { get; }
             public BookingService BookingService { get; }
 
             public BookingServiceTestFixture()
@@ -189,10 +191,12 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
                 MockAvailabilityRepository = new Mock<ITutorAvailabilityRepository>();
                 MockUserService = new Mock<IUserService>();
                 MockSkillRepository = new Mock<ISkillRepository>(); // Initialize MockSkillRepository
+               MockTutorAvailabilityService = new Mock<ITutorAvailabilityService>();
 
                 BookingService = new BookingService(
                     MockBookingRepository.Object,
                     MockAvailabilityRepository.Object,
+                   MockTutorAvailabilityService.Object,
                     MockUserService.Object,
                     MockSkillRepository.Object); // Pass MockSkillRepository.Object
             }

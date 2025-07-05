@@ -12,38 +12,35 @@ namespace PeerTutoringSystem.Tests.Application.Services
 {
   public class PaymentServiceTests
   {
-    private readonly Mock<IConfiguration> _mockConfiguration;
-    private readonly Mock<IPaymentRepository> _mockPaymentRepository;
-    private readonly Mock<HttpMessageHandler> _mockHttpMessageHandler; // For HttpClient
-    private readonly HttpClient _httpClient;
-    private readonly PaymentService _paymentService;
+    private Mock<IConfiguration> _mockConfiguration;
+    private Mock<IPaymentRepository> _mockPaymentRepository;
+    private Mock<HttpMessageHandler> _mockHttpMessageHandler; 
+    private HttpClient _httpClient;
+    private PaymentService _paymentService;
 
-    public PaymentServiceTests()
-    {
-      _mockConfiguration = new Mock<IConfiguration>();
-      _mockPaymentRepository = new Mock<IPaymentRepository>();
-      _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+   [SetUp]
+   public void Setup()
+   {
+       _mockConfiguration = new Mock<IConfiguration>();
+       _mockPaymentRepository = new Mock<IPaymentRepository>();
+       _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
 
-      // Setup IConfiguration
-      var inMemorySettings = new Dictionary<string, string> {
-                {"SePay:BaseUrl", "http://test-sepay.com"},
-                // Add other SePay config if needed for other methods, not critical for ProcessPaymentWebhook
-            };
-      IConfiguration configuration = new ConfigurationBuilder()
-          .AddInMemoryCollection(inMemorySettings)
-          .Build();
+       var inMemorySettings = new Dictionary<string, string> {
+           {"SePay:BaseUrl", "http://test-sepay.com"},
+       };
+       IConfiguration configuration = new ConfigurationBuilder()
+           .AddInMemoryCollection(inMemorySettings)
+           .Build();
 
-      // Mock configuration calls if any are made directly by the service constructor or method
-      _mockConfiguration.Setup(c => c["SePay:BaseUrl"]).Returns("http://test-sepay.com");
+       _mockConfiguration.Setup(c => c["SePay:BaseUrl"]).Returns("http://test-sepay.com");
 
+       _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
+       {
+           BaseAddress = new Uri("http://test-sepay.com")
+       };
 
-      _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
-      {
-        BaseAddress = new Uri("http://test-sepay.com")
-      };
-
-      _paymentService = new PaymentService(_httpClient, _mockConfiguration.Object, _mockPaymentRepository.Object);
-    }
+       _paymentService = new PaymentService(_httpClient, _mockConfiguration.Object, _mockPaymentRepository.Object);
+   }
 
     private SePayWebhookData CreateWebhookData(long id, string transferType, decimal amount = 10000)
     {
@@ -197,10 +194,10 @@ namespace PeerTutoringSystem.Tests.Application.Services
       Assert.ThrowsAsync<Exception>(async () => await _paymentService.ProcessPaymentWebhook(webhookData));
     }
 
-    [OneTimeTearDown]
-    public void OneTimeTearDown()
+    [TearDown]
+    public void TearDown()
     {
-      _httpClient?.Dispose();
+        _httpClient?.Dispose();
     }
-  } // This closes the class PaymentServiceTests
-} // This closes the namespace
+  } 
+} 
