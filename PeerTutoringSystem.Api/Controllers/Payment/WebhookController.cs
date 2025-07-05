@@ -4,10 +4,6 @@ using System.Text;
 using System.Text.Json;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 
-// Ensure you have a using directive for your SePayWebhookData and IPaymentService if they are in different namespaces
-// using PeerTutoringSystem.Domain.Entities.PaymentEntity; (Example)
-// using PeerTutoringSystem.Application.Interfaces.PaymentEntity; (Example)
-
 namespace PeerTutoringSystem.Api.Controllers.Payment
 {
     [ApiController]
@@ -28,7 +24,7 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
         {
             try
             {
-                if (webhookData == null || !ModelState.IsValid)
+                if (webhookData == null)
                 {
                     // Handle invalid or empty payload
                     return BadRequest(new { success = false, message = "Invalid payload." });
