@@ -70,9 +70,6 @@ namespace PeerTutoringSystem.Application.Services
             try
             {
                 var uri = new Uri(fileUrl);
-                // Firebase Storage URLs are typically in the format:
-                // https://firebasestorage.googleapis.com/v0/b/{bucketName}/o/{folder}%2F{fileName}?alt=media&token={token}
-                // We need to extract the folder and fileName from the path.
                 var path = Uri.UnescapeDataString(uri.AbsolutePath);
                 var parts = path.Split(new[] { "/o/" }, StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length > 1)
