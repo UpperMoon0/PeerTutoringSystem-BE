@@ -5,6 +5,8 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Google.Apis.Auth.OAuth2;
+using System.Threading;
 
 namespace PeerTutoringSystem.Application.Services
 {
@@ -25,7 +27,13 @@ namespace PeerTutoringSystem.Application.Services
                 {
                     AuthTokenAsyncFactory = async () =>
                     {
-                        return privateKey; 
+                        var initializer = new ServiceAccountCredential.Initializer(authEmail)
+                        {
+                            Scopes = new[] { "https://www.googleapis.com/auth/firebase.storage" }
+                        }.FromPrivateKey(privateKey);
+                        var credential = new ServiceAccountCredential(initializer);
+                        var token = await credential.GetAccessTokenForRequestAsync();
+                        return token;
                     },
                     ThrowOnCancel = true
                 });

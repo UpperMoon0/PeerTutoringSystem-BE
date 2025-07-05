@@ -19,9 +19,10 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.3" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
 		<PackageReference Include="System.Reactive" Version="6.0.1" />
+		<PackageReference Include="Google.Apis.Auth" Version="1.68.0" />
 	</ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PeerTutoringSystem.Infrastructure\PeerTutoringSystem.Infrastructure.csproj" />
+		<ItemGroup>
+		  <ProjectReference Include="..\PeerTutoringSystem.Infrastructure\PeerTutoringSystem.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DTOs\Payment\" />
