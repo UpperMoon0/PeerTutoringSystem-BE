@@ -27,7 +27,7 @@ namespace PeerTutoringSystem.Application.Services.Tutor
             _reviewService = reviewService;
         }
 
-        public async Task<Result<IEnumerable<EnrichedTutorDto>>> GetAllEnrichedTutorsAsync()
+        public async Task<Result<IEnumerable<EnrichedTutorDto>>> GetAllEnrichedTutorsAsync(string? sortBy, int? limit)
         {
             try
             {
@@ -62,7 +62,19 @@ namespace PeerTutoringSystem.Application.Services.Tutor
                     });
                 }
 
-                return Result<IEnumerable<EnrichedTutorDto>>.Success(enrichedTutors);
+                IEnumerable<EnrichedTutorDto> finalTutors = enrichedTutors.Where(t => !string.IsNullOrEmpty(t.Bio));
+
+                if (!string.IsNullOrEmpty(sortBy) && sortBy.Equals("rating", StringComparison.OrdinalIgnoreCase))
+                {
+                    finalTutors = finalTutors.OrderByDescending(t => t.AverageRating);
+                }
+
+                if (limit.HasValue && limit.Value > 0)
+                {
+                    finalTutors = finalTutors.Take(limit.Value);
+                }
+
+                return Result<IEnumerable<EnrichedTutorDto>>.Success(finalTutors);
             }
             catch (Exception ex)
             {

@@ -20,9 +20,9 @@ namespace PeerTutoringSystem.Api.Controllers.Tutor
 
         [HttpGet("enriched-list")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAllEnrichedTutors()
+        public async Task<IActionResult> GetAllEnrichedTutors([FromQuery] string? sortBy, [FromQuery] int? limit)
         {
-            var result = await _tutorService.GetAllEnrichedTutorsAsync();
+            var result = await _tutorService.GetAllEnrichedTutorsAsync(sortBy, limit);
             if (result.IsSuccess)
             {
                 return Ok(result.Value);
