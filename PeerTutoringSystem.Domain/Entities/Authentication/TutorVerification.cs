@@ -14,6 +14,8 @@ namespace PeerTutoringSystem.Domain.Entities.Authentication
         public DateTime? VerificationDate { get; set; }
         public string? AdminNotes { get; set; }
         public string? AccessLevel { get; set; }
-        public User? User { get; set; }
+        
+        // Fix: Ensure virtual keyword and properly handle null reference
+        public virtual User? User { get; set; }
     }
 }

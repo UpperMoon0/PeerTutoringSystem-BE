@@ -89,14 +89,28 @@ Follow these steps to set up the project locally:
      ```
 
 4. **Set up Firebase**:
-   - Download your Firebase service account key (`serviceAccountKey.json`) from the Firebase Console.
-   - Place the `serviceAccountKey.json` file in the `PeerTutoringSystem.Api` directory.
-   - Update `appsettings.json` with the path to the key:
+   - **Obtain Firebase Service Account Credentials**:
+     1.  Go to the [Firebase Console](https://console.firebase.google.com/) and select your project.
+     2.  Navigate to **Project settings** (gear icon) > **Service accounts** tab.
+     3.  Click **Generate new private key** and then **Generate key** to download a JSON file (e.g., `your-project-name-firebase-adminsdk-xxxx.json`).
+     4.  Open this JSON file with a text editor.
+     5.  Copy the value of the `client_email` field for `AuthEmail`.
+     6.  Copy the entire string value of the `private_key` field (including `-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n`) for `PrivateKey`.
+   - **Obtain Firebase Storage Bucket Name**:
+     1.  In the Firebase Console, navigate to **Storage** (under the "Build" section).
+     2.  Your default storage bucket name will be displayed (e.g., `your-project-id.appspot.com` or `your-project-id.firebasestorage.app`). Copy this name.
+   - **Update `appsettings.json`**:
+     - Add a `Firebase` section to your `PeerTutoringSystem.Api/appsettings.json` (or `appsettings.Development.json` for local development) with the obtained values:
      ```json
      "Firebase": {
-       "CredentialPath": "serviceAccountKey.json"
+       "AuthEmail": "your-service-account-email@your-project-id.iam.gserviceaccount.com",
+       "PrivateKey": "-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_CONTENT_HERE\n-----END PRIVATE KEY-----\n",
+       "BucketName": "your-firebase-storage-bucket-name.appspot.com",
+       "DatabaseUrl": "https://your-project-id-default-rtdb.firebaseio.com/"
      }
+     - **`DatabaseUrl`**: The URL of your Firebase Realtime Database. You can find this in the Firebase Console under **Project settings** > **Project settings** > **General** tab, usually in the format `https://your-project-id-default-rtdb.firebaseio.com/`.
      ```
+     - **Important**: Ensure the `PrivateKey` value is copied exactly as it appears in the JSON file, including all `\n` newline characters.
 
 5. **Configure JWT settings**:
    - In `appsettings.json`, ensure the JWT settings are configured:

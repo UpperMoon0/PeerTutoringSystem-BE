@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using PeerTutoringSystem.Api.Controllers.Booking;
@@ -14,20 +14,22 @@ using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Tests.Api.Controllers
 {
-    [TestClass]
+    [TestFixture]
     public class BookingsControllerTests
     {
         private Mock<IBookingService> _mockBookingService;
+        private Mock<ILogger<BookingsController>> _mockLogger;
         private BookingsController _controller;
         private Guid _userId = Guid.NewGuid();
         private Guid _bookingId = Guid.NewGuid();
         private Guid _tutorId = Guid.NewGuid();
 
-        [TestInitialize]
+        [SetUp]
         public void Setup()
         {
             _mockBookingService = new Mock<IBookingService>();
-            _controller = new BookingsController(_mockBookingService.Object);
+            _mockLogger = new Mock<ILogger<BookingsController>>();
+            _controller = new BookingsController(_mockBookingService.Object, _mockLogger.Object);
 
             // Setup basic user claims for testing
             var claims = new List<Claim> {
@@ -43,7 +45,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             };
         }
 
-        [TestMethod]
+        [Test]
         public async Task CreateBooking_ValidData_ReturnsOkResult()
         {
             // Arrange
@@ -71,14 +73,13 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var returnValue = okResult.Value as BookingSessionDto;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual(_bookingId, returnValue.BookingId);
+            Assert.That(okResult, Is.Not.Null);
+            var responseObj = okResult.Value;
+            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(bookingData.BookingId, Is.EqualTo(_bookingId));
         }
 
-        [TestMethod]
+        [Test]
         public async Task CreateBooking_ServiceThrowsValidationException_ReturnsBadRequest()
         {
             // Arrange
@@ -98,33 +99,36 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             Assert.IsTrue(badRequestResult.Value.ToString().Contains(exceptionMessage));
         }
 
-        [TestMethod]
+        [Test]
         public async Task GetStudentBookings_ReturnsOkResultWithBookings()
         {
             // Arrange
-            var bookings = new List<BookingSessionDto>
+            var filterDto = new BookingFilterDto(); // Create a filter DTO
+            var studentBookings = new List<BookingSessionDto>
             {
                 new BookingSessionDto { BookingId = Guid.NewGuid(), StudentId = _userId },
                 new BookingSessionDto { BookingId = Guid.NewGuid(), StudentId = _userId }
             };
+            var serviceResult = (Bookings: (IEnumerable<BookingSessionDto>)studentBookings, TotalCount: studentBookings.Count);
 
             _mockBookingService
-                .Setup(s => s.GetBookingsByStudentAsync(_userId))
-                .ReturnsAsync(bookings);
+                .Setup(s => s.GetBookingsByStudentAsync(_userId, It.IsAny<BookingFilterDto>()))
+                .ReturnsAsync(serviceResult);
 
             // Act
-            var result = await _controller.GetStudentBookings();
+            var result = await _controller.GetStudentBookings(filterDto);
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var returnValue = okResult.Value as IEnumerable<BookingSessionDto>;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual(2, ((List<BookingSessionDto>)returnValue).Count);
+            Assert.That(okResult, Is.Not.Null);
+            var responseObj = okResult.Value;
+            var bookings = (IEnumerable<BookingSessionDto>)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            var totalCount = (int)responseObj.GetType().GetProperty("totalCount").GetValue(responseObj);
+            Assert.That(bookings, Is.Not.Null);
+            Assert.That(totalCount, Is.EqualTo(2));
         }
 
-        [TestMethod]
+        [Test]
         public async Task GetBooking_ExistingIdAndAuthorizedUser_ReturnsOkResult()
         {
             // Arrange
@@ -144,14 +148,13 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var returnValue = okResult.Value as BookingSessionDto;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual(_bookingId, returnValue.BookingId);
+            Assert.That(okResult, Is.Not.Null);
+            var responseObj = okResult.Value;
+            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(bookingData.BookingId, Is.EqualTo(_bookingId));
         }
 
-        [TestMethod]
+        [Test]
         public async Task GetBooking_NonexistentId_ReturnsNotFound()
         {
             // Arrange
@@ -163,10 +166,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             var result = await _controller.GetBooking(_bookingId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundObjectResult));
+            Assert.IsInstanceOf<NotFoundObjectResult>(result);
         }
 
-        [TestMethod]
+        [Test]
         public async Task GetBooking_UnauthorizedUser_ReturnsForbidden()
         {
             // Arrange
@@ -192,7 +195,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             Assert.AreEqual(403, forbidResult.StatusCode);
         }
 
-        [TestMethod]
+        [Test]
         public async Task UpdateBookingStatus_ValidStatusByStudent_ReturnsOkResult()
         {
             // Arrange
@@ -236,14 +239,13 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var returnValue = okResult.Value as BookingSessionDto;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual("Cancelled", returnValue.Status);
+            Assert.That(okResult, Is.Not.Null);
+            var responseObj = okResult.Value;
+            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(bookingData.Status, Is.EqualTo("Cancelled"));
         }
 
-        [TestMethod]
+        [Test]
         public async Task UpdateBookingStatus_StudentCancellingOtherStudentBooking_ReturnsForbidden()
         {
             // Arrange
@@ -272,7 +274,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             Assert.AreEqual(403, forbidResult.StatusCode);
         }
 
-        [TestMethod]
+        [Test]
         public async Task UpdateBookingStatus_TutorConfirmingBooking_ReturnsOkResult()
         {
             // Arrange
@@ -316,11 +318,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-
-            var returnValue = okResult.Value as BookingSessionDto;
-            Assert.IsNotNull(returnValue);
-            Assert.AreEqual("Confirmed", returnValue.Status);
+            Assert.That(okResult, Is.Not.Null);
+            var responseObj = okResult.Value;
+            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(bookingData.Status, Is.EqualTo("Confirmed"));
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using PeerTutoringSystem.Api.Controllers.Booking;
 using PeerTutoringSystem.Application.DTOs.Booking;
@@ -17,6 +18,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
     public class TutorAvailabilityControllerTests
     {
         private Mock<ITutorAvailabilityService> _mockService;
+        private Mock<ILogger<TutorAvailabilityController>> _mockLogger;
         private TutorAvailabilityController _controller;
         private Guid _tutorId;
         private Guid _availabilityId;
@@ -25,7 +27,8 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
         public void Setup()
         {
             _mockService = new Mock<ITutorAvailabilityService>();
-            _controller = new TutorAvailabilityController(_mockService.Object);
+            _mockLogger = new Mock<ILogger<TutorAvailabilityController>>();
+            _controller = new TutorAvailabilityController(_mockService.Object, _mockLogger.Object);
             _tutorId = Guid.NewGuid();
             _availabilityId = Guid.NewGuid();
 
@@ -76,17 +79,18 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
-
-            var returnValue = okResult.Value as TutorAvailabilityDto;
-            Assert.That(returnValue, Is.Not.Null);
-            Assert.That(returnValue.AvailabilityId, Is.EqualTo(_availabilityId));
-            Assert.That(returnValue.TutorId, Is.EqualTo(_tutorId));
+            Assert.That(okResult, Is.Not.Null);
+            var responseObj = okResult.Value;
+            var availabilityData = (TutorAvailabilityDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(availabilityData.AvailabilityId, Is.EqualTo(_availabilityId));
+            Assert.That(availabilityData.TutorId, Is.EqualTo(_tutorId));
         }
 
         [Test]
         public async Task GetTutorAvailability_ExistingTutor_ReturnsOkWithAvailabilities()
         {
             // Arrange
+            var filterDto = new BookingFilterDto();
             var availabilityList = new List<TutorAvailabilityDto>
             {
                 new TutorAvailabilityDto
@@ -106,28 +110,32 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
                     IsBooked = false
                 }
             };
+            var serviceResult = (Availabilities: (IEnumerable<TutorAvailabilityDto>)availabilityList, TotalCount: availabilityList.Count);
 
             _mockService
-                .Setup(s => s.GetByTutorIdAsync(_tutorId))
-                .ReturnsAsync(availabilityList);
+                .Setup(s => s.GetByTutorIdAsync(_tutorId, It.IsAny<BookingFilterDto>()))
+                .ReturnsAsync(serviceResult);
 
             // Act
-            var result = await _controller.GetTutorAvailability(_tutorId);
+            var result = await _controller.GetTutorAvailability(_tutorId, filterDto);
 
             // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
-
-            var returnValue = okResult.Value as IEnumerable<TutorAvailabilityDto>;
-            Assert.That(returnValue, Is.Not.Null);
-            Assert.That(returnValue.Count(), Is.EqualTo(2));
+            Assert.That(okResult, Is.Not.Null);
+            var responseObj = okResult.Value;
+            var availabilities = (IEnumerable<TutorAvailabilityDto>)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            var totalCount = (int)responseObj.GetType().GetProperty("totalCount").GetValue(responseObj);
+            Assert.That(availabilities, Is.Not.Null);
+            Assert.That(totalCount, Is.EqualTo(2));
         }
 
         [Test]
         public async Task GetAvailableSlots_ValidDateRange_ReturnsOkWithFilteredSlots()
         {
             // Arrange
-            var startDate = DateTime.Today;
+            var filterDto = new BookingFilterDto();
+            var startDate = DateTime.UtcNow.AddSeconds(5);
             var endDate = startDate.AddDays(7);
 
             var availabilityList = new List<TutorAvailabilityDto>
@@ -149,21 +157,25 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
                     IsBooked = false
                 }
             };
+            var serviceResult = (Availabilities: (IEnumerable<TutorAvailabilityDto>)availabilityList, TotalCount: availabilityList.Count);
+
 
             _mockService
-                .Setup(s => s.GetAvailableSlotsAsync(_tutorId, startDate, endDate))
-                .ReturnsAsync(availabilityList);
+                .Setup(s => s.GetAvailableSlotsAsync(_tutorId, startDate, endDate, It.IsAny<BookingFilterDto>()))
+                .ReturnsAsync(serviceResult);
 
             // Act
-            var result = await _controller.GetAvailableSlots(_tutorId, startDate, endDate);
+            var result = await _controller.GetAvailableSlots(_tutorId, startDate, endDate, filterDto);
 
             // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
-
-            var returnValue = okResult.Value as IEnumerable<TutorAvailabilityDto>;
-            Assert.That(returnValue, Is.Not.Null);
-            Assert.That(returnValue.Count(), Is.EqualTo(2));
+            Assert.That(okResult, Is.Not.Null);
+            var responseObj = okResult.Value;
+            var availabilities = (IEnumerable<TutorAvailabilityDto>)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            var totalCount = (int)responseObj.GetType().GetProperty("totalCount").GetValue(responseObj);
+            Assert.That(availabilities, Is.Not.Null);
+            Assert.That(totalCount, Is.EqualTo(2));
         }
 
         [Test]

@@ -4,9 +4,7 @@ using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.DTOs.Skills;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Skills;
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Api.Controllers.Authentication
 {
@@ -49,6 +47,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var skills = await _skillService.GetAllAsync();
@@ -138,27 +137,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         public async Task<IActionResult> GetUserSkills(Guid userId)
         {
             var userSkills = await _userSkillService.GetByUserIdAsync(userId);
-            var result = new List<object>();
-
-            foreach (var us in userSkills)
-            {
-                var skill = await _skillService.GetByIdAsync(us.SkillID);
-                result.Add(new
-                {
-                    UserSkillID = us.UserSkillID,
-                    SkillID = us.SkillID,
-                    IsTutor = us.IsTutor,
-                    Skill = skill != null ? new
-                    {
-                        SkillID = skill.SkillID,
-                        SkillName = skill.SkillName,
-                        SkillLevel = skill.SkillLevel,
-                        Description = skill.Description
-                    } : null
-                });
-            }
-
-            return Ok(result);
+            return Ok(userSkills);
         }
 
         [HttpDelete("user-skills/{userSkillId:guid}")]

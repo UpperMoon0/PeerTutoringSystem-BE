@@ -1,0 +1,9 @@
+﻿using Microsoft.Extensions.Configuration;
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
+
+public interface IPaymentService
+{
+    Task<PaymentResponse> CreatePayment(CreatePaymentRequest request);
+    Task ProcessPaymentWebhook(SePayWebhookData webhookData);
+    Task<PaymentStatus> GetPaymentStatus(string paymentId);
+}

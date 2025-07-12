@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PeerTutoringSystem.Domain.Entities.Authentication;
-using PeerTutoringSystem.Domain.Interfaces;
 using PeerTutoringSystem.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
 {
@@ -80,6 +76,22 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
         {
             return await _context.Users
                 .Include(u => u.Role)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<User>> GetUsersByRoleAsync(string roleName)
+        {
+            return await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role.RoleName == roleName)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<User>> GetUsersByIdsAsync(List<Guid> ids)
+        {
+            return await _context.Users
+                .Include(u => u.Role)
+                .Where(u => ids.Contains(u.UserID))
                 .ToListAsync();
         }
     }

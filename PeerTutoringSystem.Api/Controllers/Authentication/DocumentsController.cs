@@ -1,14 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PeerTutoringSystem.Application.DTOs;
-using PeerTutoringSystem.Domain.Entities;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
-using PeerTutoringSystem.Domain.Interfaces.Authentication;
+using System.ComponentModel.DataAnnotations;
 
 namespace PeerTutoringSystem.Api.Controllers.Authentication
 {
@@ -18,27 +12,24 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
     public class DocumentsController : ControllerBase
     {
         private readonly IDocumentService _documentService;
-        private readonly IDocumentRepository _documentRepository;
-        private readonly ITutorVerificationRepository _tutorVerificationRepository;
 
-        public DocumentsController(
-            IDocumentService documentService,
-            IDocumentRepository documentRepository,
-            ITutorVerificationRepository tutorVerificationRepository)
+        public DocumentsController(IDocumentService documentService)
         {
             _documentService = documentService;
-            _documentRepository = documentRepository;
-            _tutorVerificationRepository = tutorVerificationRepository;
         }
 
         [HttpPost("upload")]
-        [Authorize(Roles = "Student")]
-        public async Task<IActionResult> UploadDocument([Required] IFormFile file)
+        public async Task<IActionResult> UploadDocument(IFormFile file)
         {
+            if (file == null)
+            {
+                return BadRequest(new { error = "File is required." });
+            }
+
             try
             {
-                var response = await _documentService.UploadDocumentAsync(file);
-                return Ok(response);
+                var result = await _documentService.UploadDocumentAsync(file);
+                return Ok(result);
             }
             catch (ValidationException ex)
             {
@@ -50,33 +41,18 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
             }
         }
 
-        [HttpGet("{documentId:guid}")]
-        public async Task<IActionResult> GetDocument(Guid documentId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetDocument(string id)
         {
             try
             {
-                var document = await _documentRepository.GetByIdAsync(documentId);
+                var document = await _documentService.GetDocumentAsync(id);
                 if (document == null)
-                    return NotFound(new { error = "Document not found." });
+                {
+                    return NotFound();
+                }
 
-                var verification = await _tutorVerificationRepository.GetByIdAsync(document.VerificationID);
-                if (verification == null)
-                    return NotFound(new { error = "Verification request not found." });
-
-                var currentUserId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
-                var isAdmin = User.IsInRole("Admin");
-                var isTutor = User.IsInRole("Tutor") && verification.UserID == currentUserId;
-
-                if (!isAdmin && !isTutor)
-                    return StatusCode(403, new { error = "You do not have permission to access this document." });
-
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", document.DocumentPath.TrimStart('/'));
-                if (!System.IO.File.Exists(filePath))
-                    return NotFound(new { error = "File not found on server." });
-
-                var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-                var mimeType = document.DocumentType == "PDF" ? "application/pdf" : "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-                return File(fileStream, mimeType, Path.GetFileName(filePath));
+                return File(document.Content, document.ContentType, document.FileName);
             }
             catch (Exception ex)
             {

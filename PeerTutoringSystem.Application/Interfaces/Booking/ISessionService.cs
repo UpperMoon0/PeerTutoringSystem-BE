@@ -8,10 +8,10 @@ namespace PeerTutoringSystem.Application.Interfaces.Booking
 {
     public interface ISessionService
     {
-        Task<SessionDto> CreateSessionAsync(Guid userId, CreateSessionDto dto);
+        Task<SessionDto> CreateSessionAsync(Guid userId, Guid bookingId, string videoCallLink, string sessionNotes, DateTimeOffset startTime, DateTimeOffset endTime);
         Task<SessionDto> GetSessionByIdAsync(Guid sessionId);
         Task<SessionDto> GetSessionByBookingIdAsync(Guid bookingId);
         Task<(IEnumerable<SessionDto> Sessions, int TotalCount)> GetSessionsByUserAsync(Guid userId, bool isTutor, BookingFilterDto filter);
-        Task<SessionDto> UpdateSessionAsync(Guid sessionId, UpdateSessionDto dto);
+        Task<SessionDto> UpdateSessionAsync(Guid sessionId, string videoCallLink, string sessionNotes, DateTimeOffset startTime, DateTimeOffset endTime);
     }
 }
