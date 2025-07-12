@@ -8,98 +8,123 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
+using PeerTutoringSystem.Domain.Interfaces.Booking;
+using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 
 namespace PeerTutoringSystem.Application.Services.Payment
 {
-    public class PaymentService : IPaymentService
-    {
-        private readonly HttpClient _httpClient;
-        private readonly IConfiguration _config;
-        private readonly IPaymentRepository _paymentRepository;
-        // If you're using SignalR for real-time notifications
-        // private readonly IHubContext<PaymentHub> _paymentHubContext;
+   public class PaymentService : IPaymentService
+   {
+       private readonly HttpClient _httpClient;
+       private readonly IConfiguration _config;
+       private readonly IPaymentRepository _paymentRepository;
+       private readonly IBookingSessionRepository _bookingRepository;
+       private readonly IUserBioRepository _userBioRepository;
+       // If you're using SignalR for real-time notifications
+       // private readonly IHubContext<PaymentHub> _paymentHubContext;
 
-        public PaymentService(
-            HttpClient httpClient,
-            IConfiguration config,
-            IPaymentRepository paymentRepository)
-        // IHubContext<PaymentHub> paymentHubContext)
-        {
-            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-            _paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
-            // _paymentHubContext = paymentHubContext ?? throw new ArgumentNullException(nameof(paymentHubContext));
+       public PaymentService(
+           HttpClient httpClient,
+           IConfiguration config,
+           IPaymentRepository paymentRepository,
+           IBookingSessionRepository bookingRepository,
+           IUserBioRepository userBioRepository)
+       // IHubContext<PaymentHub> paymentHubContext)
+       {
+           _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+           _config = config ?? throw new ArgumentNullException(nameof(config));
+           _paymentRepository = paymentRepository ?? throw new ArgumentNullException(nameof(paymentRepository));
+           _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
+           _userBioRepository = userBioRepository ?? throw new ArgumentNullException(nameof(userBioRepository));
+           // _paymentHubContext = paymentHubContext ?? throw new ArgumentNullException(nameof(paymentHubContext));
 
-            _httpClient.BaseAddress = new Uri(_config["SePay:BaseUrl"]);
-            if (!string.IsNullOrEmpty(_config["SePay:ApiKey"]))
-            {
-                _httpClient.DefaultRequestHeaders.Add("X-API-KEY", _config["SePay:ApiKey"]);
-            }
-        }
+           _httpClient.BaseAddress = new Uri(_config["SePay:BaseUrl"]);
+           if (!string.IsNullOrEmpty(_config["SePay:ApiKey"]))
+           {
+               _httpClient.DefaultRequestHeaders.Add("X-API-KEY", _config["SePay:ApiKey"]);
+           }
+       }
 
-        public async Task<PaymentResponse> CreatePayment(CreatePaymentRequest request)
-        {
-            try
-            {
-                // Create payment request for SePay
-                var sePayRequest = new
-                {
-                    amount = request.Amount,
-                    description = request.Description,
-                    returnUrl = request.ReturnUrl,
-                    // Add any other required parameters
-                    merchantId = _config["SePay:MerchantId"],
-                    currency = "VND"
-                };
+       public async Task<PaymentResponse> CreatePayment(Guid bookingId, string returnUrl)
+       {
+           try
+           {
+               var booking = await _bookingRepository.GetByIdAsync(bookingId);
+               if (booking == null)
+               {
+                   return new PaymentResponse { Success = false, Message = "Booking not found." };
+               }
 
-                // Serialize the request
-                var content = new StringContent(
-                    JsonSerializer.Serialize(sePayRequest),
-                    Encoding.UTF8,
-                    "application/json");
+               var tutorBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
+               if (tutorBio == null)
+               {
+                   return new PaymentResponse { Success = false, Message = "Tutor profile not found." };
+               }
 
-                // Send request to SePay API
-                var response = await _httpClient.PostAsync(_config["SePay:PaymentEndpoint"], content);
-                response.EnsureSuccessStatusCode();
+               var durationHours = (booking.EndTime - booking.StartTime).TotalHours;
+               var amount = (decimal)durationHours * tutorBio.HourlyRate;
+               var description = $"Payment for booking {booking.BookingId}";
 
-                // Deserialize the response
-                var sePayResponse = await response.Content.ReadFromJsonAsync<dynamic>();
 
-                // Create local payment record
-                var payment = new PaymentEntity
-                {
-                    TransactionId = sePayResponse.transactionId.ToString(),
-                    Amount = request.Amount,
-                    Description = request.Description,
-                    PaymentUrl = sePayResponse.paymentUrl.ToString(),
-                    Status = PaymentStatus.Pending,
-                    CreatedAt = DateTime.UtcNow
-                };
+               // Create payment request for SePay
+               var sePayRequest = new
+               {
+                   amount = amount,
+                   description = description,
+                   returnUrl = returnUrl,
+                   // Add any other required parameters
+                   merchantId = _config["SePay:MerchantId"],
+                   currency = "VND"
+               };
 
-                // Save payment to database
-                await _paymentRepository.CreatePaymentAsync(payment);
+               // Serialize the request
+               var content = new StringContent(
+                   JsonSerializer.Serialize(sePayRequest),
+                   Encoding.UTF8,
+                   "application/json");
 
-                // Return response to client
-                return new PaymentResponse
-                {
-                    Success = true,
-                    PaymentId = payment.Id.ToString(),
-                    PaymentUrl = payment.PaymentUrl,
-                    TransactionId = payment.TransactionId,
-                    Amount = payment.Amount,
-                    Message = "Payment created successfully"
-                };
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions
-                return new PaymentResponse
-                {
-                    Success = false,
-                    Message = $"Failed to create payment: {ex.Message}"
-                };
-            }
-        }
+               // Send request to SePay API
+               var response = await _httpClient.PostAsync(_config["SePay:PaymentEndpoint"], content);
+               response.EnsureSuccessStatusCode();
+
+               // Deserialize the response
+               var sePayResponse = await response.Content.ReadFromJsonAsync<dynamic>();
+
+               // Create local payment record
+               var payment = new PaymentEntity
+               {
+                   TransactionId = sePayResponse.transactionId.ToString(),
+                   Amount = amount,
+                   Description = description,
+                   PaymentUrl = sePayResponse.paymentUrl.ToString(),
+                   Status = PaymentStatus.Pending,
+                   CreatedAt = DateTime.UtcNow
+               };
+
+               // Save payment to database
+               await _paymentRepository.CreatePaymentAsync(payment);
+
+               // Return response to client
+               return new PaymentResponse
+               {
+                   Success = true,
+                   PaymentId = payment.Id.ToString(),
+                   PaymentUrl = payment.PaymentUrl,
+                   TransactionId = payment.TransactionId,
+                   Amount = payment.Amount,
+                   Message = "Payment created successfully"
+               };
+           }
+           catch (Exception ex)
+           {
+               // Handle exceptions
+               return new PaymentResponse
+               {
+                   Success = false,
+                   Message = $"Failed to create payment: {ex.Message}"
+               };
+           }
+       }
 
         public async Task<PaymentStatus> GetPaymentStatus(string paymentId)
         {

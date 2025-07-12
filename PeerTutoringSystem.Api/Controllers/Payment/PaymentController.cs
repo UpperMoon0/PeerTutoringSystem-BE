@@ -25,27 +25,27 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
 
         [HttpPost]
         [Authorize(Roles = "Student")]
-        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest request)
+        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentDto dto)
         {
             try
             {
-                if (request == null)
+                if (dto == null)
                 {
                     return BadRequest(new { error = "Request body is required.", timestamp = DateTime.UtcNow });
                 }
 
-                var response = await _paymentService.CreatePayment(request);
+                var response = await _paymentService.CreatePayment(dto.BookingId, dto.ReturnUrl);
                 
                 if (!response.Success)
                 {
                     return BadRequest(new { error = response.Message, timestamp = DateTime.UtcNow });
                 }
 
-                return Ok(new 
-                { 
+                return Ok(new
+                {
                     data = response,
-                    message = "PaymentEntity created successfully.", 
-                    timestamp = DateTime.UtcNow 
+                    message = "PaymentEntity created successfully.",
+                    timestamp = DateTime.UtcNow
                 });
             }
             catch (Exception ex)
