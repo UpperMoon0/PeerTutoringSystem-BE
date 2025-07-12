@@ -115,10 +115,14 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             foreach (var verification in verifications)
             {
                 var documents = await _documentRepository.GetByVerificationIdAsync(verification.VerificationID);
+                var user = await _userRepository.GetByIdAsync(verification.UserID);
                 result.Add(new TutorVerificationDto
                 {
                     VerificationID = verification.VerificationID,
                     UserID = verification.UserID,
+                    FullName = user?.FullName ?? "N/A",
+                    Email = user?.Email ?? "N/A",
+                    Avatar = user?.AvatarUrl ?? "N/A",
                     CitizenID = verification.CitizenID,
                     StudentID = verification.StudentID,
                     University = verification.University,
@@ -150,10 +154,14 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             foreach (var verification in verifications)
             {
                 var documents = await _documentRepository.GetByVerificationIdAsync(verification.VerificationID);
+                var user = await _userRepository.GetByIdAsync(verification.UserID);
                 result.Add(new TutorVerificationDto
                 {
                     VerificationID = verification.VerificationID,
                     UserID = verification.UserID,
+                    FullName = user?.FullName ?? "N/A",
+                    Email = user?.Email ?? "N/A",
+                    Avatar = user?.AvatarUrl ?? "N/A",
                     CitizenID = verification.CitizenID,
                     StudentID = verification.StudentID,
                     University = verification.University,
@@ -187,10 +195,14 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             }
 
             var documents = await _documentRepository.GetByVerificationIdAsync(verificationId);
+            var user = await _userRepository.GetByIdAsync(verification.UserID);
             var result = new TutorVerificationDto
             {
                 VerificationID = verification.VerificationID,
                 UserID = verification.UserID,
+                FullName = user?.FullName ?? "N/A",
+                Email = user?.Email ?? "N/A",
+                Avatar = user?.AvatarUrl ?? "N/A",
                 CitizenID = verification.CitizenID,
                 StudentID = verification.StudentID,
                 University = verification.University,

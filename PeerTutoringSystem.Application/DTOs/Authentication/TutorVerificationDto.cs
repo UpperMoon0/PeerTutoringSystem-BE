@@ -4,6 +4,9 @@
     {
         public Guid VerificationID { get; set; }
         public Guid UserID { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Avatar { get; set; } = string.Empty;
         public string CitizenID { get; set; } = string.Empty;
         public string StudentID { get; set; } = string.Empty;
         public string University { get; set; } = string.Empty;
