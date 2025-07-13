@@ -4,11 +4,9 @@ using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Skills;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace PeerTutoringSystem.Application.Services.Booking
 {
@@ -19,19 +17,25 @@ namespace PeerTutoringSystem.Application.Services.Booking
         private readonly ITutorAvailabilityService _tutorAvailabilityService;
         private readonly IUserService _userService;
         private readonly ISkillRepository _skillRepository;
+       private readonly Domain.Interfaces.Profile_Bio.IUserBioRepository _userBioRepository;
+       private readonly ILogger<BookingService> _logger;
 
-        public BookingService(
+       public BookingService(
             IBookingSessionRepository bookingRepository,
             ITutorAvailabilityRepository availabilityRepository,
             ITutorAvailabilityService tutorAvailabilityService,
             IUserService userService,
-            ISkillRepository skillRepository)
+            ISkillRepository skillRepository,
+            Domain.Interfaces.Profile_Bio.IUserBioRepository userBioRepository,
+            ILogger<BookingService> logger)
         {
             _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
             _availabilityRepository = availabilityRepository ?? throw new ArgumentNullException(nameof(availabilityRepository));
             _tutorAvailabilityService = tutorAvailabilityService ?? throw new ArgumentNullException(nameof(tutorAvailabilityService));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _skillRepository = skillRepository ?? throw new ArgumentNullException(nameof(skillRepository));
+            _userBioRepository = userBioRepository ?? throw new ArgumentNullException(nameof(userBioRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task<BookingSessionDto> CreateBookingAsync(Guid studentId, CreateBookingDto dto)
@@ -78,6 +82,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 Topic = dto.Topic ?? "General tutoring session",
                 Description = dto.Description,
                 Status = BookingStatus.Pending,
+                PaymentStatus = PaymentStatus.Unpaid,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -137,6 +142,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 Topic = dto.Topic ?? "General tutoring session",
                 Description = dto.Description,
                 Status = BookingStatus.Pending,
+                PaymentStatus = PaymentStatus.Unpaid,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -146,8 +152,14 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
         public async Task<BookingSessionDto> GetBookingByIdAsync(Guid bookingId)
         {
+            _logger.LogInformation("GetBookingByIdAsync called with bookingId: {BookingId}", bookingId);
             var booking = await _bookingRepository.GetByIdAsync(bookingId);
-            if (booking == null) return null;
+            if (booking == null)
+            {
+                _logger.LogWarning("Booking with ID {BookingId} not found.", bookingId);
+                return null;
+            }
+            _logger.LogInformation("Retrieved booking: {Booking}", JsonSerializer.Serialize(booking));
 
             return await EnrichBookingWithNames(booking);
         }
@@ -218,15 +230,25 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (booking == null)
                 throw new ValidationException("Booking not found.");
 
-            if (!Enum.TryParse<BookingStatus>(dto.Status, true, out var newStatus))
-                throw new ValidationException("Invalid booking status.");
+            if (!string.IsNullOrEmpty(dto.Status) && Enum.TryParse<BookingStatus>(dto.Status, true, out var newStatus))
+            {
+                if (IsValidStatusTransition(booking.Status, newStatus))
+                {
+                    booking.Status = newStatus;
+                }
+                else
+                {
+                    throw new ValidationException($"Invalid status transition from {booking.Status} to {newStatus}.");
+                }
+            }
 
-            // Check for valid status transition
-            if (!IsValidStatusTransition(booking.Status, newStatus))
-                throw new ValidationException($"Invalid status transition from {booking.Status} to {newStatus}.");
+            if (!string.IsNullOrEmpty(dto.PaymentStatus) && Enum.TryParse<PaymentStatus>(dto.PaymentStatus, true, out var newPaymentStatus))
+            {
+                booking.PaymentStatus = newPaymentStatus;
+            }
 
             // Update availability status for Cancelled or Rejected
-            if (newStatus == BookingStatus.Cancelled || newStatus == BookingStatus.Rejected)
+            if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Rejected)
             {
                 var availability = await _availabilityRepository.GetByIdAsync(booking.AvailabilityId);
                 if (availability != null)
@@ -236,13 +258,12 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 }
             }
 
-            if (newStatus == BookingStatus.Completed)
+            if (booking.Status == BookingStatus.Completed)
             {
                 if (booking.EndTime > DateTime.UtcNow)
                     throw new ValidationException("Cannot mark a future booking as completed.");
             }
 
-            booking.Status = newStatus;
             booking.UpdatedAt = DateTime.UtcNow;
             await _bookingRepository.UpdateAsync(booking);
 
@@ -300,6 +321,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
         {
             var studentName = "Unknown Student";
             var tutorName = "Unknown Tutor";
+            decimal? price = null;
 
             try
             {
@@ -309,7 +331,10 @@ namespace PeerTutoringSystem.Application.Services.Booking
                     studentName = $"{student.FullName}";
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching student details for student ID {StudentId}", booking.StudentId);
+            }
 
             try
             {
@@ -319,9 +344,38 @@ namespace PeerTutoringSystem.Application.Services.Booking
                     tutorName = $"{tutor.FullName}";
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching tutor details for tutor ID {TutorId}", booking.TutorId);
+            }
 
-            return new BookingSessionDto
+            try
+            {
+                _logger.LogInformation("Fetching tutor bio for TutorId: {TutorId}", booking.TutorId);
+                var userBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
+                _logger.LogInformation("Retrieved tutor bio: {UserBio}", JsonSerializer.Serialize(userBio));
+
+                if (userBio != null)
+                {
+                    _logger.LogInformation("Tutor HourlyRate: {HourlyRate}", userBio.HourlyRate);
+                    _logger.LogInformation("Booking StartTime: {StartTime}, EndTime: {EndTime}", booking.StartTime, booking.EndTime);
+                    var duration = booking.EndTime - booking.StartTime;
+                    var totalHours = duration.TotalHours;
+                    _logger.LogInformation("Calculated TotalHours: {TotalHours}", totalHours);
+                    price = (decimal)totalHours * userBio.HourlyRate;
+                    _logger.LogInformation("Calculated price: {Price}", price);
+                }
+                else
+                {
+                    _logger.LogWarning("Tutor bio not found for TutorId: {TutorId}", booking.TutorId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating price for booking ID {BookingId}", booking.BookingId);
+            }
+
+            var bookingDto = new BookingSessionDto
             {
                 BookingId = booking.BookingId,
                 StudentId = booking.StudentId,
@@ -333,10 +387,15 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 Topic = booking.Topic,
                 Description = booking.Description,
                 Status = booking.Status.ToString(),
+                PaymentStatus = booking.PaymentStatus.ToString(),
                 CreatedAt = booking.CreatedAt,
                 StudentName = studentName,
-                TutorName = tutorName
+                TutorName = tutorName,
+                Price = price
             };
+
+            _logger.LogInformation("Returning booking DTO: {BookingDto}", JsonSerializer.Serialize(bookingDto));
+            return bookingDto;
         }
         public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetAllBookingsForAdminAsync(BookingFilterDto filter)
         {

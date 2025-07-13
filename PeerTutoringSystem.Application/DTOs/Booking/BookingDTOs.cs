@@ -35,9 +35,11 @@
         public string Topic { get; set; }
         public string Description { get; set; }
         public string Status { get; set; }
+        public string PaymentStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public string TutorName { get; set; }
         public string StudentName { get; set; }
+       public decimal? Price { get; set; }
     }
 
     public class CreateBookingDto
@@ -51,7 +53,8 @@
 
     public class UpdateBookingStatusDto
     {
-        public string Status { get; set; } 
+        public string Status { get; set; }
+        public string PaymentStatus { get; set; }
     }
 
     // DTO cho yêu cầu đặt lịch tức thời
