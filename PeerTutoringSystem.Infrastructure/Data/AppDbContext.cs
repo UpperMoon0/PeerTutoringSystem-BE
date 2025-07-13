@@ -45,11 +45,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .IsUnique()
                 .HasFilter("[FirebaseUid] IS NOT NULL AND [FirebaseUid] != ''");
             modelBuilder.Entity<User>()
-                .Property(u => u.Gender)
-                .HasConversion<string>();
-            modelBuilder.Entity<User>()
                 .Property(u => u.Status)
-                .HasConversion<string>()
                 .HasDefaultValue(UserStatus.Active);
             modelBuilder.Entity<User>()
                 .Property(u => u.School)
@@ -185,7 +181,6 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 entity.HasKey(e => e.BookingId);
                 entity.Property(e => e.Topic).HasMaxLength(100).IsRequired();
                 entity.Property(e => e.Description).HasMaxLength(500);
-                entity.Property(e => e.Status).HasConversion<string>();
             });
 
             // Configure TutorAvailability entity

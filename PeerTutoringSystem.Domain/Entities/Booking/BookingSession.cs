@@ -15,6 +15,7 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
         public string Topic { get; set; }
         public string Description { get; set; }
         public BookingStatus Status { get; set; }
+        public PaymentStatus PaymentStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }
@@ -26,5 +27,10 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
         Cancelled,
         Completed,
         Rejected
+    }
+    public enum PaymentStatus
+    {
+        Unpaid,
+        Paid
     }
 }

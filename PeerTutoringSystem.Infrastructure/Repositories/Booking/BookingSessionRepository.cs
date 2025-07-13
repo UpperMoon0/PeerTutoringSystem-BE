@@ -25,7 +25,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
             await _context.SaveChangesAsync();
         }
 
-        public async Task<BookingSession> GetByIdAsync(Guid bookingId)
+        public async Task<BookingSession?> GetByIdAsync(Guid bookingId)
         {
             return await _context.BookingSessions
                 .FirstOrDefaultAsync(b => b.BookingId == bookingId);

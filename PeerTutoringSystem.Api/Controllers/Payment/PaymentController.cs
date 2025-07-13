@@ -75,5 +75,21 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
                 return StatusCode(500, new { error = "An error occurred while getting payment status.", timestamp = DateTime.UtcNow });
             }
         }
+        [HttpPost("webhook")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SePayWebhook([FromBody] SePayWebhookData webhookData)
+        {
+            try
+            {
+                _logger.LogInformation("SePay Webhook received: {@WebhookData}", webhookData);
+                await _paymentService.ProcessPaymentWebhook(webhookData);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing SePay webhook.");
+                return StatusCode(500, new { error = "An error occurred while processing the webhook." });
+            }
+        }
     }
 }

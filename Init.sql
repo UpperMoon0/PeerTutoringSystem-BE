@@ -5,8 +5,16 @@ SET ANSI_NULLS ON;
 GO
 
 -- Drop and Create Database
-DROP DATABASE IF EXISTS PeerTutoringSystem;
+USE master;
 GO
+
+IF DB_ID('PeerTutoringSystem') IS NOT NULL
+BEGIN
+    ALTER DATABASE PeerTutoringSystem SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE PeerTutoringSystem;
+END
+GO
+
 CREATE DATABASE PeerTutoringSystem;
 GO
 
@@ -34,14 +42,14 @@ BEGIN
         PasswordHash NVARCHAR(255) NULL,
         DateOfBirth DATE NOT NULL,
         PhoneNumber NVARCHAR(20) NOT NULL,
-        Gender NVARCHAR(10) NOT NULL CHECK (Gender IN ('Male', 'Female', 'Other')),
+        Gender INT NOT NULL,
         Hometown NVARCHAR(255) NOT NULL,
         School NVARCHAR(255) NULL,
         AvatarUrl NVARCHAR(255) NULL,
         CreatedDate DATETIME NOT NULL DEFAULT GETUTCDATE(),
         LastActive DATETIME NOT NULL DEFAULT GETUTCDATE(),
         IsOnline BIT NOT NULL DEFAULT 0,
-        Status NVARCHAR(20) NOT NULL DEFAULT 'Active' CHECK (Status IN ('Active', 'Banned')),
+        Status INT NOT NULL DEFAULT 0,
         RoleID INT NOT NULL,
         CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleID) REFERENCES Roles(RoleID)
     );
@@ -180,7 +188,8 @@ BEGIN
         SkillId UNIQUEIDENTIFIER NULL,
         Topic NVARCHAR(100) NOT NULL,
         Description NVARCHAR(500) NULL,
-        Status NVARCHAR(20) NOT NULL CHECK (Status IN ('Pending', 'Confirmed', 'Cancelled', 'Completed','Rejected')),
+        Status INT NOT NULL,
+        PaymentStatus INT NOT NULL DEFAULT 0,
         CreatedAt DATETIME NOT NULL,
         UpdatedAt DATETIME NULL,
         CONSTRAINT FK_BookingSessions_Students FOREIGN KEY (StudentId) REFERENCES Users(UserID),
@@ -284,4 +293,29 @@ BEGIN
     -- Thêm chỉ mục cho BookingId
     CREATE NONCLUSTERED INDEX IX_Sessions_BookingId ON Sessions(BookingId);
 END;
+GO
+
+-- Create Payments Table
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'Payments')
+BEGIN
+    DROP TABLE Payments;
+END;
+GO
+
+CREATE TABLE Payments (
+    Id UNIQUEIDENTIFIER PRIMARY KEY,
+    BookingId UNIQUEIDENTIFIER NOT NULL,
+    TransactionId NVARCHAR(100) NULL,
+    Amount DECIMAL(18, 2) NOT NULL,
+    Currency NVARCHAR(10) NOT NULL,
+    Description NVARCHAR(500) NULL,
+    Status NVARCHAR(50) NOT NULL,
+    PaymentUrl NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedAt DATETIME NULL,
+    CONSTRAINT FK_Payments_BookingSessions FOREIGN KEY (BookingId) REFERENCES BookingSessions(BookingId) ON DELETE CASCADE
+);
+GO
+
+CREATE NONCLUSTERED INDEX IX_Payments_BookingId ON Payments(BookingId);
 GO

@@ -34,7 +34,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
             }
         }
 
-        public async Task<TutorAvailability> GetByIdAsync(Guid availabilityId)
+        public async Task<TutorAvailability?> GetByIdAsync(Guid availabilityId)
         {
             return await _context.TutorAvailabilities
                 .FirstOrDefaultAsync(a => a.AvailabilityId == availabilityId);
@@ -188,7 +188,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
         {
             return await _context.BookingSessions
                 .Where(b => b.TutorId == tutorId &&
-                           b.Status != BookingStatus.Cancelled &&
+                           b.Status != PeerTutoringSystem.Domain.Entities.Booking.BookingStatus.Cancelled &&
                            ((b.StartTime <= startTime && b.EndTime > startTime) ||
                             (b.StartTime < endTime && b.EndTime >= endTime) ||
                             (b.StartTime >= startTime && b.EndTime <= endTime)))

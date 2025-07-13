@@ -2,3 +2,4 @@ serviceAccountKey.json
 */bin/
 */obj/
 */.vs/
+reseed-db.sh

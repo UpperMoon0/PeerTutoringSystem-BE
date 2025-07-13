@@ -7,7 +7,7 @@ namespace PeerTutoringSystem.Domain.Interfaces.Booking
 {
     public interface IBookingSessionRepository
     {
-        Task<BookingSession> GetByIdAsync(Guid bookingId);
+        Task<BookingSession?> GetByIdAsync(Guid bookingId);
         Task<IEnumerable<BookingSession>> GetByStudentIdAsync(Guid studentId);
         Task<(IEnumerable<BookingSession> Bookings, int TotalCount)> GetByStudentIdAsync(Guid studentId, BookingFilter filter);
         Task<IEnumerable<BookingSession>> GetByTutorIdAsync(Guid tutorId);
