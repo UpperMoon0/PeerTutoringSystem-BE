@@ -41,5 +41,29 @@ namespace PeerTutoringSystem.Api.Controllers.Tutor
             }
             return NotFound(new { error = result.Error });
         }
+
+        [HttpGet("dashboard-stats")]
+        [Authorize(Roles = "Tutor")]
+        public async Task<IActionResult> GetTutorDashboardStats()
+        {
+            var result = await _tutorService.GetTutorDashboardStats();
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return BadRequest(new { error = result.Error });
+        }
+
+        [HttpGet("finance-details")]
+        [Authorize(Roles = "Tutor")]
+        public async Task<IActionResult> GetTutorFinanceDetails()
+        {
+            var result = await _tutorService.GetTutorFinanceDetailsAsync();
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+            return BadRequest(new { error = result.Error });
+        }
     }
 }
