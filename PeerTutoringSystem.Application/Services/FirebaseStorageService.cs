@@ -18,8 +18,23 @@ namespace PeerTutoringSystem.Application.Services
         public FirebaseStorageService(IConfiguration configuration)
         {
             _bucketName = configuration["Firebase:BucketName"];
-            var privateKey = configuration["Firebase:PrivateKey"].Replace("\\n", "\n");
+            if (string.IsNullOrEmpty(_bucketName))
+            {
+                throw new ArgumentNullException(nameof(_bucketName), "Firebase BucketName is not configured.");
+            }
+
+            var privateKey = configuration["Firebase:PrivateKey"];
+            if (string.IsNullOrEmpty(privateKey))
+            {
+                throw new ArgumentNullException(nameof(privateKey), "Firebase PrivateKey is not configured.");
+            }
+            privateKey = privateKey.Replace("\\n", "\n");
+
             var authEmail = configuration["Firebase:AuthEmail"];
+            if (string.IsNullOrEmpty(authEmail))
+            {
+                throw new ArgumentNullException(nameof(authEmail), "Firebase AuthEmail is not configured.");
+            }
 
             _firebaseStorage = new FirebaseStorage(
                 _bucketName,

@@ -121,6 +121,7 @@ builder.Services.AddSingleton(provider =>
 });
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IAiChatService, AiChatService>();
 
 builder.Services.AddCors(options =>
 {
