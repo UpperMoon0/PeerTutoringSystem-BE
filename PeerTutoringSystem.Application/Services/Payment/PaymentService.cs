@@ -21,7 +21,6 @@ namespace PeerTutoringSystem.Application.Services.Payment
        private readonly IBookingSessionRepository _bookingRepository;
        private readonly IUserBioRepository _userBioRepository;
        private readonly ISessionRepository _sessionRepository;
-       private readonly bool _simulatePayment;
 
        public PaymentService(
            HttpClient httpClient,
@@ -39,16 +38,11 @@ namespace PeerTutoringSystem.Application.Services.Payment
            _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
            // _paymentHubContext = paymentHubContext ?? throw new ArgumentNullException(nameof(paymentHubContext));
 
-           _simulatePayment = _config.GetValue<bool>("SePay:SimulatePayment");
-
-           if (!_simulatePayment)
+           _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+           _httpClient.BaseAddress = new Uri(_config["SePay:BaseUrl"]);
+           if (!string.IsNullOrEmpty(_config["SePay:ApiKey"]))
            {
-               _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-               _httpClient.BaseAddress = new Uri(_config["SePay:BaseUrl"]);
-               if (!string.IsNullOrEmpty(_config["SePay:ApiKey"]))
-               {
-                   _httpClient.DefaultRequestHeaders.Add("X-API-KEY", _config["SePay:ApiKey"]);
-               }
+               _httpClient.DefaultRequestHeaders.Add("X-API-KEY", _config["SePay:ApiKey"]);
            }
        }
 
@@ -76,38 +70,6 @@ namespace PeerTutoringSystem.Application.Services.Payment
                var durationHours = (session.EndTime - session.StartTime).TotalHours;
                var amount = (decimal)durationHours * tutorBio.HourlyRate;
                var description = $"Payment for booking {booking.BookingId}";
-
-               if (_simulatePayment)
-               {
-                   // Simulate a successful payment
-                   var simulatedPayment = new PaymentEntity
-                   {
-                       BookingId = bookingId,
-                       TransactionId = $"SIM_{Guid.NewGuid()}",
-                       Amount = amount,
-                       Description = description,
-                       PaymentUrl = "", // No external payment URL in simulation
-                       Status = PaymentStatus.Success,
-                       CreatedAt = DateTime.UtcNow,
-                       UpdatedAt = DateTime.UtcNow
-                   };
-
-                   await _paymentRepository.CreatePaymentAsync(simulatedPayment);
-
-                   // Update booking status
-                   booking.PaymentStatus = Domain.Entities.Booking.PaymentStatus.Paid;
-                   await _bookingRepository.UpdateAsync(booking);
-
-                   return new PaymentResponse
-                   {
-                       Success = true,
-                       PaymentId = simulatedPayment.Id.ToString(),
-                       PaymentUrl = returnUrl, // Redirect back to the provided return URL
-                       TransactionId = simulatedPayment.TransactionId,
-                       Amount = simulatedPayment.Amount,
-                       Message = "Payment simulated successfully"
-                   };
-               }
 
                // Create payment request for SePay
                var sePayRequest = new
