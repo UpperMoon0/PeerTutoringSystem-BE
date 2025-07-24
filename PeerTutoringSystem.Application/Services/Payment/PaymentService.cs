@@ -10,12 +10,14 @@ using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
+using PeerTutoringSystem.Application.Helpers;
+using PeerTutoringSystem.Domain.Entities.PaymentEntities.Payos;
 
 namespace PeerTutoringSystem.Application.Services.Payment
 {
    public class PaymentService : IPaymentService
    {
-       private readonly HttpClient _httpClient;
+       private readonly IHttpClientFactory _httpClientFactory;
        private readonly IConfiguration _config;
        private readonly IPaymentRepository _paymentRepository;
        private readonly IBookingSessionRepository _bookingRepository;
@@ -23,7 +25,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
        private readonly ISessionRepository _sessionRepository;
 
        public PaymentService(
-           HttpClient httpClient,
+           IHttpClientFactory httpClientFactory,
            IConfiguration config,
            IPaymentRepository paymentRepository,
            IBookingSessionRepository bookingRepository,
@@ -36,14 +38,8 @@ namespace PeerTutoringSystem.Application.Services.Payment
            _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
            _userBioRepository = userBioRepository ?? throw new ArgumentNullException(nameof(userBioRepository));
            _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
+           _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
            // _paymentHubContext = paymentHubContext ?? throw new ArgumentNullException(nameof(paymentHubContext));
-
-           _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-           _httpClient.BaseAddress = new Uri(_config["SePay:BaseUrl"]);
-           if (!string.IsNullOrEmpty(_config["SePay:ApiKey"]))
-           {
-               _httpClient.DefaultRequestHeaders.Add("X-API-KEY", _config["SePay:ApiKey"]);
-           }
        }
 
        public async Task<PaymentResponse> CreatePayment(Guid bookingId, string returnUrl)
@@ -89,7 +85,8 @@ namespace PeerTutoringSystem.Application.Services.Payment
                    "application/json");
 
                // Send request to SePay API
-               var response = await _httpClient.PostAsync(_config["SePay:PaymentEndpoint"], content);
+               var httpClient = _httpClientFactory.CreateClient();
+               var response = await httpClient.PostAsync(_config["SePay:PaymentEndpoint"], content);
                response.EnsureSuccessStatusCode();
 
                // Deserialize the response
@@ -226,6 +223,47 @@ namespace PeerTutoringSystem.Application.Services.Payment
 
             // For now, just return a completed task if SignalR is not implemented
             await Task.CompletedTask;
+        }
+
+        public async Task<string> CreatePaymentLink(int orderCode, int amount, string description, string returnUrl, string cancelUrl)
+        {
+            var clientId = _config["PayOs:ClientId"];
+            var apiKey = _config["PayOs:ApiKey"];
+            var checksumKey = _config["PayOs:ChecksumKey"];
+
+            var data = $"amount={amount}&cancelUrl={cancelUrl}&description={description}&orderCode={orderCode}&returnUrl={returnUrl}";
+            var signature = PayosSignatureHelper.GenerateSignature(data, checksumKey);
+
+            var request = new CreatePaymentLinkRequest
+            {
+                OrderCode = orderCode,
+                Amount = amount,
+                Description = description,
+                ReturnUrl = returnUrl,
+                CancelUrl = cancelUrl,
+                Signature = signature
+            };
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://api-merchant.payos.vn/v2/payment-requests")
+            {
+                Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
+            };
+
+            requestMessage.Headers.Add("x-client-id", clientId);
+            requestMessage.Headers.Add("x-api-key", apiKey);
+
+            var response = await httpClient.SendAsync(requestMessage);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var paymentResponse = JsonSerializer.Deserialize<CreatePaymentLinkResponse>(responseContent);
+                var paymentData = paymentResponse.Data;
+                return paymentData.CheckoutUrl;
+            }
+
+            throw new Exception($"Failed to create payment link: {responseContent}");
         }
     }
 }
