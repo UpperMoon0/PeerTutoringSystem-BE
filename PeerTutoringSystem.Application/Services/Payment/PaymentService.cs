@@ -11,7 +11,6 @@ using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Application.Helpers;
-using PeerTutoringSystem.Domain.Entities.PaymentEntities.Payos;
 
 namespace PeerTutoringSystem.Application.Services.Payment
 {
@@ -225,45 +224,5 @@ namespace PeerTutoringSystem.Application.Services.Payment
             await Task.CompletedTask;
         }
 
-        public async Task<string> CreatePaymentLink(int orderCode, int amount, string description, string returnUrl, string cancelUrl)
-        {
-            var clientId = _config["PayOs:ClientId"];
-            var apiKey = _config["PayOs:ApiKey"];
-            var checksumKey = _config["PayOs:ChecksumKey"];
-
-            var data = $"amount={amount}&cancelUrl={cancelUrl}&description={description}&orderCode={orderCode}&returnUrl={returnUrl}";
-            var signature = PayosSignatureHelper.GenerateSignature(data, checksumKey);
-
-            var request = new CreatePaymentLinkRequest
-            {
-                OrderCode = orderCode,
-                Amount = amount,
-                Description = description,
-                ReturnUrl = returnUrl,
-                CancelUrl = cancelUrl,
-                Signature = signature
-            };
-
-            var httpClient = _httpClientFactory.CreateClient();
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, "https://api-merchant.payos.vn/v2/payment-requests")
-            {
-                Content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json")
-            };
-
-            requestMessage.Headers.Add("x-client-id", clientId);
-            requestMessage.Headers.Add("x-api-key", apiKey);
-
-            var response = await httpClient.SendAsync(requestMessage);
-            var responseContent = await response.Content.ReadAsStringAsync();
-
-            if (response.IsSuccessStatusCode)
-            {
-                var paymentResponse = JsonSerializer.Deserialize<CreatePaymentLinkResponse>(responseContent);
-                var paymentData = paymentResponse.Data;
-                return paymentData.CheckoutUrl;
-            }
-
-            throw new Exception($"Failed to create payment link: {responseContent}");
-        }
     }
 }

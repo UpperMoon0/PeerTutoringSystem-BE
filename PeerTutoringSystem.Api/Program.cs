@@ -38,8 +38,9 @@ using PeerTutoringSystem.Application.Services.Payment;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 
-DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
+DotNetEnv.Env.Load();
+builder.Configuration.AddEnvironmentVariables();
 
 
 // Add services to the container.

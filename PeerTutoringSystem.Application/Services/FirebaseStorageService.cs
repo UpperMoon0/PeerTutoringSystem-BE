@@ -1,12 +1,7 @@
 using Firebase.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Google.Apis.Auth.OAuth2;
-using System.Threading;
 
 namespace PeerTutoringSystem.Application.Services
 {
