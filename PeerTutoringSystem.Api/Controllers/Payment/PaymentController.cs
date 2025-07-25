@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using PeerTutoringSystem.Application.DTOs.Payment;
+using PeerTutoringSystem.Application.Interfaces.Payment;
+using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Api.Controllers.Payment
 {
@@ -7,10 +10,12 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
+        private readonly IVietQrService _vietQrService;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentController(IPaymentService paymentService, IVietQrService vietQrService)
         {
             _paymentService = paymentService;
+            _vietQrService = vietQrService;
         }
 
         [HttpPost("create-payment")]
@@ -26,6 +31,27 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
                 // In a real app, log this exception
                 return StatusCode(500, "An error occurred while creating the payment.");
             }
+        }
+
+        [HttpPost("generate-qr")]
+        public async Task<IActionResult> GenerateQrCode([FromBody] VietQrRequestDto request)
+        {
+            var result = await _vietQrService.GenerateQrCode(request);
+            if (result?.data?.qrDataURL != null)
+            {
+                return Ok(new { qrDataURL = result.data.qrDataURL });
+            }
+            return BadRequest("Could not generate QR code.");
+        }
+        [HttpPost("confirm")]
+        public async Task<IActionResult> ConfirmPayment([FromBody] ConfirmPaymentDto request)
+        {
+            var result = await _paymentService.ConfirmPayment(request.BookingId);
+            if (result)
+            {
+                return Ok(new { message = "Payment confirmed successfully." });
+            }
+            return BadRequest(new { message = "Payment confirmation failed." });
         }
     }
 }

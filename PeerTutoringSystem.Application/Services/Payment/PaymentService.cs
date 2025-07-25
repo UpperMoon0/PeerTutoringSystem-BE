@@ -1,16 +1,11 @@
-﻿using System;
-using System.Net.Http;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
-using PeerTutoringSystem.Application.Helpers;
 
 namespace PeerTutoringSystem.Application.Services.Payment
 {
@@ -90,6 +85,11 @@ namespace PeerTutoringSystem.Application.Services.Payment
 
                // Deserialize the response
                var sePayResponse = await response.Content.ReadFromJsonAsync<dynamic>();
+
+               if (sePayResponse is null)
+               {
+                   return new PaymentResponse { Success = false, Message = "Failed to get response from payment provider." };
+               }
 
                // Create local payment record
                var payment = new PaymentEntity
@@ -224,5 +224,27 @@ namespace PeerTutoringSystem.Application.Services.Payment
             await Task.CompletedTask;
         }
 
+        public async Task<bool> ConfirmPayment(Guid bookingId)
+        {
+            var payment = await _paymentRepository.GetPaymentByBookingIdAsync(bookingId);
+            if (payment == null)
+            {
+                return false;
+            }
+
+            payment.Status = PaymentStatus.Success;
+            payment.UpdatedAt = DateTime.UtcNow;
+
+            await _paymentRepository.UpdatePaymentAsync(payment);
+
+            var booking = await _bookingRepository.GetByIdAsync(payment.BookingId);
+            if (booking != null)
+            {
+                booking.PaymentStatus = Domain.Entities.Booking.PaymentStatus.Paid;
+                await _bookingRepository.UpdateAsync(booking);
+            }
+
+            return true;
+        }
     }
 }

@@ -38,6 +38,12 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Payment
                 .Where(p => p.TransactionId == transactionId)
                 .FirstOrDefaultAsync();
         }
+        public async Task<PaymentEntity> GetPaymentByBookingIdAsync(Guid bookingId)
+        {
+            return await _dbContext.Payments
+                .Where(p => p.BookingId == bookingId)
+                .FirstOrDefaultAsync();
+        }
 
         public async Task<List<PaymentEntity>> GetPaymentsByBookingIdAsync(Guid bookingId)
         {

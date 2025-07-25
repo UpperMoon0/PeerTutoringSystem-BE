@@ -10,6 +10,7 @@ namespace PeerTutoringSystem.Domain.Interfaces.Payment
         Task<PaymentEntity> CreatePaymentAsync(PaymentEntity payment);
         Task<PaymentEntity> GetPaymentByIdAsync(Guid id);
         Task<PaymentEntity> GetPaymentByTransactionIdAsync(string transactionId);
+        Task<PaymentEntity> GetPaymentByBookingIdAsync(Guid bookingId);
         Task<List<PaymentEntity>> GetPaymentsByBookingIdAsync(Guid bookingId);
         Task<PaymentEntity> UpdatePaymentAsync(PaymentEntity payment);
     }

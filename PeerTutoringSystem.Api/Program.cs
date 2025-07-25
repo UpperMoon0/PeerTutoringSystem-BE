@@ -35,6 +35,7 @@ using PeerTutoringSystem.Infrastructure.Repositories.Chat;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Infrastructure.Repositories.Payment;
 using PeerTutoringSystem.Application.Services.Payment;
+using PeerTutoringSystem.Application.Interfaces.Payment;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 
@@ -116,6 +117,7 @@ builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IVietQrService, VietQrService>();
 builder.Services.AddScoped(provider =>
 {
     var configuration = provider.GetRequiredService<IConfiguration>();
