@@ -166,14 +166,15 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
         public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetBookingsByStudentAsync(Guid studentId, BookingFilterDto filter)
         {
-            var query = await _bookingRepository.GetByStudentIdAsync(studentId);
-            query = ApplyFilters(query, filter);
-
-            var totalCount = query.Count();
-            var bookings = query
-                .Skip((filter.Page - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToList();
+            var (bookings, totalCount) = await _bookingRepository.GetByStudentIdAsync(studentId, new Domain.Entities.Booking.BookingFilter
+            {
+                Page = filter.Page,
+                PageSize = filter.PageSize,
+                Status = filter.Status,
+                SkillId = filter.SkillId,
+                StartDate = filter.StartDate,
+                EndDate = filter.EndDate
+            });
 
             var dtos = new List<BookingSessionDto>();
             foreach (var booking in bookings)
@@ -186,14 +187,15 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
         public async Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetBookingsByTutorAsync(Guid tutorId, BookingFilterDto filter)
         {
-            var query = await _bookingRepository.GetByTutorIdAsync(tutorId);
-            query = ApplyFilters(query, filter);
-
-            var totalCount = query.Count();
-            var bookings = query
-                .Skip((filter.Page - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToList();
+            var (bookings, totalCount) = await _bookingRepository.GetByTutorIdAsync(tutorId, new Domain.Entities.Booking.BookingFilter
+            {
+                Page = filter.Page,
+                PageSize = filter.PageSize,
+                Status = filter.Status,
+                SkillId = filter.SkillId,
+                StartDate = filter.StartDate,
+                EndDate = filter.EndDate
+            });
 
             var dtos = new List<BookingSessionDto>();
             foreach (var booking in bookings)
