@@ -122,5 +122,5 @@ GO
 
 -- Seed Data for Payments
 INSERT INTO Payments (Id, BookingId, TransactionId, Amount, Currency, Description, Status, PaymentUrl, CreatedAt, UpdatedAt) VALUES
-(NEWID(), '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c22', 'txn_1234567890', 8.00, 'VND', 'Payment for IELTS Speaking session', 'Success', 'http://example.com/payment/success', GETUTCDATE(), NULL);
+(NEWID(), '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c22', 'txn_1234567890', 150000.00, 'VND', 'Payment for IELTS Speaking session', 'Success', 'http://example.com/payment/success', GETUTCDATE(), NULL);
 GO

@@ -8,12 +8,15 @@ SCRIPT_DIR=$(dirname "$0")
 INIT_SCRIPT="Init.sql"
 SEED_SCRIPT="SeedData.sql"
 
+# Create scripts directory in container
+docker exec -i $CONTAINER_NAME mkdir -p /var/opt/mssql/scripts
+
 # Copy scripts to container
 docker cp "$SCRIPT_DIR/$INIT_SCRIPT" "$CONTAINER_NAME:/var/opt/mssql/scripts/$INIT_SCRIPT"
 docker cp "$SCRIPT_DIR/$SEED_SCRIPT" "$CONTAINER_NAME:/var/opt/mssql/scripts/$SEED_SCRIPT"
 
 # Execute scripts
-docker exec -i $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $DB_PASSWORD -i "/var/opt/mssql/scripts/$INIT_SCRIPT"
-docker exec -i $CONTAINER_NAME /opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $DB_PASSWORD -i "/var/opt/mssql/scripts/$SEED_SCRIPT"
+docker exec -i $CONTAINER_NAME /opt/mssql-tools18/bin/sqlcmd -U $DB_USER -P $DB_PASSWORD -i "/var/opt/mssql/scripts/$INIT_SCRIPT" -C -N
+docker exec -i $CONTAINER_NAME /opt/mssql-tools18/bin/sqlcmd -U $DB_USER -P $DB_PASSWORD -i "/var/opt/mssql/scripts/$SEED_SCRIPT" -C -N
 
 echo "Database reseeding complete."

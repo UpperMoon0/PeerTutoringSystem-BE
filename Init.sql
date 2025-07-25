@@ -174,36 +174,6 @@ BEGIN
 END;
 GO
 
--- Create BookingSessions Table with BookingStatus enum represented as string
-IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'BookingSessions')
-BEGIN
-    CREATE TABLE BookingSessions (
-        BookingId UNIQUEIDENTIFIER PRIMARY KEY,
-        StudentId UNIQUEIDENTIFIER NOT NULL,
-        TutorId UNIQUEIDENTIFIER NOT NULL,
-        AvailabilityId UNIQUEIDENTIFIER NOT NULL,
-        SessionDate DATE NOT NULL,
-        StartTime DATETIME NOT NULL,
-        EndTime DATETIME NOT NULL,
-        SkillId UNIQUEIDENTIFIER NULL,
-        Topic NVARCHAR(100) NOT NULL,
-        Description NVARCHAR(500) NULL,
-        Status INT NOT NULL,
-        PaymentStatus INT NOT NULL DEFAULT 0,
-        CreatedAt DATETIME NOT NULL,
-        UpdatedAt DATETIME NULL,
-        CONSTRAINT FK_BookingSessions_Students FOREIGN KEY (StudentId) REFERENCES Users(UserID),
-        CONSTRAINT FK_BookingSessions_Tutors FOREIGN KEY (TutorId) REFERENCES Users(UserID),
-        CONSTRAINT FK_BookingSessions_Availabilities FOREIGN KEY (AvailabilityId) REFERENCES TutorAvailabilities(AvailabilityId)
-    );
-
-    CREATE NONCLUSTERED INDEX IX_BookingSessions_StudentId ON BookingSessions(StudentId);
-    CREATE NONCLUSTERED INDEX IX_BookingSessions_TutorId ON BookingSessions(TutorId);
-    CREATE NONCLUSTERED INDEX IX_BookingSessions_Status ON BookingSessions(Status);
-    CREATE NONCLUSTERED INDEX IX_BookingSessions_TimeRange ON BookingSessions(StartTime, EndTime);
-END;
-GO
-
 -- Create Skills Table
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Skills')
 BEGIN
@@ -225,6 +195,37 @@ END;
 
 ALTER TABLE Skills
 ADD CONSTRAINT CHK_SkillLevel CHECK (SkillLevel IN ('Beginner', 'Elementary', 'Intermediate', 'Advanced', 'Expert'));
+GO
+
+-- Create BookingSessions Table with BookingStatus enum represented as string
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'BookingSessions')
+BEGIN
+    CREATE TABLE BookingSessions (
+        BookingId UNIQUEIDENTIFIER PRIMARY KEY,
+        StudentId UNIQUEIDENTIFIER NOT NULL,
+        TutorId UNIQUEIDENTIFIER NOT NULL,
+        AvailabilityId UNIQUEIDENTIFIER NOT NULL,
+        SessionDate DATE NOT NULL,
+        StartTime DATETIME NOT NULL,
+        EndTime DATETIME NOT NULL,
+        SkillId UNIQUEIDENTIFIER NULL,
+        Topic NVARCHAR(100) NOT NULL,
+        Description NVARCHAR(500) NULL,
+        Status INT NOT NULL,
+        PaymentStatus INT NOT NULL DEFAULT 0,
+        CreatedAt DATETIME NOT NULL,
+        UpdatedAt DATETIME NULL,
+        CONSTRAINT FK_BookingSessions_Students FOREIGN KEY (StudentId) REFERENCES Users(UserID),
+        CONSTRAINT FK_BookingSessions_Tutors FOREIGN KEY (TutorId) REFERENCES Users(UserID),
+        CONSTRAINT FK_BookingSessions_Availabilities FOREIGN KEY (AvailabilityId) REFERENCES TutorAvailabilities(AvailabilityId),
+        CONSTRAINT FK_BookingSessions_Skills FOREIGN KEY (SkillId) REFERENCES Skills(SkillID)
+    );
+
+    CREATE NONCLUSTERED INDEX IX_BookingSessions_StudentId ON BookingSessions(StudentId);
+    CREATE NONCLUSTERED INDEX IX_BookingSessions_TutorId ON BookingSessions(TutorId);
+    CREATE NONCLUSTERED INDEX IX_BookingSessions_Status ON BookingSessions(Status);
+    CREATE NONCLUSTERED INDEX IX_BookingSessions_TimeRange ON BookingSessions(StartTime, EndTime);
+END;
 GO
 
 -- Create UserSkills Table
