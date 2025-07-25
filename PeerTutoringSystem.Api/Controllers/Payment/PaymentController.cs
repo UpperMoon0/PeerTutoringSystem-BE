@@ -13,27 +13,19 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             _paymentService = paymentService;
         }
 
-        [HttpPost("create-payment-link")]
-        public async Task<IActionResult> CreatePaymentLink([FromBody] CreatePaymentRequest request)
+        [HttpPost("create-payment")]
+        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentDto request)
         {
             try
             {
-                var checkoutUrl = await _paymentService.CreatePaymentLink(
-                    request.OrderCode,
-                    request.Amount,
-                    request.Description,
-                    request.ReturnUrl,
-                    request.CancelUrl
-                );
-                return Ok(new { checkoutUrl });
+                var result = await _paymentService.CreatePayment(request.BookingId, request.ReturnUrl);
+                return Ok(result);
             }
             catch (System.Exception ex)
             {
                 // In a real app, log this exception
-                return StatusCode(500, "An error occurred while creating the payment link.");
+                return StatusCode(500, "An error occurred while creating the payment.");
             }
         }
     }
-
-    public record CreatePaymentRequest(int OrderCode, int Amount, string Description, string ReturnUrl, string CancelUrl);
 }

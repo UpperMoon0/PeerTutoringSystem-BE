@@ -42,6 +42,21 @@ var builder = WebApplication.CreateBuilder(args);
 DotNetEnv.Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 
+// Initialize Firebase Admin SDK
+if (FirebaseApp.DefaultInstance == null)
+{
+    var firebaseCredentialsPath = builder.Configuration["Firebase:ServiceAccountKeyPath"];
+    if (string.IsNullOrEmpty(firebaseCredentialsPath))
+    {
+        throw new InvalidOperationException("Firebase credentials path is not configured. Please set the 'Firebase:CredentialsPath' configuration value.");
+    }
+
+    FirebaseApp.Create(new AppOptions
+    {
+        Credential = GoogleCredential.FromFile(firebaseCredentialsPath),
+    });
+}
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -101,7 +116,12 @@ builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<FirebaseStorageService>();
+builder.Services.AddScoped(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+    var webHostEnvironment = provider.GetRequiredService<IWebHostEnvironment>();
+    return new FirebaseStorageService(configuration, webHostEnvironment);
+});
 builder.Services.AddSingleton(provider =>
 {
     var firebaseDatabaseUrl = builder.Configuration["Firebase:DatabaseUrl"];

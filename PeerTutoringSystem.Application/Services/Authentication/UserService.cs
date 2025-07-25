@@ -1,4 +1,6 @@
-﻿using PeerTutoringSystem.Application.DTOs.Authentication;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
+using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using System.ComponentModel.DataAnnotations;
@@ -9,11 +11,16 @@ namespace PeerTutoringSystem.Application.Services.Authentication
     {
         private readonly IUserRepository _userRepository;
         private readonly FirebaseStorageService _firebaseStorageService;
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public UserService(IUserRepository userRepository, FirebaseStorageService firebaseStorageService)
+
+        public UserService(IUserRepository userRepository, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             _userRepository = userRepository;
-            _firebaseStorageService = firebaseStorageService;
+            _configuration = configuration;
+            _webHostEnvironment = webHostEnvironment;
+            _firebaseStorageService = new FirebaseStorageService(_configuration, _webHostEnvironment);
         }
 
         public async Task<UserDto> GetUserByIdAsync(Guid userId)

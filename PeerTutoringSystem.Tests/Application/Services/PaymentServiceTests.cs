@@ -3,44 +3,66 @@ using Moq;
 using PeerTutoringSystem.Application.Services.Payment;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
+using PeerTutoringSystem.Domain.Interfaces.Booking;
+using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using PeerTutoringSystem.Application.Services.Booking;
+using Microsoft.Extensions.Logging;
 
 namespace PeerTutoringSystem.Tests.Application.Services
 {
-  public class PaymentServiceTests
-  {
-    private Mock<IConfiguration> _mockConfiguration;
-    private Mock<IPaymentRepository> _mockPaymentRepository;
-    private Mock<HttpMessageHandler> _mockHttpMessageHandler; 
-    private HttpClient _httpClient;
-    private PaymentService _paymentService;
+    public class PaymentServiceTests
+    {
+        private Mock<IConfiguration> _mockConfiguration;
+        private Mock<IPaymentRepository> _mockPaymentRepository;
+        private Mock<IBookingSessionRepository> _mockBookingRepository;
+        private Mock<IUserBioRepository> _mockUserBioRepository;
+        private Mock<ISessionRepository> _mockSessionRepository;
+        private Mock<IHttpClientFactory> _mockHttpClientFactory;
+        private Mock<HttpMessageHandler> _mockHttpMessageHandler;
+        private HttpClient _httpClient;
+        private PaymentService _paymentService;
 
-   [SetUp]
-   public void Setup()
-   {
-       _mockConfiguration = new Mock<IConfiguration>();
-       _mockPaymentRepository = new Mock<IPaymentRepository>();
-       _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        [SetUp]
+        public void Setup()
+        {
+            _mockConfiguration = new Mock<IConfiguration>();
+            _mockPaymentRepository = new Mock<IPaymentRepository>();
+            _mockBookingRepository = new Mock<IBookingSessionRepository>();
+            _mockUserBioRepository = new Mock<IUserBioRepository>();
+            _mockSessionRepository = new Mock<ISessionRepository>();
+            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
 
-       var inMemorySettings = new Dictionary<string, string> {
-           {"SePay:BaseUrl", "http://test-sepay.com"},
-       };
-       IConfiguration configuration = new ConfigurationBuilder()
-           .AddInMemoryCollection(inMemorySettings)
-           .Build();
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                { "SePay:BaseUrl", "http://test-sepay.com" },
+            };
+            IConfiguration configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
 
-       _mockConfiguration.Setup(c => c["SePay:BaseUrl"]).Returns("http://test-sepay.com");
+            _mockConfiguration.Setup(c => c["SePay:BaseUrl"]).Returns("http://test-sepay.com");
 
-       _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
-       {
-           BaseAddress = new Uri("http://test-sepay.com")
-       };
+            _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
+            {
+                BaseAddress = new Uri("http://test-sepay.com")
+            };
 
-       _paymentService = new PaymentService(_httpClient, _mockConfiguration.Object, _mockPaymentRepository.Object);
-   }
+            _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(_httpClient);
+
+            _paymentService = new PaymentService(
+                _mockHttpClientFactory.Object,
+                _mockConfiguration.Object,
+                _mockPaymentRepository.Object,
+                _mockBookingRepository.Object,
+                _mockUserBioRepository.Object,
+                _mockSessionRepository.Object
+            );
+        }
 
     private SePayWebhookData CreateWebhookData(long id, string transferType, decimal amount = 10000)
     {

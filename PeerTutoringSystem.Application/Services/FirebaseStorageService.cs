@@ -2,6 +2,7 @@ using Firebase.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.AspNetCore.Hosting;
 
 namespace PeerTutoringSystem.Application.Services
 {
@@ -9,16 +10,17 @@ namespace PeerTutoringSystem.Application.Services
     {
         private readonly FirebaseStorage _firebaseStorage;
         private readonly string _bucketName;
-
-        public FirebaseStorageService(IConfiguration configuration)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public FirebaseStorageService(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
+            _webHostEnvironment = webHostEnvironment;
             _bucketName = configuration["Firebase:BucketName"];
             if (string.IsNullOrEmpty(_bucketName))
             {
                 throw new ArgumentNullException(nameof(_bucketName), "Firebase BucketName is not configured.");
             }
 
-            var serviceAccountKeyPath = configuration["Firebase:ServiceAccountKeyPath"];
+            var serviceAccountKeyPath = Path.Combine(_webHostEnvironment.ContentRootPath, configuration["Firebase:ServiceAccountKeyPath"]);
             if (string.IsNullOrEmpty(serviceAccountKeyPath))
             {
                 throw new ArgumentNullException(nameof(serviceAccountKeyPath), "Firebase ServiceAccountKeyPath is not configured.");

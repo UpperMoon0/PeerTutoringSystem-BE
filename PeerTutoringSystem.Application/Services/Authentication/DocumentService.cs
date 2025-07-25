@@ -1,20 +1,24 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Services.Authentication
 {
     public class DocumentService : IDocumentService
     {
         private readonly FirebaseStorageService _firebaseStorageService;
+        private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public DocumentService(FirebaseStorageService firebaseStorageService)
+
+        public DocumentService(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
-            _firebaseStorageService = firebaseStorageService;
+            _configuration = configuration;
+            _webHostEnvironment = webHostEnvironment;
+            _firebaseStorageService = new FirebaseStorageService(_configuration, _webHostEnvironment);
         }
 
         public async Task<DocumentResponseDto> UploadDocumentAsync(IFormFile file)

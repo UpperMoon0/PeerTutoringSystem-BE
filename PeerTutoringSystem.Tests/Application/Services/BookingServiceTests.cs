@@ -1,19 +1,15 @@
 ﻿using Moq;
-using NUnit.Framework;
 using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Application.Services.Booking;
-using PeerTutoringSystem.Domain.Entities.Authentication;
 using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Domain.Interfaces.Skills;
+using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
+using Microsoft.Extensions.Logging;
 
 namespace PeerTutoringSystem.Tests.Application.Services
 {
@@ -25,6 +21,8 @@ namespace PeerTutoringSystem.Tests.Application.Services
         private Mock<IUserService> _mockUserService;
         private Mock<ISkillRepository> _mockSkillRepository;
         private Mock<ITutorAvailabilityService> _mockTutorAvailabilityService;
+        private Mock<IUserBioRepository> _mockUserBioRepository;
+        private Mock<ILogger<BookingService>> _mockLogger;
         private BookingService _bookingService;
 
         private Guid _studentId = Guid.NewGuid();
@@ -39,14 +37,18 @@ namespace PeerTutoringSystem.Tests.Application.Services
             _mockAvailabilityRepository = new Mock<ITutorAvailabilityRepository>();
             _mockUserService = new Mock<IUserService>();
             _mockSkillRepository = new Mock<ISkillRepository>();
-           _mockTutorAvailabilityService = new Mock<ITutorAvailabilityService>();
+            _mockTutorAvailabilityService = new Mock<ITutorAvailabilityService>();
+            _mockUserBioRepository = new Mock<IUserBioRepository>();
+            _mockLogger = new Mock<ILogger<BookingService>>();
 
-           _bookingService = new BookingService(
+            _bookingService = new BookingService(
                 _mockBookingRepository.Object,
                 _mockAvailabilityRepository.Object,
                 _mockTutorAvailabilityService.Object,
                 _mockUserService.Object,
-                _mockSkillRepository.Object);
+                _mockSkillRepository.Object,
+                _mockUserBioRepository.Object,
+                _mockLogger.Object);
         }
 
         [Test]

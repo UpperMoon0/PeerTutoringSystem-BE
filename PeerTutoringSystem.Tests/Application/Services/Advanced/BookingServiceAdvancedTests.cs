@@ -1,16 +1,14 @@
 ﻿using Moq;
-using NUnit.Framework;
 using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Application.Services.Booking;
 using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using PeerTutoringSystem.Domain.Interfaces.Skills; 
+using PeerTutoringSystem.Domain.Interfaces.Skills;
+using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
+using Microsoft.Extensions.Logging;
 
 namespace PeerTutoringSystem.Tests.Application.Services.Advanced
 {
@@ -53,7 +51,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
 
             // Assert
             fixture.MockAvailabilityRepository.Verify(
-                r => r.UpdateAsync(It.Is<TutorAvailability>(a => a.IsBooked == false)),
+                r => r.UpdateAsync(It.Is<TutorAvailability>(a => !a.IsBooked)),
                 Times.Once);
         }
 
@@ -181,8 +179,10 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
             public Mock<IBookingSessionRepository> MockBookingRepository { get; }
             public Mock<ITutorAvailabilityRepository> MockAvailabilityRepository { get; }
             public Mock<IUserService> MockUserService { get; }
-            public Mock<ISkillRepository> MockSkillRepository { get; } // Added MockSkillRepository property
-           public Mock<ITutorAvailabilityService> MockTutorAvailabilityService { get; }
+            public Mock<ISkillRepository> MockSkillRepository { get; }
+            public Mock<ITutorAvailabilityService> MockTutorAvailabilityService { get; }
+            public Mock<IUserBioRepository> MockUserBioRepository { get; }
+            public Mock<ILogger<BookingService>> MockLogger { get; }
             public BookingService BookingService { get; }
 
             public BookingServiceTestFixture()
@@ -190,15 +190,19 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
                 MockBookingRepository = new Mock<IBookingSessionRepository>();
                 MockAvailabilityRepository = new Mock<ITutorAvailabilityRepository>();
                 MockUserService = new Mock<IUserService>();
-                MockSkillRepository = new Mock<ISkillRepository>(); // Initialize MockSkillRepository
+                MockSkillRepository = new Mock<ISkillRepository>();
                 MockTutorAvailabilityService = new Mock<ITutorAvailabilityService>();
+                MockUserBioRepository = new Mock<IUserBioRepository>();
+                MockLogger = new Mock<ILogger<BookingService>>();
 
                 BookingService = new BookingService(
                     MockBookingRepository.Object,
                     MockAvailabilityRepository.Object,
-                   MockTutorAvailabilityService.Object,
+                    MockTutorAvailabilityService.Object,
                     MockUserService.Object,
-                    MockSkillRepository.Object); // Pass MockSkillRepository.Object
+                    MockSkillRepository.Object,
+                    MockUserBioRepository.Object,
+                    MockLogger.Object);
             }
         }
     }

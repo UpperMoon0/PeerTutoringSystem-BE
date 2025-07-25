@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="firebase-adminsdk.json">
+    <Content Update="serviceAccountKey.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
