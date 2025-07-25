@@ -23,18 +23,22 @@ namespace PeerTutoringSystem.Application.Services
                 throw new ArgumentNullException(nameof(_bucketName), "Firebase BucketName is not configured.");
             }
 
-            var privateKey = configuration["Firebase:PrivateKey"];
-            if (string.IsNullOrEmpty(privateKey))
+            var serviceAccountKeyPath = configuration["Firebase:ServiceAccountKeyPath"];
+            if (string.IsNullOrEmpty(serviceAccountKeyPath))
             {
-                throw new ArgumentNullException(nameof(privateKey), "Firebase PrivateKey is not configured.");
+                throw new ArgumentNullException(nameof(serviceAccountKeyPath), "Firebase ServiceAccountKeyPath is not configured.");
             }
-            privateKey = privateKey.Replace("\\n", "\n");
 
-            var authEmail = configuration["Firebase:AuthEmail"];
-            if (string.IsNullOrEmpty(authEmail))
+            if (!File.Exists(serviceAccountKeyPath))
             {
-                throw new ArgumentNullException(nameof(authEmail), "Firebase AuthEmail is not configured.");
+                throw new FileNotFoundException("Firebase service account key file not found.", serviceAccountKeyPath);
             }
+
+            var credential = GoogleCredential.FromFile(serviceAccountKeyPath).CreateScoped(new[]
+            {
+                "https://www.googleapis.com/auth/firebase.storage"
+            });
+
 
             _firebaseStorage = new FirebaseStorage(
                 _bucketName,
@@ -42,13 +46,7 @@ namespace PeerTutoringSystem.Application.Services
                 {
                     AuthTokenAsyncFactory = async () =>
                     {
-                        var initializer = new ServiceAccountCredential.Initializer(authEmail)
-                        {
-                            Scopes = new[] { "https://www.googleapis.com/auth/firebase.storage" }
-                        }.FromPrivateKey(privateKey);
-                        var credential = new ServiceAccountCredential(initializer);
-                        var token = await credential.GetAccessTokenForRequestAsync();
-                        return token;
+                        return await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
                     },
                     ThrowOnCancel = true
                 });
