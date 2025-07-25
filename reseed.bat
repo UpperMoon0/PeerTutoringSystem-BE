@@ -20,6 +20,11 @@ if not exist %SEED_SCRIPT_PATH% (
     goto :eof
 )
 
+REM Clear caches
+echo Clearing SQL Server caches...
+sqlcmd -U %DB_USER% -P %DB_PASSWORD% -Q "DBCC DROPCLEANBUFFERS;" -C -N
+sqlcmd -U %DB_USER% -P %DB_PASSWORD% -Q "DBCC FREEPROCCACHE;" -C -N
+
 REM Execute scripts
 echo Executing initialization script: %INIT_SCRIPT%
 sqlcmd -U %DB_USER% -P %DB_PASSWORD% -i %INIT_SCRIPT_PATH% -C -N
