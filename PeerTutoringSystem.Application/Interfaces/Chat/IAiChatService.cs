@@ -5,6 +5,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Chat
 {
     public interface IAiChatService
     {
-        Task<ChatMessage> GetAiResponse(string userMessage);
+        Task<ChatMessage> GenerateResponseAsync(string userMessage);
     }
 }
