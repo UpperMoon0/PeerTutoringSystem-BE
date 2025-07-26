@@ -2,8 +2,6 @@
 using PeerTutoringSystem.Domain.Entities.Profile_Bio;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Infrastructure.Data;
-using System;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio
 {
@@ -38,7 +36,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Profile_Bio
 
         public async Task UpdateAsync(UserBio userBio)
         {
-            _context.UserBio.Update(userBio); 
+            _context.UserBio.Update(userBio);
             await _context.SaveChangesAsync();
         }
     }
