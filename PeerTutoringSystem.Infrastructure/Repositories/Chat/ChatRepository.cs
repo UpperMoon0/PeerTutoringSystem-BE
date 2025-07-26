@@ -18,13 +18,13 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Chat
 
         public async Task<ChatMessage> SendMessageAsync(ChatMessage message)
         {
-            if (message.Id == Guid.Empty)
+            if (message.MessageId == Guid.Empty)
             {
-                message.Id = Guid.NewGuid();
+                message.MessageId = Guid.NewGuid();
             }
             await _firebaseClient
                 .Child("chats")
-                .Child(message.Id.ToString())
+                .Child(message.MessageId.ToString())
                 .PutAsync(message);
             return message;
         }

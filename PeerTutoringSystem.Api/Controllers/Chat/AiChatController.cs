@@ -1,9 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Application.Interfaces.Chat;
+using PeerTutoringSystem.Domain.Entities.Chat;
 using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Api.Controllers.Chat
 {
+    public class AiChatRequest
+    {
+        public string Message { get; set; }
+    }
+
     [ApiController]
     [Route("api/chat")]
     public class AiChatController : ControllerBase
@@ -16,9 +22,13 @@ namespace PeerTutoringSystem.Api.Controllers.Chat
         }
 
         [HttpPost("ai-response")]
-        public async Task<IActionResult> GetAiResponse([FromBody] string userMessage)
+        public async Task<IActionResult> GetAiResponse([FromBody] AiChatRequest request)
         {
-            var response = await _aiChatService.GetAiResponse(userMessage);
+            if (request == null || string.IsNullOrEmpty(request.Message))
+            {
+                return BadRequest("Message cannot be empty.");
+            }
+            var response = await _aiChatService.GetAiResponse(request.Message);
             return Ok(response);
         }
     }
