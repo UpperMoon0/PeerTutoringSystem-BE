@@ -39,17 +39,15 @@ namespace PeerTutoringSystem.Tests.Application.Services
 
             var inMemorySettings = new Dictionary<string, string>
             {
-                { "SePay:BaseUrl", "http://test-sepay.com" },
             };
             IConfiguration configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
                 .Build();
 
-            _mockConfiguration.Setup(c => c["SePay:BaseUrl"]).Returns("http://test-sepay.com");
 
             _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
             {
-                BaseAddress = new Uri("http://test-sepay.com")
+                BaseAddress = new Uri("http://test-vnpay.com")
             };
 
             _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(_httpClient);
