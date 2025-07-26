@@ -39,25 +39,6 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 
 var builder = WebApplication.CreateBuilder(args);
-DotNetEnv.Env.Load();
-builder.Configuration.AddEnvironmentVariables();
-
-// Initialize Firebase Admin SDK
-if (FirebaseApp.DefaultInstance == null)
-{
-    var firebaseCredentialsPath = builder.Configuration["Firebase:ServiceAccountKeyPath"];
-    if (string.IsNullOrEmpty(firebaseCredentialsPath))
-    {
-        throw new InvalidOperationException("Firebase credentials path is not configured. Please set the 'Firebase:CredentialsPath' configuration value.");
-    }
-
-    FirebaseApp.Create(new AppOptions
-    {
-        Credential = GoogleCredential.FromFile(firebaseCredentialsPath),
-    });
-}
-
-
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
@@ -65,7 +46,7 @@ builder.Services.AddSignalR();
 
 // Configure DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection"))
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
 // Configure JWT Authentication
