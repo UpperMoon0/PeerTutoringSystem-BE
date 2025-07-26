@@ -74,10 +74,10 @@ Follow these steps to set up the project locally:
 
 3. **Set up the database**:
    - Ensure SQL Server is running.
-   - Update the connection string in `PeerTutoringSystem.Api/appsettings.json`:
+   - Update the connection string in `PeerTutoringSystem.Api/appsettings.json`. The default configuration uses SQL Server authentication.
      ```json
      "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost;Database=PeerTutoringSystem;Trusted_Connection=True;"
+       "DefaultConnection": "Server=localhost,1433;Database=PeerTutoringSystem;User ID=sa;Password=YOUR_STRONG_PASSWORD;MultipleActiveResultSets=false;TrustServerCertificate=True"
      }
      ```
    - Run migrations to create the database and tables, including the new `IsDailyRecurring` column:
@@ -92,36 +92,29 @@ Follow these steps to set up the project locally:
    - **Obtain Firebase Service Account Credentials**:
      1.  Go to the [Firebase Console](https://console.firebase.google.com/) and select your project.
      2.  Navigate to **Project settings** (gear icon) > **Service accounts** tab.
-     3.  Click **Generate new private key** and then **Generate key** to download a JSON file (e.g., `your-project-name-firebase-adminsdk-xxxx.json`).
-     4.  Open this JSON file with a text editor.
-     5.  Copy the value of the `client_email` field for `AuthEmail`.
-     6.  Copy the entire string value of the `private_key` field (including `-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n`) for `PrivateKey`.
-   - **Obtain Firebase Storage Bucket Name**:
-     1.  In the Firebase Console, navigate to **Storage** (under the "Build" section).
-     2.  Your default storage bucket name will be displayed (e.g., `your-project-id.appspot.com` or `your-project-id.firebasestorage.app`). Copy this name.
-   - **Update `appsettings.json`**:
-     - Add a `Firebase` section to your `PeerTutoringSystem.Api/appsettings.json` (or `appsettings.Development.json` for local development) with the obtained values:
+     3.  Click **Generate new private key** and then **Generate key** to download a JSON file.
+   - **Configure `appsettings.json`**:
+     - Rename the downloaded JSON file to `serviceAccountKey.json` and place it in the `PeerTutoringSystem.Api/` directory.
+     - Update the `Firebase` section in your `PeerTutoringSystem.Api/appsettings.json` to point to this file:
      ```json
      "Firebase": {
-       "AuthEmail": "your-service-account-email@your-project-id.iam.gserviceaccount.com",
-       "PrivateKey": "-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_CONTENT_HERE\n-----END PRIVATE KEY-----\n",
-       "BucketName": "your-firebase-storage-bucket-name.appspot.com",
-       "DatabaseUrl": "https://your-project-id-default-rtdb.firebaseio.com/"
+       "ServiceAccountKeyPath": "serviceAccountKey.json"
      }
-     - **`DatabaseUrl`**: The URL of your Firebase Realtime Database. You can find this in the Firebase Console under **Project settings** > **Project settings** > **General** tab, usually in the format `https://your-project-id-default-rtdb.firebaseio.com/`.
      ```
-     - **Important**: Ensure the `PrivateKey` value is copied exactly as it appears in the JSON file, including all `\n` newline characters.
+     - **Important**: Ensure the `serviceAccountKey.json` file is included in your project and its "Copy to Output Directory" property is set to "Copy if newer" or "Copy always".
 
 5. **Configure JWT settings**:
-   - In `appsettings.json`, ensure the JWT settings are configured:
+   - In `appsettings.json`, ensure the JWT settings are configured. Replace placeholder values with your own secure settings.
      ```json
      "Jwt": {
-       "Key": "your-secure-jwt-key-here",
+       "Key": "your-super-secret-and-long-jwt-key-here",
        "Issuer": "PeerTutoringSystem",
-       "Audience": "PeerTutoringSystem"
+       "Audience": "PeerTutoringSystem",
+       "ExpiryInMinutes": 60,
+       "RefreshTokenExpiryInDays": "7"
      }
      ```
-   - Replace `"your-secure-jwt-key-here"` with a strong secret key (at least 32 characters long).
+   - The `Key` should be a strong, randomly generated secret key.
 
 ## Configuration
 - **Document Storage**:
@@ -147,9 +140,25 @@ Follow these steps to set up the project locally:
     });
     ```
 
+
 - **Time Zone Handling**:
   - All date and time values (`StartTime`, `EndTime`, `CreatedAt`, etc.) are stored and processed in **UTC** to ensure consistency.
   - For future extensibility, consider adding a `TimeZone` field to `TutorAvailabilities` or `Users` and using `TimeZoneInfo` for conversions.
+
+- **Environment Variables**:
+  - The project uses a `.env` file to manage environment-specific variables.
+  - A `.env.template` file is provided in `PeerTutoringSystem.Api/`.
+  - To create your own `.env` file, copy the template:
+    ```bash
+    cp PeerTutoringSystem.Api/.env.template PeerTutoringSystem.Api/.env
+    ```
+  - Then, fill in the required values in the `.env` file.
+  - The following variables are available:
+    - `Firebase__DatabaseURL`: The URL of your Firebase Realtime Database.
+    - `Firebase__BucketName`: Your Firebase Storage bucket name.
+    - `VietQR__ClientId`: Your Client ID for the VietQR API.
+    - `VietQR__ApiKey`: Your API Key for the VietQR API.
+    - `GEMINI_API_KEY`: Your API key for the Gemini AI service.
 
 ## Running the Application
 1. **Build the solution**:
@@ -169,88 +178,7 @@ Follow these steps to set up the project locally:
 
 ## API Endpoints
 
-### Authentication & Authorization
-| Method | Endpoint                     | Description                       | Authorization         |
-|--------|------------------------------|-----------------------------------|-----------------------|
-| POST   | `/api/auth/register`         | Register a new user (Student)     | Public                |
-| POST   | `/api/auth/login`            | Login with email and password     | Public                |
-| POST   | `/api/auth/login/google`     | Login with Google ID token        | Public                |
-| POST   | `/api/auth/login/microsoft`  | Login with Microsoft ID token     | Public                |
-| POST   | `/api/auth/refresh`          | Refresh access token              | Public                |
-| POST   | `/api/auth/logout`           | Logout and invalidate token       | Authenticated (JWT)   |
-
-### Users
-| Method | Endpoint                     | Description                       | Authorization         |
-|--------|------------------------------|-----------------------------------|-----------------------|
-| GET    | `/api/users/{userId}`        | Get user by ID                    | Self or Admin         |
-| PUT    | `/api/users/{userId}`        | Update user information           | Self or Admin         |
-| DELETE | `/api/users/{userId}`        | Deactivate a user account         | Admin only            |
-| POST   | `/api/users/{userId}/request-tutor` | Request to become a Tutor  | Student only          |
-
-### Tutor Verifications
-| Method | Endpoint                     | Description                       | Authorization         |
-|--------|------------------------------|-----------------------------------|-----------------------|
-| GET    | `/api/tutor-verifications`   | Get all tutor verification requests | Admin only          |
-| GET    | `/api/tutor-verifications/{verificationId}` | Get a specific verification request | Admin or Tutor |
-| PUT    | `/api/tutor-verifications/{verificationId}` | Update verification status | Admin only          |
-
-### Documents
-| Method | Endpoint                     | Description                       | Authorization         |
-|--------|------------------------------|-----------------------------------|-----------------------|
-| POST   | `/api/documents/upload`      | Upload a document (PDF/Word)      | Student only          |
-| GET    | `/api/documents/{documentId}`| Download a document               | Admin or Tutor        |
-
-### Profiles
-| Method | Endpoint                     | Description                       | Authorization         |
-|--------|------------------------------|-----------------------------------|-----------------------|
-| POST   | `/api/profiles`              | Create a tutor profile            | Tutor only            |
-| GET    | `/api/profiles/{profileId}`  | Get a tutor profile by ID         | Public                |
-| GET    | `/api/profiles/user/{userId}`| Get a tutor profile by user ID    | Authenticated (JWT)   |
-| PUT    | `/api/profiles/{profileId}`  | Update a tutor profile            | Self or Admin         |
-
-### Tutor Availabilities
-| Method | Endpoint                     | Description                       | Authorization         |
-|--------|------------------------------|-----------------------------------|-----------------------|
-| POST   | `/api/tutor-availability`    | Add a tutor availability slot     | Tutor only            |
-| GET    | `/api/tutor-availability/tutor/{tutorId}` | Get availability slots for a tutor | Tutor, Admin, Student |
-| GET    | `/api/tutor-availability/available?tutorId={tutorId}&startDate={date}&endDate={date}` | Get available slots for booking | Public                |
-| DELETE | `/api/tutor-availability/{availabilityId}` | Delete an availability slot | Tutor only            |
-
-**Notes**:
-- The `/api/tutor-availability/tutor/{tutorId}` endpoint restricts Tutors to viewing only their own slots unless the user is an Admin.
-- Supports both **weekly recurring** (`IsRecurring`) and **daily recurring** (`IsDailyRecurring`) availability slots.
-- All times are handled in **UTC**. Future updates may include user-specific time zone support.
-
-### Bookings
-| Method | Endpoint                     | Description                       | Authorization         |
-|--------|------------------------------|-----------------------------------|-----------------------|
-| POST   | `/api/bookings`              | Create a booking for a slot        | Student only          |
-| POST   | `/api/bookings/instant`      | Create an instant booking         | Student only          |
-| GET    | `/api/bookings/{bookingId}`  | Get a booking by ID               | Student, Tutor, Admin |
-| GET    | `/api/bookings/student`      | Get bookings for a student        | Student only          |
-| GET    | `/api/bookings/tutor`        | Get bookings for a tutor          | Tutor only            |
-| GET    | `/api/bookings/upcoming`     | Get upcoming bookings             | Student, Tutor        |
-| PUT    | `/api/bookings/{bookingId}/status` | Update booking status       | Student, Tutor, Admin |
-
-**Notes**:
-- Bookings require a valid `SkillId` (checked against the `Skills` table).
-- Status transitions are validated (e.g., `Pending` to `Confirmed` or `Cancelled`, but not from `Cancelled` to `Completed`).
-- Only Students can cancel bookings, while Tutors can confirm or mark as completed.
-
-#### Additional Notes:
-- **Document Upload**:
-  - Documents must be in PDF or Word format (`.pdf`, `.doc`, `.docx`).
-  - Maximum file size: 5MB.
-  - Use `/api/documents/upload` to upload documents first, then include the returned `DocumentPath` in the `/api/users/{userId}/request-tutor` request.
-
-- **Access Control**:
-  - Documents are accessible only to Admins and the Tutor who submitted the verification request.
-  - Use the `/api/documents/{documentId}` endpoint to download documents securely.
-
-- **Profile Management**:
-  - Only Tutors can create and update their profiles.
-  - Profiles include `Bio`, `Experience`, `HourlyRate`, `Availability`, and optionally `School` (if available in the user’s record).
-  - The avatar is managed via the `/api/users/{userId}` endpoint (`AvatarUrl` field).
+For detailed information about the API endpoints, please refer to the Swagger UI documentation, which is available at `/swagger` when the application is running in development mode.
 
 ## Usage
 1. **Register a new user**:
