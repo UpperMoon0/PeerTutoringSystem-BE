@@ -41,7 +41,7 @@ PeerTutoringSystem
 │   ├── Controllers/                # API controllers (Auth, Users, TutorVerifications, Documents, Profiles, Bookings)
 │   ├── Middleware/                 # Custom middleware (e.g., AuthorizeAdmin)
 │   ├── wwwroot/documents/          # Folder for storing uploaded documents
-│   ├── appsettings.json            # Configuration file
+│   ├── .env                        # Environment variables file
 │   ├── Program.cs                  # Application entry point
 │   └── serviceAccountKey.json      # Firebase service account key
 ├── PeerTutoringSystem.Application
@@ -74,11 +74,9 @@ Follow these steps to set up the project locally:
 
 3. **Set up the database**:
    - Ensure SQL Server is running.
-   - Update the connection string in `PeerTutoringSystem.Api/appsettings.json`. The default configuration uses SQL Server authentication.
-     ```json
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=localhost,1433;Database=PeerTutoringSystem;User ID=sa;Password=YOUR_STRONG_PASSWORD;MultipleActiveResultSets=false;TrustServerCertificate=True"
-     }
+   - Update the connection string in `PeerTutoringSystem.Api/.env`.
+     ```
+     ConnectionStrings__DefaultConnection="Server=localhost,1433;Database=PeerTutoringSystem;User ID=sa;Password=YOUR_STRONG_PASSWORD;MultipleActiveResultSets=false;TrustServerCertificate=True"
      ```
    - Run migrations to create the database and tables, including the new `IsDailyRecurring` column:
      ```bash
@@ -159,6 +157,7 @@ Follow these steps to set up the project locally:
     - `VietQR__ClientId`: Your Client ID for the VietQR API.
     - `VietQR__ApiKey`: Your API Key for the VietQR API.
     - `GEMINI_API_KEY`: Your API key for the Gemini AI service.
+    - `ConnectionStrings__DefaultConnection`: The connection string for your SQL Server database.
 
 ## Running the Application
 1. **Build the solution**:
