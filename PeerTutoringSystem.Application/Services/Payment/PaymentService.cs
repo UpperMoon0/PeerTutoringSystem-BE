@@ -65,34 +65,25 @@ namespace PeerTutoringSystem.Application.Services.Payment
                // Generate QR Code
                var encodedDescription = HttpUtility.UrlEncode(description);
                var qrCodePayload = $"https://img.vietqr.io/image/{bankBin}-{accountNumber}-{template}.png?amount={amount}&addInfo={encodedDescription}&accountName={accountName}";
-               using (var qrGenerator = new QRCoder.QRCodeGenerator())
-               {
-                   var qrCodeData = qrGenerator.CreateQrCode(qrCodePayload, QRCoder.QRCodeGenerator.ECCLevel.Q);
-                    using (var qrCode = new QRCoder.PngByteQRCode(qrCodeData))
-                    {
-                        var qrCodeImage = qrCode.GetGraphic(20);
-                        var qrCodeBase64 = Convert.ToBase64String(qrCodeImage);
-                        
-                        var payment = new PaymentEntity
-                        {
-                            BookingId = request.BookingId,
-                            Amount = amount,
-                            Description = description,
-                            Status = PaymentStatus.Pending,
-                            CreatedAt = DateTime.UtcNow
-                        };
-        
-                        await _paymentRepository.CreatePaymentAsync(payment);
 
-                        return new PaymentResponseDto
-                        {
-                            Success = true,
-                            PaymentId = payment.Id.ToString(),
-                            QrCode = $"data:image/png;base64,{qrCodeBase64}",
-                            Message = "Payment created successfully"
-                        };
-                    }
-                }
+               var payment = new PaymentEntity
+               {
+                   BookingId = request.BookingId,
+                   Amount = amount,
+                   Description = description,
+                   Status = PaymentStatus.Pending,
+                   CreatedAt = DateTime.UtcNow
+               };
+
+               await _paymentRepository.CreatePaymentAsync(payment);
+
+               return new PaymentResponseDto
+               {
+                   Success = true,
+                   PaymentId = payment.Id.ToString(),
+                   QrCode = qrCodePayload,
+                   Message = "Payment created successfully"
+               };
            }
            catch (Exception ex)
            {
