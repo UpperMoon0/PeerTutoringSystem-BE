@@ -38,8 +38,33 @@ using PeerTutoringSystem.Application.Services.Payment;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 
-DotNetEnv.Env.Load();
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "../etc/secrets/.env"));
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Initialize Firebase Admin SDK
+if (FirebaseApp.DefaultInstance == null)
+{
+    var serviceAccountKeyPath = builder.Configuration["Firebase:ServiceAccountKeyPath"];
+    if (string.IsNullOrEmpty(serviceAccountKeyPath))
+    {
+        throw new InvalidOperationException("Firebase:ServiceAccountKeyPath is not set in appsettings.json.");
+    }
+    
+    // Combine with the content root path to get the absolute path
+    var fullPath = Path.Combine(builder.Environment.ContentRootPath, serviceAccountKeyPath);
+
+    if (!File.Exists(fullPath))
+    {
+        throw new FileNotFoundException($"The service account key file was not found at '{fullPath}'. Make sure the file exists and the path is correct.", fullPath);
+    }
+    
+    var credential = GoogleCredential.FromFile(fullPath);
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = credential,
+    });
+}
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
