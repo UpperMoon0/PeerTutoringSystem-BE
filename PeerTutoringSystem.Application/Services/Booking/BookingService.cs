@@ -237,10 +237,6 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 if (IsValidStatusTransition(booking.Status, newStatus))
                 {
                     booking.Status = newStatus;
-                    if (newStatus == BookingStatus.Confirmed)
-                    {
-                        booking.PaymentStatus = PaymentStatus.Paid;
-                    }
                 }
                 else
                 {
