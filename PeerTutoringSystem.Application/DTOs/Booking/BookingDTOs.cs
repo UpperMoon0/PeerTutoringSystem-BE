@@ -54,7 +54,7 @@
     public class UpdateBookingStatusDto
     {
         public string Status { get; set; }
-        public string PaymentStatus { get; set; }
+        public string? PaymentStatus { get; set; }
     }
 
     // DTO cho yêu cầu đặt lịch tức thời

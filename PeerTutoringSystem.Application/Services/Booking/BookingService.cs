@@ -237,16 +237,15 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 if (IsValidStatusTransition(booking.Status, newStatus))
                 {
                     booking.Status = newStatus;
+                    if (newStatus == BookingStatus.Confirmed)
+                    {
+                        booking.PaymentStatus = PaymentStatus.Paid;
+                    }
                 }
                 else
                 {
                     throw new ValidationException($"Invalid status transition from {booking.Status} to {newStatus}.");
                 }
-            }
-
-            if (!string.IsNullOrEmpty(dto.PaymentStatus) && Enum.TryParse<PaymentStatus>(dto.PaymentStatus, true, out var newPaymentStatus))
-            {
-                booking.PaymentStatus = newPaymentStatus;
             }
 
             // Update availability status for Cancelled or Rejected
