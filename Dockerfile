@@ -8,6 +8,7 @@ COPY ["PeerTutoringSystem.Api/PeerTutoringSystem.Api.csproj", "PeerTutoringSyste
 COPY ["PeerTutoringSystem.Application/PeerTutoringSystem.Application.csproj", "PeerTutoringSystem.Application/"]
 COPY ["PeerTutoringSystem.Domain/PeerTutoringSystem.Domain.csproj", "PeerTutoringSystem.Domain/"]
 COPY ["PeerTutoringSystem.Infrastructure/PeerTutoringSystem.Infrastructure.csproj", "PeerTutoringSystem.Infrastructure/"]
+COPY ["PeerTutoringSystem.Tests/PeerTutoringSystem.Tests.csproj", "PeerTutoringSystem.Tests/"]
 RUN dotnet restore "PeerTutoringSystem.sln"
 
 # Copy the rest of the source code
