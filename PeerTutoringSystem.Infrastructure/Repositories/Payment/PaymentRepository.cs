@@ -59,5 +59,9 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Payment
             await _dbContext.SaveChangesAsync();
             return payment;
         }
+        public async Task<IEnumerable<PaymentEntity>> GetAllAsync()
+        {
+            return await _dbContext.Payments.ToListAsync();
+        }
     }
 }

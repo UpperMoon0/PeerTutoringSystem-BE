@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Application.DTOs.Payment;
 using PeerTutoringSystem.Application.Interfaces.Payment;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PeerTutoringSystem.Api.Controllers.Payment
 {
@@ -52,6 +53,14 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
                 return Ok(new { message = "Payment confirmed successfully." });
             }
             return BadRequest(new { message = "Payment confirmation failed." });
+        }
+
+        [HttpGet("admin/finance-details")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAdminFinanceDetails()
+        {
+            var result = await _paymentService.GetAdminFinanceDetails();
+            return Ok(result);
         }
     }
 }

@@ -3,7 +3,7 @@ setlocal
 
 REM Configuration
 set DB_USER=sa
-set DB_PASSWORD=Password123!
+set DB_PASSWORD=12345
 set SCRIPT_DIR=%~dp0
 set INIT_SCRIPT=Init.sql
 set SEED_SCRIPT=SeedData.sql

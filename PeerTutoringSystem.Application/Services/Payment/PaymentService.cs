@@ -6,6 +6,8 @@ using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
+using PeerTutoringSystem.Application.DTOs.Payment;
+using System.Linq;
 
 namespace PeerTutoringSystem.Application.Services.Payment
 {
@@ -245,6 +247,47 @@ namespace PeerTutoringSystem.Application.Services.Payment
             }
 
             return true;
+        }
+        public async Task<AdminFinanceDto> GetAdminFinanceDetails()
+        {
+            var payments = await _paymentRepository.GetAllAsync();
+            var successfulPayments = payments.Where(p => p.Status == PaymentStatus.Success).ToList();
+
+            var totalRevenue = successfulPayments.Sum(p => (double)p.Amount);
+            var totalTransactions = successfulPayments.Count;
+            var averageTransactionValue = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
+
+            var monthlyRevenue = successfulPayments
+                .GroupBy(p => new { p.CreatedAt.Year, p.CreatedAt.Month })
+                .Select(g => new MonthlyRevenueDto
+                {
+                    Month = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"),
+                    Revenue = g.Sum(p => (double)p.Amount)
+                })
+                .OrderBy(m => m.Month)
+                .ToList();
+
+            var recentTransactions = successfulPayments
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(10)
+                .Select(p => new RecentTransactionDto
+                {
+                    TransactionId = p.TransactionId,
+                    TransactionDate = p.CreatedAt,
+                    Amount = (double)p.Amount,
+                    Status = p.Status.ToString(),
+                    BookingId = p.BookingId
+                })
+                .ToList();
+
+            return new AdminFinanceDto
+            {
+                TotalRevenue = totalRevenue,
+                AverageTransactionValue = averageTransactionValue,
+                TotalTransactions = totalTransactions,
+                MonthlyRevenue = monthlyRevenue,
+                RecentTransactions = recentTransactions
+            };
         }
     }
 }
