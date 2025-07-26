@@ -20,15 +20,11 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
                 user.UserID = Guid.NewGuid();
             }
 
-            // Đảm bảo RoleID hợp lệ trước khi thêm
-            if (user.RoleID != 0) // Kiểm tra RoleID đã được gán
+            if (user.RoleID != 0)
             {
-                var role = await _context.Roles.FindAsync(user.RoleID);
-                if (role == null)
-                {
-                    throw new Exception($"Role with ID {user.RoleID} not found.");
-                }
-                user.Role = role; // Gán đối tượng Role để tránh null
+                var role = new Role { RoleID = user.RoleID };
+                _context.Roles.Attach(role);
+                user.Role = role;
             }
 
             await _context.Users.AddAsync(user);
