@@ -55,7 +55,6 @@ namespace PeerTutoringSystem.Tests.Application.Services
             _mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
             _paymentService = new PaymentService(
-                _mockHttpClientFactory.Object,
                 _mockConfiguration.Object,
                 _mockPaymentRepository.Object,
                 _mockBookingRepository.Object,

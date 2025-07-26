@@ -4,9 +4,9 @@ using PeerTutoringSystem.Domain.Entities.PaymentEntities;
  
  public interface IPaymentService
  {
-     Task<PaymentResponse> CreatePayment(Guid bookingId, string returnUrl);
-     Task ProcessPaymentWebhook(SePayWebhookData webhookData);
+     Task<PaymentResponseDto> CreatePayment(CreatePaymentRequestDto request);
      Task<PaymentStatus> GetPaymentStatus(string paymentId);
      Task<bool> ConfirmPayment(Guid bookingId);
     Task<AdminFinanceDto> GetAdminFinanceDetails();
+    Task ProcessPaymentWebhook(SePayWebhookData webhookData);
  }

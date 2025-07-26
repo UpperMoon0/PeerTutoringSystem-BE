@@ -1,19 +1,15 @@
-﻿using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Application.DTOs.Payment;
-using System.Linq;
+using System.Web;
 
 namespace PeerTutoringSystem.Application.Services.Payment
 {
    public class PaymentService : IPaymentService
    {
-       private readonly IHttpClientFactory _httpClientFactory;
        private readonly IConfiguration _config;
        private readonly IPaymentRepository _paymentRepository;
        private readonly IBookingSessionRepository _bookingRepository;
@@ -21,7 +17,6 @@ namespace PeerTutoringSystem.Application.Services.Payment
        private readonly ISessionRepository _sessionRepository;
 
        public PaymentService(
-           IHttpClientFactory httpClientFactory,
            IConfiguration config,
            IPaymentRepository paymentRepository,
            IBookingSessionRepository bookingRepository,
@@ -34,95 +29,75 @@ namespace PeerTutoringSystem.Application.Services.Payment
            _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
            _userBioRepository = userBioRepository ?? throw new ArgumentNullException(nameof(userBioRepository));
            _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
-           _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
            // _paymentHubContext = paymentHubContext ?? throw new ArgumentNullException(nameof(paymentHubContext));
        }
 
-       public async Task<PaymentResponse> CreatePayment(Guid bookingId, string returnUrl)
+       public async Task<PaymentResponseDto> CreatePayment(CreatePaymentRequestDto request)
        {
            try
            {
-               var booking = await _bookingRepository.GetByIdAsync(bookingId);
+               var booking = await _bookingRepository.GetByIdAsync(request.BookingId);
                if (booking == null)
                {
-                   return new PaymentResponse { Success = false, Message = "Booking not found." };
+                   return new PaymentResponseDto { Success = false, Message = "Booking not found." };
                }
-
+ 
                var tutorBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
                if (tutorBio == null)
                {
-                   return new PaymentResponse { Success = false, Message = "Tutor profile not found." };
+                   return new PaymentResponseDto { Success = false, Message = "Tutor profile not found." };
                }
-
-               var session = await _sessionRepository.GetByBookingIdAsync(bookingId);
+ 
+               var session = await _sessionRepository.GetByBookingIdAsync(request.BookingId);
                if (session == null)
                {
-                   return new PaymentResponse { Success = false, Message = "Session not found." };
+                   return new PaymentResponseDto { Success = false, Message = "Session not found." };
                }
                var durationHours = (session.EndTime - session.StartTime).TotalHours;
                var amount = (decimal)durationHours * tutorBio.HourlyRate;
                var description = $"Payment for booking {booking.BookingId}";
+               
+               var accountName = _config["ACCOUNT_NAME"];
+               var accountNumber = _config["ACCOUNT_NUMBER"];
+               var bankBin = _config["BANK_BIN"];
+               var template = "compact2";
 
-               // Create payment request for SePay
-               var sePayRequest = new
+               // Generate QR Code
+               var encodedDescription = HttpUtility.UrlEncode(description);
+               var qrCodePayload = $"https://img.vietqr.io/image/{bankBin}-{accountNumber}-{template}.png?amount={amount}&addInfo={encodedDescription}&accountName={accountName}";
+               using (var qrGenerator = new QRCoder.QRCodeGenerator())
                {
-                   amount = amount,
-                   description = description,
-                   returnUrl = returnUrl,
-                   // Add any other required parameters
-                   merchantId = _config["SePay:MerchantId"],
-                   currency = "VND"
-               };
+                   var qrCodeData = qrGenerator.CreateQrCode(qrCodePayload, QRCoder.QRCodeGenerator.ECCLevel.Q);
+                    using (var qrCode = new QRCoder.PngByteQRCode(qrCodeData))
+                    {
+                        var qrCodeImage = qrCode.GetGraphic(20);
+                        var qrCodeBase64 = Convert.ToBase64String(qrCodeImage);
+                        
+                        var payment = new PaymentEntity
+                        {
+                            BookingId = request.BookingId,
+                            Amount = amount,
+                            Description = description,
+                            Status = PaymentStatus.Pending,
+                            CreatedAt = DateTime.UtcNow
+                        };
+        
+                        await _paymentRepository.CreatePaymentAsync(payment);
 
-               // Serialize the request
-               var content = new StringContent(
-                   JsonSerializer.Serialize(sePayRequest),
-                   Encoding.UTF8,
-                   "application/json");
-
-               // Send request to SePay API
-               var httpClient = _httpClientFactory.CreateClient();
-               var response = await httpClient.PostAsync(_config["SePay:PaymentEndpoint"], content);
-               response.EnsureSuccessStatusCode();
-
-               // Deserialize the response
-               var sePayResponse = await response.Content.ReadFromJsonAsync<dynamic>();
-
-               if (sePayResponse is null)
-               {
-                   return new PaymentResponse { Success = false, Message = "Failed to get response from payment provider." };
-               }
-
-               // Create local payment record
-               var payment = new PaymentEntity
-               {
-                   BookingId = bookingId,
-                   TransactionId = sePayResponse.transactionId.ToString(),
-                   Amount = amount,
-                   Description = description,
-                   PaymentUrl = sePayResponse.paymentUrl.ToString(),
-                   Status = PaymentStatus.Pending,
-                   CreatedAt = DateTime.UtcNow
-               };
-
-               // Save payment to database
-               await _paymentRepository.CreatePaymentAsync(payment);
-
-               // Return response to client
-               return new PaymentResponse
-               {
-                   Success = true,
-                   PaymentId = payment.Id.ToString(),
-                   PaymentUrl = payment.PaymentUrl,
-                   TransactionId = payment.TransactionId,
-                   Amount = payment.Amount,
-                   Message = "Payment created successfully"
-               };
+                        return new PaymentResponseDto
+                        {
+                            Success = true,
+                            PaymentId = payment.Id.ToString(),
+                            QrCode = $"data:image/png;base64,{qrCodeBase64}",
+                            Message = "Payment created successfully"
+                        };
+                    }
+                }
            }
            catch (Exception ex)
            {
                // Handle exceptions
-               return new PaymentResponse
+               return new PaymentResponseDto
                {
                    Success = false,
                    Message = $"Failed to create payment: {ex.Message}"
@@ -148,74 +123,6 @@ namespace PeerTutoringSystem.Application.Services.Payment
             }
         }
 
-        public async Task ProcessPaymentWebhook(SePayWebhookData webhookData)
-        {
-            try
-            {
-                Console.WriteLine($"Received SePay Webhook: {System.Text.Json.JsonSerializer.Serialize(webhookData)}");
-
-                // Get payment by transaction ID
-                var payment = await _paymentRepository.GetPaymentByTransactionIdAsync(webhookData.Id.ToString());
-
-                if (payment != null)
-                {
-                    Console.WriteLine($"Found payment record for Transaction ID {webhookData.Id}. Current Status: {payment.Status}");
-
-                    // Determine payment status based on webhook data
-                    PaymentStatus newStatus;
-
-                    // Logic to determine payment status from webhookData
-                    // For example, if "transferType" is "in", payment is successful
-                    if (webhookData.TransferType?.ToLower() == "in")
-                    {
-                        newStatus = PaymentStatus.Success;
-                    }
-                    else
-                    {
-                        newStatus = PaymentStatus.Failed;
-                    }
-                    Console.WriteLine($"Determined new status: {newStatus} for Transaction ID {webhookData.Id}");
-
-                    if (payment.Status != newStatus)
-                    {
-                        // Update payment details
-                        payment.Status = newStatus;
-                        payment.UpdatedAt = DateTime.UtcNow;
-
-                        // Save to database
-                        await _paymentRepository.UpdatePaymentAsync(payment);
-                        Console.WriteLine($"Payment status updated to {newStatus} for Transaction ID {webhookData.Id}");
-
-                        // Notify frontend via SignalR
-                        await NotifyPaymentStatusChange(payment.Id, newStatus);
-                        if (newStatus == PaymentStatus.Success)
-                        {
-                            var booking = await _bookingRepository.GetByIdAsync(payment.BookingId);
-                            if (booking != null)
-                            {
-                                booking.PaymentStatus = Domain.Entities.Booking.PaymentStatus.Paid;
-                                await _bookingRepository.UpdateAsync(booking);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Payment status for Transaction ID {webhookData.Id} is already {newStatus}. No update performed.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"No payment record found for Transaction ID {webhookData.Id}. Webhook data: {System.Text.Json.JsonSerializer.Serialize(webhookData)}");
-                    // Consider how to handle webhooks for unknown transaction IDs based on business rules.
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log exception
-                Console.WriteLine($"Error processing payment webhook: {ex.Message}");
-                throw;
-            }
-        }
 
         private async Task NotifyPaymentStatusChange(Guid paymentId, PaymentStatus status)
         {
@@ -288,6 +195,25 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 MonthlyRevenue = monthlyRevenue,
                 RecentTransactions = recentTransactions
             };
+        }
+
+        public async Task ProcessPaymentWebhook(SePayWebhookData webhookData)
+        {
+            if (webhookData?.Content == null)
+            {
+                return;
+            }
+
+            var contentParts = webhookData.Content.Split(',');
+            var bookingIdPart = contentParts.FirstOrDefault(p => p.StartsWith("bookingId:"));
+            if (bookingIdPart != null)
+            {
+                var bookingIdStr = bookingIdPart.Substring("bookingId:".Length);
+                if (Guid.TryParse(bookingIdStr, out var bookingId))
+                {
+                    await ConfirmPayment(bookingId);
+                }
+            }
         }
     }
 }

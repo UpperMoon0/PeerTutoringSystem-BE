@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Application.DTOs.Payment;
-using PeerTutoringSystem.Application.Interfaces.Payment;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using PeerTutoringSystem.Application.Interfaces.Booking;
 
 namespace PeerTutoringSystem.Api.Controllers.Payment
 {
@@ -11,20 +10,22 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-        private readonly IVietQrService _vietQrService;
+        private readonly IBookingService _bookingService;
+        private readonly IConfiguration _configuration;
 
-        public PaymentController(IPaymentService paymentService, IVietQrService vietQrService)
+        public PaymentController(IPaymentService paymentService, IBookingService bookingService, IConfiguration configuration)
         {
             _paymentService = paymentService;
-            _vietQrService = vietQrService;
+            _bookingService = bookingService;
+            _configuration = configuration;
         }
 
         [HttpPost("create-payment")]
-        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentDto request)
+        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequestDto request)
         {
             try
             {
-                var result = await _paymentService.CreatePayment(request.BookingId, request.ReturnUrl);
+                var result = await _paymentService.CreatePayment(request);
                 return Ok(result);
             }
             catch (System.Exception ex)
@@ -34,16 +35,6 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             }
         }
 
-        [HttpPost("generate-qr")]
-        public async Task<IActionResult> GenerateQrCode([FromBody] VietQrRequestDto request)
-        {
-            var result = await _vietQrService.GenerateQrCode(request);
-            if (result?.data?.qrDataURL != null)
-            {
-                return Ok(new { qrDataURL = result.data.qrDataURL });
-            }
-            return BadRequest("Could not generate QR code.");
-        }
         [HttpPost("confirm")]
         public async Task<IActionResult> ConfirmPayment([FromBody] ConfirmPaymentDto request)
         {

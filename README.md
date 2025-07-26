@@ -154,8 +154,6 @@ Follow these steps to set up the project locally:
   - The following variables are available:
     - `Firebase__DatabaseURL`: The URL of your Firebase Realtime Database.
     - `Firebase__BucketName`: Your Firebase Storage bucket name.
-    - `VietQR__ClientId`: Your Client ID for the VietQR API.
-    - `VietQR__ApiKey`: Your API Key for the VietQR API.
     - `GEMINI_API_KEY`: Your API key for the Gemini AI service.
     - `ConnectionStrings__DefaultConnection`: The connection string for your SQL Server database.
 
