@@ -251,105 +251,64 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
             }
         }
 
-        [HttpPut("{bookingId:guid}/status")]
-        [Authorize(Roles = "Student,Tutor,Admin")]
-        public async Task<IActionResult> UpdateBookingStatus(Guid bookingId, [FromBody] UpdateBookingStatusDto dto)
+        [HttpPut("{bookingId:guid}/accept")]
+        [Authorize(Roles = "Tutor")]
+        public async Task<IActionResult> AcceptBooking(Guid bookingId)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Status?.Trim()))
-            {
-                return BadRequest(new { error = "Status is required.", timestamp = DateTime.UtcNow });
-            }
-
             try
             {
-                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var tutorId))
                 {
                     return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
                 }
 
-                var statusString = dto.Status.Trim();
-                if (!Enum.TryParse<BookingStatus>(statusString, true, out var status))
-                {
-                    return BadRequest(new
-                    {
-                        error = $"Invalid booking status. Valid values are: Pending, Confirmed, Completed, Cancelled, Rejected. Example: 'Pending'.",
-                        timestamp = DateTime.UtcNow
-                    });
-                }
-
-                var booking = await _bookingService.GetBookingByIdAsync(bookingId);
-                if (booking == null)
-                {
-                    return NotFound(new { error = "Booking not found.", timestamp = DateTime.UtcNow });
-                }
-
-                // Parse booking.Status (string) to BookingStatus enum
-                if (!Enum.TryParse<BookingStatus>(booking.Status, true, out var currentBookingStatus))
-                {
-                    return BadRequest(new { error = "Invalid current booking status.", timestamp = DateTime.UtcNow });
-                }
-
-                var isAdmin = User.IsInRole("Admin");
-
-                switch (status)
-                {
-                    case BookingStatus.Cancelled:
-                        if (booking.StudentId != userId && !isAdmin)
-                        {
-                            return StatusCode(403, new { error = "Only the student or admin can cancel this booking.", timestamp = DateTime.UtcNow });
-                        }
-                        break;
-
-                    case BookingStatus.Confirmed:
-                    case BookingStatus.Completed:
-                        if (booking.TutorId != userId && !isAdmin)
-                        {
-                            return StatusCode(403, new { error = "Only the assigned tutor or admin can update this booking status.", timestamp = DateTime.UtcNow });
-                        }
-                        break;
-
-                    case BookingStatus.Rejected:
-                        if (booking.TutorId != userId && !isAdmin)
-                        {
-                            return StatusCode(403, new { error = "Only the assigned tutor or admin can reject this booking.", timestamp = DateTime.UtcNow });
-                        }
-                        if (currentBookingStatus != BookingStatus.Pending)
-                        {
-                            return BadRequest(new { error = "Only bookings in Pending status can be rejected.", timestamp = DateTime.UtcNow });
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
-
-                if (currentBookingStatus == status)
-                {
-                    return BadRequest(new { error = "The booking already has this status.", timestamp = DateTime.UtcNow });
-                }
-
-                var updatedBooking = await _bookingService.UpdateBookingStatusAsync(bookingId, dto);
-
+                var updatedBooking = await _bookingService.AcceptBookingAsync(bookingId, tutorId);
                 return Ok(new
                 {
                     data = updatedBooking,
-                    message = "Booking status updated successfully.",
+                    message = "Booking accepted successfully.",
                     timestamp = DateTime.UtcNow
                 });
             }
             catch (ValidationException ex)
             {
-                _logger.LogWarning(ex, "Validation error while updating booking status for booking {BookingId}.", bookingId);
-                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogWarning(ex, "Argument error while updating booking status for booking {BookingId}.", bookingId);
+                _logger.LogWarning(ex, "Validation error while accepting booking {BookingId}.", bookingId);
                 return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error while updating booking status for booking {BookingId}.", bookingId);
+                _logger.LogError(ex, "Unexpected error while accepting booking {BookingId}.", bookingId);
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
+        }
+
+        [HttpPut("{bookingId:guid}/reject")]
+        [Authorize(Roles = "Tutor")]
+        public async Task<IActionResult> RejectBooking(Guid bookingId)
+        {
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var tutorId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var updatedBooking = await _bookingService.RejectBookingAsync(bookingId, tutorId);
+                return Ok(new
+                {
+                    data = updatedBooking,
+                    message = "Booking rejected successfully.",
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while rejecting booking {BookingId}.", bookingId);
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while rejecting booking {BookingId}.", bookingId);
                 return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }

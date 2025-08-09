@@ -1,4 +1,6 @@
-﻿using PeerTutoringSystem.Application.DTOs.Booking;
+using Microsoft.AspNetCore.Http;
+using PeerTutoringSystem.Application.DTOs.Booking;
+using PeerTutoringSystem.Application.DTOs.Payment;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Entities.Booking;
@@ -438,5 +440,74 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 ConfirmedBookings = confirmedBookings
             };
         }
+
+        public async Task<UploadProofOfPaymentResult> UploadProofOfPayment(Guid bookingId, IFormFile file)
+        {
+            var booking = await _bookingRepository.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return new UploadProofOfPaymentResult { Succeeded = false, Message = "Booking not found." };
+            }
+
+            var uploadsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "proofs");
+            if (!Directory.Exists(uploadsFolderPath))
+            {
+                Directory.CreateDirectory(uploadsFolderPath);
+            }
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            booking.ProofOfPaymentImageUrl = $"/proofs/{fileName}";
+            await _bookingRepository.UpdateAsync(booking);
+
+            return new UploadProofOfPaymentResult { Succeeded = true, FilePath = booking.ProofOfPaymentImageUrl };
+        }
+
+        public async Task<ConfirmPaymentResult> ConfirmPayment(Guid bookingId, PaymentConfirmationDto paymentConfirmationDto)
+        {
+            var booking = await _bookingRepository.GetByIdAsync(bookingId);
+            if (booking == null)
+            {
+                return new ConfirmPaymentResult { Succeeded = false, Message = "Booking not found." };
+            }
+
+            booking.PaymentStatus = Enum.Parse<PaymentStatus>(paymentConfirmationDto.Status, true);
+            if (booking.PaymentStatus == PaymentStatus.Paid)
+            {
+                var tutor = await _userService.GetUserByIdAsync(booking.TutorId);
+                var userBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
+                if (tutor != null && userBio != null)
+                {
+                    var duration = booking.EndTime - booking.StartTime;
+                    var totalHours = duration.TotalHours;
+                    var price = (decimal)totalHours * userBio.HourlyRate;
+                    tutor.AccountBalance += (double)price;
+                    await _userService.UpdateUserAsync(tutor);
+                }
+            }
+
+            await _bookingRepository.UpdateAsync(booking);
+
+            return new ConfirmPaymentResult { Succeeded = true };
+        }
+    }
+
+    public class UploadProofOfPaymentResult
+    {
+        public bool Succeeded { get; set; }
+        public string Message { get; set; }
+        public string FilePath { get; set; }
+    }
+
+    public class ConfirmPaymentResult
+    {
+        public bool Succeeded { get; set; }
+        public string Message { get; set; }
     }
 }
