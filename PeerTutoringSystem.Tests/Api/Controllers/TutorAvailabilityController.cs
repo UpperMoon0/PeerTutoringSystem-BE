@@ -82,10 +82,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
             Assert.That(responseObj, Is.Not.Null);
-            var availabilityData = (TutorAvailabilityDto)responseObj.GetType().GetProperty("data")?.GetValue(responseObj);
+            var availabilityData = (TutorAvailabilityDto?)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
             Assert.That(availabilityData, Is.Not.Null);
-            Assert.That(availabilityData.AvailabilityId, Is.EqualTo(_availabilityId));
-            Assert.That(availabilityData.TutorId, Is.EqualTo(_tutorId));
+            Assert.That(availabilityData?.AvailabilityId, Is.EqualTo(_availabilityId));
+            Assert.That(availabilityData?.TutorId, Is.EqualTo(_tutorId));
         }
 
         [Test]
@@ -127,8 +127,8 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
             Assert.That(responseObj, Is.Not.Null);
-            var availabilities = (IEnumerable<TutorAvailabilityDto>)responseObj.GetType().GetProperty("data")?.GetValue(responseObj);
-            var totalCountValue = responseObj.GetType().GetProperty("totalCount")?.GetValue(responseObj);
+            var availabilities = (IEnumerable<TutorAvailabilityDto>?)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
+            var totalCountValue = responseObj?.GetType().GetProperty("totalCount")?.GetValue(responseObj);
             Assert.That(totalCountValue, Is.Not.Null);
             var totalCount = (int)totalCountValue;
             Assert.That(availabilities, Is.Not.Null);
@@ -178,8 +178,8 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
             Assert.That(responseObj, Is.Not.Null);
-            var availabilities = (IEnumerable<TutorAvailabilityDto>)responseObj.GetType().GetProperty("data")?.GetValue(responseObj);
-            var totalCountValue = responseObj.GetType().GetProperty("totalCount")?.GetValue(responseObj);
+            var availabilities = (IEnumerable<TutorAvailabilityDto>?)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
+            var totalCountValue = responseObj?.GetType().GetProperty("totalCount")?.GetValue(responseObj);
             Assert.That(totalCountValue, Is.Not.Null);
             var totalCount = (int)totalCountValue;
             Assert.That(availabilities, Is.Not.Null);
@@ -255,7 +255,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockService
                 .Setup(s => s.GetByIdAsync(nonexistentId))
-                .ReturnsAsync((TutorAvailabilityDto)null);
+                .ReturnsAsync((TutorAvailabilityDto?)null);
 
             // Act
             var result = await _controller.DeleteAvailability(nonexistentId);

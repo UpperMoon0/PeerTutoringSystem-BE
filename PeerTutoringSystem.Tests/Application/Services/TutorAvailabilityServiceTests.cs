@@ -18,7 +18,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
         }
 
         [Test]
-        public async Task SampleTest_Condition_ExpectedBehavior()
+        public Task SampleTest_Condition_ExpectedBehavior()
         {
             // This is a placeholder test to be implemented
             Assert.That(true, Is.True);
