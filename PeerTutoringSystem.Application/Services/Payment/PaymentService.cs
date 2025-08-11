@@ -54,7 +54,9 @@ namespace PeerTutoringSystem.Application.Services.Payment
                    return new PaymentResponseDto { Success = false, Message = "Session not found." };
                }
                var durationHours = (session.EndTime - session.StartTime).TotalHours;
-               var amount = (decimal)durationHours * tutorBio.HourlyRate;
+               var basePrice = (decimal)durationHours * tutorBio.HourlyRate;
+               var serviceFee = basePrice * 0.3m;
+               var amount = basePrice + serviceFee;
                var description = $"Payment for booking {booking.BookingId}";
                
                var accountName = _config["ACCOUNT_NAME"];
@@ -82,7 +84,9 @@ namespace PeerTutoringSystem.Application.Services.Payment
                    Success = true,
                    PaymentId = payment.Id.ToString(),
                    QrCode = qrCodePayload,
-                   Message = "Payment created successfully"
+                   Message = "Payment created successfully",
+                   BasePrice = basePrice,
+                   ServiceFee = serviceFee
                };
            }
            catch (Exception ex)
@@ -125,6 +129,10 @@ namespace PeerTutoringSystem.Application.Services.Payment
         }
 
         public async Task<bool> ConfirmPayment(Guid bookingId)
+{
+    using (var transaction = await _paymentRepository.BeginTransactionAsync())
+    {
+        try
         {
             var payment = await _paymentRepository.GetPaymentByBookingIdAsync(bookingId);
             if (payment == null)
@@ -142,10 +150,30 @@ namespace PeerTutoringSystem.Application.Services.Payment
             {
                 booking.PaymentStatus = Domain.Entities.Booking.PaymentStatus.Paid;
                 await _bookingRepository.UpdateAsync(booking);
+
+                var tutorBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
+                if (tutorBio != null)
+                {
+                    var tutor = tutorBio.User;
+                    if (tutor != null)
+                    {
+                        var tutorProfit = payment.Amount / 1.3m;
+                        tutor.AccountBalance += (double)tutorProfit;
+                        await _userBioRepository.UpdateAsync(tutorBio);
+                    }
+                }
             }
 
+            await transaction.CommitAsync();
             return true;
         }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            return false;
+        }
+    }
+}
         public async Task<AdminFinanceDto> GetAdminFinanceDetails()
         {
             var payments = await _paymentRepository.GetAllAsync();
@@ -170,7 +198,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 .Take(10)
                 .Select(p => new RecentTransactionDto
                 {
-                    TransactionId = p.TransactionId,
+                    TransactionId = p.TransactionId ?? string.Empty,
                     TransactionDate = p.CreatedAt,
                     Amount = (double)p.Amount,
                     Status = p.Status.ToString(),

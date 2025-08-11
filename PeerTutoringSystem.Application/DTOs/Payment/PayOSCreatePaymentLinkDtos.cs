@@ -36,5 +36,7 @@ namespace PeerTutoringSystem.Application.DTOs.Payment
         public string status { get; set; }
         public string checkoutUrl { get; set; }
         public string qrCode { get; set; }
+        public decimal basePrice { get; set; }
+        public decimal serviceFee { get; set; }
     }
 }

@@ -176,7 +176,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
       // Arrange
       var webhookData = CreateWebhookData(5, "in");
       _mockPaymentRepository.Setup(r => r.GetPaymentByTransactionIdAsync(webhookData.Id.ToString()))
-          .ReturnsAsync((PaymentEntity)null);
+          .ReturnsAsync((PaymentEntity?)null);
 
       // Act
       await _paymentService.ProcessPaymentWebhook(webhookData);
@@ -186,31 +186,31 @@ namespace PeerTutoringSystem.Tests.Application.Services
     }
 
     [Test]
-    public async Task ProcessPaymentWebhook_RepositoryGetThrowsException_ExceptionPropagates()
+    public void ProcessPaymentWebhook_RepositoryGetThrowsException_ExceptionPropagates()
     {
-      // Arrange
-      var webhookData = CreateWebhookData(6, "in");
-      _mockPaymentRepository.Setup(r => r.GetPaymentByTransactionIdAsync(webhookData.Id.ToString()))
-          .ThrowsAsync(new Exception("Database connection error"));
+        // Arrange
+        var webhookData = CreateWebhookData(6, "in");
+        _mockPaymentRepository.Setup(r => r.GetPaymentByTransactionIdAsync(webhookData.Id.ToString()))
+            .ThrowsAsync(new Exception("Database connection error"));
 
-      // Act & Assert
-      Assert.ThrowsAsync<Exception>(async () => await _paymentService.ProcessPaymentWebhook(webhookData));
-      _mockPaymentRepository.Verify(r => r.UpdatePaymentAsync(It.IsAny<PaymentEntity>()), Times.Never);
+        // Act & Assert
+        Assert.ThrowsAsync<Exception>(async () => await _paymentService.ProcessPaymentWebhook(webhookData));
+        _mockPaymentRepository.Verify(r => r.UpdatePaymentAsync(It.IsAny<PaymentEntity>()), Times.Never);
     }
 
     [Test]
-    public async Task ProcessPaymentWebhook_RepositoryUpdateThrowsException_ExceptionPropagates()
+    public void ProcessPaymentWebhook_RepositoryUpdateThrowsException_ExceptionPropagates()
     {
-      // Arrange
-      var webhookData = CreateWebhookData(7, "in");
-      var paymentEntity = CreatePaymentEntity(webhookData.Id.ToString(), PaymentStatus.Pending);
-      _mockPaymentRepository.Setup(r => r.GetPaymentByTransactionIdAsync(webhookData.Id.ToString()))
-          .ReturnsAsync(paymentEntity);
-      _mockPaymentRepository.Setup(r => r.UpdatePaymentAsync(It.IsAny<PaymentEntity>()))
-          .ThrowsAsync(new Exception("Error during update"));
+        // Arrange
+        var webhookData = CreateWebhookData(7, "in");
+        var paymentEntity = CreatePaymentEntity(webhookData.Id.ToString(), PaymentStatus.Pending);
+        _mockPaymentRepository.Setup(r => r.GetPaymentByTransactionIdAsync(webhookData.Id.ToString()))
+            .ReturnsAsync(paymentEntity);
+        _mockPaymentRepository.Setup(r => r.UpdatePaymentAsync(It.IsAny<PaymentEntity>()))
+            .ThrowsAsync(new Exception("Error during update"));
 
-      // Act & Assert
-      Assert.ThrowsAsync<Exception>(async () => await _paymentService.ProcessPaymentWebhook(webhookData));
+        // Act & Assert
+        Assert.ThrowsAsync<Exception>(async () => await _paymentService.ProcessPaymentWebhook(webhookData));
     }
 
     [TearDown]

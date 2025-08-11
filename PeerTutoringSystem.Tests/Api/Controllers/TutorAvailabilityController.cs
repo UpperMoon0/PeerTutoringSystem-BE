@@ -166,11 +166,11 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
 
             _mockService
-                .Setup(s => s.GetAvailableSlotsAsync(_tutorId, startDate, endDate, It.IsAny<BookingFilterDto>()))
+                .Setup(s => s.GetAvailableSlotsAsync(_tutorId, startDate, endDate, null, It.IsAny<BookingFilterDto>()))
                 .ReturnsAsync(serviceResult);
 
             // Act
-            var result = await _controller.GetAvailableSlots(_tutorId, startDate, endDate, filterDto);
+            var result = await _controller.GetAvailableSlots(_tutorId, startDate, endDate, null, filterDto);
 
             // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
@@ -255,7 +255,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockService
                 .Setup(s => s.GetByIdAsync(nonexistentId))
-                .ReturnsAsync((TutorAvailabilityDto?)null);
+                .ReturnsAsync((TutorAvailabilityDto)null);
 
             // Act
             var result = await _controller.DeleteAvailability(nonexistentId);

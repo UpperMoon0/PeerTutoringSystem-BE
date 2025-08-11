@@ -76,7 +76,12 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
             Assert.That(responseObj, Is.Not.Null);
-            var bookingData = (BookingSessionDto)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
+            if (responseObj is null)
+            {
+                Assert.Fail("Response object is null.");
+                return;
+            }
+            var bookingData = (BookingSessionDto?)responseObj.GetType().GetProperty("data")?.GetValue(responseObj);
             Assert.That(bookingData, Is.Not.Null);
             Assert.That(bookingData?.BookingId, Is.EqualTo(_bookingId));
         }
@@ -167,7 +172,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Arrange
             _mockBookingService
                 .Setup(s => s.GetBookingByIdAsync(_bookingId))
-                .ReturnsAsync((BookingSessionDto?)null);
+                .ReturnsAsync((BookingSessionDto)null);
 
             // Act
             var result = await _controller.GetBooking(_bookingId);

@@ -320,7 +320,8 @@ namespace PeerTutoringSystem.Application.Services.Booking
         {
             var studentName = "Unknown Student";
             var tutorName = "Unknown Tutor";
-            decimal? price = null;
+            decimal? basePrice = null;
+            decimal? serviceFee = null;
 
             try
             {
@@ -361,8 +362,9 @@ namespace PeerTutoringSystem.Application.Services.Booking
                     var duration = booking.EndTime - booking.StartTime;
                     var totalHours = duration.TotalHours;
                     _logger.LogInformation("Calculated TotalHours: {TotalHours}", totalHours);
-                    price = (decimal)totalHours * userBio.HourlyRate;
-                    _logger.LogInformation("Calculated price: {Price}", price);
+                    basePrice = (decimal)totalHours * userBio.HourlyRate;
+                    serviceFee = basePrice * 0.3m;
+                    _logger.LogInformation("Calculated basePrice: {Price}", basePrice);
                 }
                 else
                 {
@@ -390,7 +392,8 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 CreatedAt = booking.CreatedAt,
                 StudentName = studentName,
                 TutorName = tutorName,
-                Price = price
+                BasePrice = basePrice,
+                ServiceFee = serviceFee
             };
 
             _logger.LogInformation("Returning booking DTO: {BookingDto}", JsonSerializer.Serialize(bookingDto));

@@ -39,7 +39,8 @@
         public DateTime CreatedAt { get; set; }
         public string TutorName { get; set; }
         public string StudentName { get; set; }
-       public decimal? Price { get; set; }
+        public decimal? BasePrice { get; set; }
+        public decimal? ServiceFee { get; set; }
     }
 
     public class CreateBookingDto

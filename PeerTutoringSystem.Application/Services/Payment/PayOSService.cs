@@ -56,7 +56,9 @@ namespace PeerTutoringSystem.Application.Services.Payment
             }
 
             var durationHours = (session.EndTime - session.StartTime).TotalHours;
-            var amount = (int)(durationHours * (double)tutorBio.HourlyRate);
+            var basePrice = (decimal)durationHours * tutorBio.HourlyRate;
+            var serviceFee = basePrice * 0.3m;
+            var amount = (int)(basePrice + serviceFee);
             var description = $"Booking {request.BookingId}";
             if (description.Length > 25)
             {

@@ -6,5 +6,7 @@ namespace PeerTutoringSystem.Application.DTOs.Payment
         public string Message { get; set; }
         public string PaymentId { get; set; }
         public string QrCode { get; set; }
+        public decimal BasePrice { get; set; }
+        public decimal ServiceFee { get; set; }
     }
 }

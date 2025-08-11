@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 
 namespace PeerTutoringSystem.Domain.Interfaces.Payment
@@ -14,5 +15,6 @@ namespace PeerTutoringSystem.Domain.Interfaces.Payment
         Task<List<PaymentEntity>> GetPaymentsByBookingIdAsync(Guid bookingId);
         Task<PaymentEntity> UpdatePaymentAsync(PaymentEntity payment);
         Task<IEnumerable<PaymentEntity>> GetAllAsync();
+        Task<IDbContextTransaction> BeginTransactionAsync();
     }
 }

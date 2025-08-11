@@ -22,6 +22,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
         {
             // This is a placeholder test to be implemented
             Assert.That(true, Is.True);
+            return Task.CompletedTask;
         }
     }
 }
