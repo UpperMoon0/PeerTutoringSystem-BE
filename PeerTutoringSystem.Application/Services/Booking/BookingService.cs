@@ -1,3 +1,4 @@
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using Microsoft.AspNetCore.Http;
 using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.DTOs.Payment;
@@ -84,7 +85,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 Topic = dto.Topic ?? "General tutoring session",
                 Description = dto.Description,
                 Status = BookingStatus.Pending,
-                PaymentStatus = PaymentStatus.Unpaid,
+                PaymentStatus = PaymentStatus.Pending,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -144,7 +145,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 Topic = dto.Topic ?? "General tutoring session",
                 Description = dto.Description,
                 Status = BookingStatus.Pending,
-                PaymentStatus = PaymentStatus.Unpaid,
+                PaymentStatus = PaymentStatus.Pending,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -523,7 +524,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
             // Here you can add logic to save the file and get a URL
             // For now, we'll just update the payment status
-            booking.PaymentStatus = PaymentStatus.Processing;
+            booking.PaymentStatus = PaymentStatus.Pending;
             booking.UpdatedAt = DateTime.UtcNow;
 
             await _bookingRepository.UpdateAsync(booking);

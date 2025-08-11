@@ -5,6 +5,7 @@ namespace PeerTutoringSystem.Domain.Entities.PaymentEntities
         Pending,
         Paid,
         Failed,
-        Cancelled
+        Cancelled,
+        Success
     }
 }

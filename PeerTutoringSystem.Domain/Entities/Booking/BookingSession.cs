@@ -1,4 +1,5 @@
 using PeerTutoringSystem.Domain.Entities.Authentication;
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using System;
 
 namespace PeerTutoringSystem.Domain.Entities.Booking
@@ -31,11 +32,5 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
         Cancelled,
         Completed,
         Rejected
-    }
-    public enum PaymentStatus
-    {
-        Unpaid,
-        Processing,
-        Paid
     }
 }

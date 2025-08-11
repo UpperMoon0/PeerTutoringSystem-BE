@@ -1,3 +1,4 @@
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -179,7 +180,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 var booking = await _bookingRepository.GetByOrderCode(webhookData.Data.OrderCode);
                 if (booking != null)
                 {
-                    booking.PaymentStatus = Domain.Entities.Booking.PaymentStatus.Paid;
+                    booking.PaymentStatus = PaymentStatus.Paid;
                     await _bookingRepository.UpdateAsync(booking);
                 }
             }
@@ -223,7 +224,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
         public async Task<bool> ConfirmPayment(Guid bookingId)
         {
             var booking = await _bookingRepository.GetByIdAsync(bookingId);
-            return booking != null && booking.PaymentStatus == Domain.Entities.Booking.PaymentStatus.Paid;
+            return booking != null && booking.PaymentStatus == PaymentStatus.Paid;
         }
     }
 }
