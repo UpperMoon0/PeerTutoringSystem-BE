@@ -108,7 +108,7 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         }
 
         [HttpPost("user-skills")]
-        public async Task<IActionResult> AddUserSkill([FromBody] UserSkillDto userSkillDto)
+        public async Task<IActionResult> AddUserSkill([FromBody] CreateUserSkillDto userSkillDto)
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new UnauthorizedAccessException());
             if (userId != userSkillDto.UserID && !User.IsInRole("Admin"))

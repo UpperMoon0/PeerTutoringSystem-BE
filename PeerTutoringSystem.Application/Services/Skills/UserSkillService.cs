@@ -19,7 +19,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             _userRepository = userRepository;
         }
 
-        public async Task<UserSkillDto> AddAsync(UserSkillDto userSkillDto)
+        public async Task<UserSkillDto> AddAsync(CreateUserSkillDto userSkillDto)
         {
             var user = await _userRepository.GetByIdAsync(userSkillDto.UserID);
             if (user == null)
@@ -27,17 +27,17 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new InvalidOperationException($"User with ID '{userSkillDto.UserID}' does not exist.");
             }
 
-            var skill = await _skillRepository.GetByIdAsync(userSkillDto.Skill.SkillID);
+            var skill = await _skillRepository.GetByIdAsync(userSkillDto.SkillID);
             if (skill == null)
             {
-                throw new InvalidOperationException($"Skill with ID '{userSkillDto.Skill.SkillID}' does not exist.");
+                throw new InvalidOperationException($"Skill with ID '{userSkillDto.SkillID}' does not exist.");
             }
 
             var userSkill = new UserSkill
             {
                 UserSkillID = Guid.NewGuid(),
                 UserID = userSkillDto.UserID,
-                SkillID = userSkillDto.Skill.SkillID,
+                SkillID = userSkillDto.SkillID,
                 IsTutor = userSkillDto.IsTutor
             };
             var added = await _userSkillRepository.AddAsync(userSkill);

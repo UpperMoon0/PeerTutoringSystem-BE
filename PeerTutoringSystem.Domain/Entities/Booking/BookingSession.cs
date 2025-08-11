@@ -16,7 +16,6 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
         public string? Description { get; set; }
         public BookingStatus Status { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
-        public string? ProofOfPaymentImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }
