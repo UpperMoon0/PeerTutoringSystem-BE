@@ -215,8 +215,8 @@ namespace PeerTutoringSystem.Tests.Application.Services
             };
 
             _mockBookingRepository
-                .Setup(r => r.GetByStudentIdAsync(_studentId))
-                .ReturnsAsync(bookings);
+                .Setup(r => r.GetByStudentIdAsync(_studentId, It.IsAny<Domain.Entities.Booking.BookingFilter>()))
+                .ReturnsAsync((bookings, bookings.Count));
 
             // Act
             var result = await _bookingService.GetBookingsByStudentAsync(_studentId, new BookingFilterDto());
@@ -272,8 +272,9 @@ namespace PeerTutoringSystem.Tests.Application.Services
                 .ReturnsAsync(booking);
 
             // Act & Assert
-            Assert.ThrowsAsync<ValidationException>(async () =>
+            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
                 await _bookingService.UpdateBookingStatusAsync(_bookingId, updateDto));
+            Assert.That(ex.Message, Is.EqualTo("Invalid status value: InvalidStatus"));
         }
 
         [Test]

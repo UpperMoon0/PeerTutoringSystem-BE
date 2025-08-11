@@ -245,6 +245,10 @@ namespace PeerTutoringSystem.Application.Services.Booking
                     throw new ValidationException($"Invalid status transition from {booking.Status} to {newStatus}.");
                 }
             }
+            else
+            {
+                throw new ValidationException($"Invalid status value: {dto.Status}");
+            }
 
             // Update availability status for Cancelled or Rejected
             if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Rejected)

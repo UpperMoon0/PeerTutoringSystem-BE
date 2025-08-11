@@ -1,20 +1,14 @@
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Storage;
-using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 
 namespace PeerTutoringSystem.Domain.Interfaces.Payment
 {
     public interface IPaymentRepository
     {
-        Task<PaymentEntity> CreatePaymentAsync(PaymentEntity payment);
-        Task<PaymentEntity> GetPaymentByIdAsync(Guid id);
-        Task<PaymentEntity> GetPaymentByTransactionIdAsync(string transactionId);
-        Task<PaymentEntity> GetPaymentByBookingIdAsync(Guid bookingId);
-        Task<List<PaymentEntity>> GetPaymentsByBookingIdAsync(Guid bookingId);
-        Task<PaymentEntity> UpdatePaymentAsync(PaymentEntity payment);
-        Task<IEnumerable<PaymentEntity>> GetAllAsync();
-        Task<IDbContextTransaction> BeginTransactionAsync();
+        Task<IEnumerable<PaymentEntity>> GetPaymentHistory();
     }
 }

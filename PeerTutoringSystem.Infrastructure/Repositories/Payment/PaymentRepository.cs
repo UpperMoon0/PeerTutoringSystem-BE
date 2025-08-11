@@ -1,73 +1,32 @@
+using Microsoft.EntityFrameworkCore;
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
+using PeerTutoringSystem.Domain.Interfaces.Payment;
+using PeerTutoringSystem.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using PeerTutoringSystem.Domain.Interfaces.Payment;
-using PeerTutoringSystem.Domain.Entities.PaymentEntities;
-using PeerTutoringSystem.Infrastructure.Data;
 
 namespace PeerTutoringSystem.Infrastructure.Repositories.Payment
 {
     public class PaymentRepository : IPaymentRepository
     {
-        private readonly AppDbContext _dbContext;
+        private readonly AppDbContext _context;
 
-        public PaymentRepository(AppDbContext dbContext)
+        public PaymentRepository(AppDbContext context)
         {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _context = context;
         }
 
-        public async Task<PaymentEntity> CreatePaymentAsync(PaymentEntity payment)
+        public async Task<IEnumerable<PaymentEntity>> GetPaymentHistory()
         {
-            _dbContext.Payments.Add(payment);
-            await _dbContext.SaveChangesAsync();
-            return payment;
-        }
-
-        public async Task<PaymentEntity> GetPaymentByIdAsync(Guid id)
-        {
-            return await _dbContext.Payments
-                .Where(p => p.Id == id)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<PaymentEntity> GetPaymentByTransactionIdAsync(string transactionId)
-        {
-            return await _dbContext.Payments
-                .Where(p => p.TransactionId == transactionId)
-                .FirstOrDefaultAsync();
-        }
-        public async Task<PaymentEntity> GetPaymentByBookingIdAsync(Guid bookingId)
-        {
-            return await _dbContext.Payments
-                .Where(p => p.BookingId == bookingId)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<List<PaymentEntity>> GetPaymentsByBookingIdAsync(Guid bookingId)
-        {
-            return await _dbContext.Payments
-                .Where(p => p.BookingId == bookingId)
+            return await _context.Payments
+                .Include(p => p.Booking)
+                    .ThenInclude(b => b.Tutor)
+                .Include(p => p.Booking)
+                    .ThenInclude(b => b.Student)
                 .ToListAsync();
-        }
-
-        public async Task<PaymentEntity> UpdatePaymentAsync(PaymentEntity payment)
-        {
-            payment.UpdatedAt = DateTime.UtcNow;
-            _dbContext.Payments.Update(payment);
-            await _dbContext.SaveChangesAsync();
-            return payment;
-        }
-        public async Task<IEnumerable<PaymentEntity>> GetAllAsync()
-        {
-            return await _dbContext.Payments.ToListAsync();
-        }
-
-        public async Task<IDbContextTransaction> BeginTransactionAsync()
-        {
-            return await _dbContext.Database.BeginTransactionAsync();
         }
     }
 }

@@ -11,7 +11,7 @@ namespace PeerTutoringSystem.Application.Helpers
         public string Error { get; }
         public IEnumerable<string> Errors { get; }
 
-        private Result(T value, bool isSuccess, string error, IEnumerable<string> errors = null)
+        private Result(T value, bool isSuccess, string error, IEnumerable<string>? errors = null)
         {
             Value = value;
             IsSuccess = isSuccess;
@@ -19,8 +19,8 @@ namespace PeerTutoringSystem.Application.Helpers
             Errors = errors ?? Enumerable.Empty<string>();
         }
 
-        public static Result<T> Success(T value) => new Result<T>(value, true, null);
-        public static Result<T> Failure(string error) => new Result<T>(default(T), false, error);
+        public static Result<T> Success(T value) => new Result<T>(value, true, null, null);
+        public static Result<T> Failure(string error) => new Result<T>(default(T), false, error, new[] { error });
         public static Result<T> Failure(IEnumerable<string> errors) => new Result<T>(default(T), false, string.Join("; ", errors), errors);
     }
 }

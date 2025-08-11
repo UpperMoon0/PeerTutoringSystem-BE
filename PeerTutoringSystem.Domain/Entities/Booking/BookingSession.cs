@@ -1,4 +1,5 @@
-﻿using System;
+using PeerTutoringSystem.Domain.Entities.Authentication;
+using System;
 
 namespace PeerTutoringSystem.Domain.Entities.Booking
 {
@@ -6,7 +7,9 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
     {
         public Guid BookingId { get; set; }
         public Guid StudentId { get; set; }
+        public virtual User Student { get; set; }
         public Guid TutorId { get; set; }
+        public virtual User Tutor { get; set; }
         public Guid AvailabilityId { get; set; }
         public DateTime SessionDate { get; set; }
         public DateTime StartTime { get; set; }
@@ -18,6 +21,7 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
         public PaymentStatus PaymentStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public long OrderCode { get; set; }
     }
 
     public enum BookingStatus

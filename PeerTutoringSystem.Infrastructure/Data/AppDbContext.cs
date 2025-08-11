@@ -181,6 +181,16 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 entity.HasKey(e => e.BookingId);
                 entity.Property(e => e.Topic).HasMaxLength(100).IsRequired();
                 entity.Property(e => e.Description).HasMaxLength(500);
+
+                entity.HasOne(b => b.Tutor)
+                    .WithMany()
+                    .HasForeignKey(b => b.TutorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(b => b.Student)
+                    .WithMany()
+                    .HasForeignKey(b => b.StudentId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Configure TutorAvailability entity

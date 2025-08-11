@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using PeerTutoringSystem.Api.Controllers.Payment;
+using PeerTutoringSystem.Application.DTOs.Payment;
+using PeerTutoringSystem.Application.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -10,45 +13,49 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 {
   public class WebhookControllerTests
   {
-    private readonly Mock<IConfiguration> _mockConfig;
-    private readonly Mock<IPaymentService> _mockPaymentService;
+    private readonly Mock<IPayOSService> _mockPayOSService;
+    private readonly Mock<ILogger<WebhookController>> _mockLogger;
     private readonly WebhookController _controller;
 
     public WebhookControllerTests()
     {
-      _mockConfig = new Mock<IConfiguration>();
-      _mockPaymentService = new Mock<IPaymentService>();
-      _controller = new WebhookController(_mockConfig.Object, _mockPaymentService.Object);
+      _mockPayOSService = new Mock<IPayOSService>();
+      _mockLogger = new Mock<ILogger<WebhookController>>();
+      _controller = new WebhookController(_mockPayOSService.Object, _mockLogger.Object);
     }
 
-    private SePayWebhookData CreateValidWebhookData()
+    private PayOSWebhookData CreateValidWebhookData()
     {
-      return new SePayWebhookData
-      {
-        Id = 12345,
-        Gateway = "TestBank",
-        TransactionDate = System.DateTime.UtcNow,
-        AccountNumber = "1234567890",
-        Content = "Test payment",
-        TransferType = "in",
-        TransferAmount = 100000,
-        Accumulated = 500000,
-        ReferenceCode = "REF123",
-        Description = "Test Description",
-        PaymentStatus = PaymentStatus.Pending
-      };
+        return new PayOSWebhookData
+        {
+            Code = "00",
+            Description = "Success",
+            Data = new PayOSWebhookInnerData
+            {
+                OrderCode = 12345,
+                Amount = 100000,
+                Description = "Test payment",
+                AccountNumber = "1234567890",
+                Reference = "REF123",
+                TransactionDateTime = System.DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"),
+                PaymentLinkId = "link123",
+                Code = "00",
+                Desc = "Success"
+            },
+            Signature = "test-signature"
+        };
     }
 
     [Test]
-    public async Task HandleSePayWebhook_ValidData_ReturnsOkResultWithSuccessTrue()
+    public async Task HandlePayOSWebhook_ValidData_ReturnsOkResultWithSuccessTrue()
     {
       // Arrange
       var webhookData = CreateValidWebhookData();
-      _mockPaymentService.Setup(s => s.ProcessPaymentWebhook(It.IsAny<SePayWebhookData>()))
+      _mockPayOSService.Setup(s => s.ProcessPayOSWebhook(It.IsAny<PayOSWebhookData>()))
           .Returns(Task.CompletedTask);
 
       // Act
-      var result = await _controller.HandleSePayWebhook(webhookData);
+      var result = await _controller.HandlePayOSWebhook(webhookData);
 
       // Assert
       Assert.That(result, Is.InstanceOf<OkObjectResult>());
@@ -58,17 +65,17 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
       var successProperty = returnValue.GetType().GetProperty("success");
       Assert.NotNull(successProperty);
       Assert.That(successProperty.GetValue(returnValue, null), Is.EqualTo(true));
-      _mockPaymentService.Verify(s => s.ProcessPaymentWebhook(webhookData), Times.Once);
+      _mockPayOSService.Verify(s => s.ProcessPayOSWebhook(webhookData), Times.Once);
     }
 
     [Test]
-    public async Task HandleSePayWebhook_NullData_ReturnsBadRequest()
+    public async Task HandlePayOSWebhook_NullData_ReturnsBadRequest()
     {
       // Arrange
-      SePayWebhookData? webhookData = null;
+      PayOSWebhookData? webhookData = null;
 
       // Act
-      var result = await _controller.HandleSePayWebhook(webhookData!);
+      var result = await _controller.HandlePayOSWebhook(webhookData!);
 
       // Assert
       Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
@@ -85,15 +92,15 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
 
     [Test]
-    public async Task HandleSePayWebhook_PaymentServiceThrowsException_ReturnsOkResultWithSuccessFalse()
+    public async Task HandlePayOSWebhook_PaymentServiceThrowsException_ReturnsOkResultWithSuccessFalse()
     {
       // Arrange
       var webhookData = CreateValidWebhookData();
-      _mockPaymentService.Setup(s => s.ProcessPaymentWebhook(It.IsAny<SePayWebhookData>()))
+      _mockPayOSService.Setup(s => s.ProcessPayOSWebhook(It.IsAny<PayOSWebhookData>()))
           .ThrowsAsync(new System.Exception("Service error"));
 
       // Act
-      var result = await _controller.HandleSePayWebhook(webhookData);
+      var result = await _controller.HandlePayOSWebhook(webhookData);
 
       // Assert
       Assert.That(result, Is.InstanceOf<ObjectResult>());

@@ -1,12 +1,14 @@
-﻿using Microsoft.Extensions.Configuration;
 using PeerTutoringSystem.Application.DTOs.Payment;
-using PeerTutoringSystem.Domain.Entities.PaymentEntities;
- 
- public interface IPaymentService
- {
-     Task<PaymentResponseDto> CreatePayment(CreatePaymentRequestDto request);
-     Task<PaymentStatus> GetPaymentStatus(string paymentId);
-     Task<bool> ConfirmPayment(Guid bookingId);
-    Task<AdminFinanceDto> GetAdminFinanceDetails();
-    Task ProcessPaymentWebhook(SePayWebhookData webhookData);
- }
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace PeerTutoringSystem.Application.Interfaces.Payment
+{
+    public interface IPaymentService
+    {
+        Task<IEnumerable<PaymentHistoryDto>> GetPaymentHistory();
+    }
+}

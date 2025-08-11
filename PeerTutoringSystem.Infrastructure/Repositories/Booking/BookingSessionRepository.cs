@@ -176,5 +176,11 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                 .OrderByDescending(b => b.StartTime)
                 .ToListAsync();
         }
+
+        public async Task<BookingSession> GetByOrderCode(long orderCode)
+        {
+            return await _context.BookingSessions
+                .FirstOrDefaultAsync(b => b.OrderCode == orderCode);
+        }
     }
 }
