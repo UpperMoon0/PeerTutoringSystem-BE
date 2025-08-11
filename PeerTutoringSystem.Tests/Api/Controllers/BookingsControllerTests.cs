@@ -75,8 +75,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
-            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
-            Assert.That(bookingData.BookingId, Is.EqualTo(_bookingId));
+            Assert.That(responseObj, Is.Not.Null);
+            var bookingData = (BookingSessionDto)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
+            Assert.That(bookingData, Is.Not.Null);
+            Assert.That(bookingData?.BookingId, Is.EqualTo(_bookingId));
         }
 
         [Test]
@@ -95,8 +97,8 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var badRequestResult = result as BadRequestObjectResult;
-            Assert.IsNotNull(badRequestResult);
-            Assert.IsTrue(badRequestResult.Value.ToString().Contains(exceptionMessage));
+            Assert.That(badRequestResult, Is.Not.Null);
+            Assert.That(badRequestResult?.Value?.ToString(), Does.Contain(exceptionMessage));
         }
 
         [Test]
@@ -122,8 +124,11 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
-            var bookings = (IEnumerable<BookingSessionDto>)responseObj.GetType().GetProperty("data").GetValue(responseObj);
-            var totalCount = (int)responseObj.GetType().GetProperty("totalCount").GetValue(responseObj);
+            Assert.That(responseObj, Is.Not.Null);
+            var bookings = (IEnumerable<BookingSessionDto>?)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
+            var totalCountValue = responseObj?.GetType().GetProperty("totalCount")?.GetValue(responseObj);
+            Assert.That(totalCountValue, Is.Not.Null);
+            var totalCount = (int)totalCountValue;
             Assert.That(bookings, Is.Not.Null);
             Assert.That(totalCount, Is.EqualTo(2));
         }
@@ -150,8 +155,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
-            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
-            Assert.That(bookingData.BookingId, Is.EqualTo(_bookingId));
+            Assert.That(responseObj, Is.Not.Null);
+            var bookingData = (BookingSessionDto?)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
+            Assert.That(bookingData, Is.Not.Null);
+            Assert.That(bookingData?.BookingId, Is.EqualTo(_bookingId));
         }
 
         [Test]
@@ -160,7 +167,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Arrange
             _mockBookingService
                 .Setup(s => s.GetBookingByIdAsync(_bookingId))
-                .ReturnsAsync((BookingSessionDto)null);
+                .ReturnsAsync((BookingSessionDto?)null);
 
             // Act
             var result = await _controller.GetBooking(_bookingId);
@@ -191,8 +198,8 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var forbidResult = result as ObjectResult;
-            Assert.IsNotNull(forbidResult);
-            Assert.AreEqual(403, forbidResult.StatusCode);
+            Assert.That(forbidResult, Is.Not.Null);
+            Assert.That(forbidResult?.StatusCode, Is.EqualTo(403));
         }
 
         [Test]
@@ -241,8 +248,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
-            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
-            Assert.That(bookingData.Status, Is.EqualTo("Cancelled"));
+            Assert.That(responseObj, Is.Not.Null);
+            var bookingData = (BookingSessionDto?)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
+            Assert.That(bookingData, Is.Not.Null);
+            Assert.That(bookingData?.Status, Is.EqualTo("Cancelled"));
         }
 
         [Test]
@@ -270,8 +279,8 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             // Assert
             var forbidResult = result as ObjectResult;
-            Assert.IsNotNull(forbidResult);
-            Assert.AreEqual(403, forbidResult.StatusCode);
+            Assert.That(forbidResult, Is.Not.Null);
+            Assert.That(forbidResult?.StatusCode, Is.EqualTo(403));
         }
 
         [Test]
@@ -320,8 +329,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
-            var bookingData = (BookingSessionDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
-            Assert.That(bookingData.Status, Is.EqualTo("Confirmed"));
+            Assert.That(responseObj, Is.Not.Null);
+            var bookingData = (BookingSessionDto?)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
+            Assert.That(bookingData, Is.Not.Null);
+            Assert.That(bookingData?.Status, Is.EqualTo("Confirmed"));
         }
     }
 }

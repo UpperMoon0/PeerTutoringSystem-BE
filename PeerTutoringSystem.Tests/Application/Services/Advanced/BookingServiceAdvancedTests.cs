@@ -161,7 +161,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
             {
                 TutorId = tutorId,
                 AvailabilityId = availabilityId,
-                Topic = null,  // null topic should use default
+                Topic = null,
                 Description = "Testing null topic handling"
             };
 

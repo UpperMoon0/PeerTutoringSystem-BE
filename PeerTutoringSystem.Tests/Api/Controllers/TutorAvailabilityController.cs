@@ -81,7 +81,9 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
-            var availabilityData = (TutorAvailabilityDto)responseObj.GetType().GetProperty("data").GetValue(responseObj);
+            Assert.That(responseObj, Is.Not.Null);
+            var availabilityData = (TutorAvailabilityDto)responseObj.GetType().GetProperty("data")?.GetValue(responseObj);
+            Assert.That(availabilityData, Is.Not.Null);
             Assert.That(availabilityData.AvailabilityId, Is.EqualTo(_availabilityId));
             Assert.That(availabilityData.TutorId, Is.EqualTo(_tutorId));
         }
@@ -124,8 +126,11 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
-            var availabilities = (IEnumerable<TutorAvailabilityDto>)responseObj.GetType().GetProperty("data").GetValue(responseObj);
-            var totalCount = (int)responseObj.GetType().GetProperty("totalCount").GetValue(responseObj);
+            Assert.That(responseObj, Is.Not.Null);
+            var availabilities = (IEnumerable<TutorAvailabilityDto>)responseObj.GetType().GetProperty("data")?.GetValue(responseObj);
+            var totalCountValue = responseObj.GetType().GetProperty("totalCount")?.GetValue(responseObj);
+            Assert.That(totalCountValue, Is.Not.Null);
+            var totalCount = (int)totalCountValue;
             Assert.That(availabilities, Is.Not.Null);
             Assert.That(totalCount, Is.EqualTo(2));
         }
@@ -172,8 +177,11 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             var okResult = result as OkObjectResult;
             Assert.That(okResult, Is.Not.Null);
             var responseObj = okResult.Value;
-            var availabilities = (IEnumerable<TutorAvailabilityDto>)responseObj.GetType().GetProperty("data").GetValue(responseObj);
-            var totalCount = (int)responseObj.GetType().GetProperty("totalCount").GetValue(responseObj);
+            Assert.That(responseObj, Is.Not.Null);
+            var availabilities = (IEnumerable<TutorAvailabilityDto>)responseObj.GetType().GetProperty("data")?.GetValue(responseObj);
+            var totalCountValue = responseObj.GetType().GetProperty("totalCount")?.GetValue(responseObj);
+            Assert.That(totalCountValue, Is.Not.Null);
+            var totalCount = (int)totalCountValue;
             Assert.That(availabilities, Is.Not.Null);
             Assert.That(totalCount, Is.EqualTo(2));
         }
@@ -204,7 +212,8 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Assert
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
-
+            Assert.That(okResult, Is.Not.Null);
+            Assert.That(okResult.Value, Is.Not.Null);
             var message = okResult.Value.GetType().GetProperty("message")?.GetValue(okResult.Value, null) as string;
             Assert.That(message, Is.Not.Null);
             Assert.That(message, Does.Contain("successfully"));

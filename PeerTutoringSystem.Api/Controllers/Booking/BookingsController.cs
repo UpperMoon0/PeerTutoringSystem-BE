@@ -312,6 +312,47 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                 return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
+
+        [HttpPut("{bookingId:guid}/status")]
+        [Authorize(Roles = "Student,Tutor,Admin")]
+        public async Task<IActionResult> UpdateBookingStatus(Guid bookingId, [FromBody] UpdateBookingStatusDto dto)
+        {
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var booking = await _bookingService.GetBookingByIdAsync(bookingId);
+                if (booking == null)
+                {
+                    return NotFound(new { error = "Booking not found.", timestamp = DateTime.UtcNow });
+                }
+
+                var isAdmin = User.IsInRole("Admin");
+                var isTutor = User.IsInRole("Tutor");
+                var isStudent = User.IsInRole("Student");
+
+                if (!isAdmin && !(isTutor && booking.TutorId == userId) && !(isStudent && booking.StudentId == userId))
+                {
+                    return StatusCode(403, new { error = "You do not have permission to update this booking.", timestamp = DateTime.UtcNow });
+                }
+
+                var updatedBooking = await _bookingService.UpdateBookingStatusAsync(bookingId, dto);
+                return Ok(new { data = updatedBooking, message = "Booking status updated successfully.", timestamp = DateTime.UtcNow });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while updating booking status for {BookingId}.", bookingId);
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while updating booking status for {BookingId}.", bookingId);
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
+        }
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllBookings([FromQuery] BookingFilterDto filter)

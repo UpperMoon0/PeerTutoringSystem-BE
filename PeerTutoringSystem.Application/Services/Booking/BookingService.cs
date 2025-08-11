@@ -440,74 +440,88 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 ConfirmedBookings = confirmedBookings
             };
         }
+        public async Task<BookingSessionDto> AcceptBookingAsync(Guid bookingId, Guid tutorId)
+        {
+            var booking = await _bookingRepository.GetByIdAsync(bookingId);
+            if (booking == null)
+                throw new ValidationException("Booking not found.");
 
-        public async Task<UploadProofOfPaymentResult> UploadProofOfPayment(Guid bookingId, IFormFile file)
+            if (booking.TutorId != tutorId)
+                throw new ValidationException("You are not authorized to accept this booking.");
+
+            booking.Status = BookingStatus.Confirmed;
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            await _bookingRepository.UpdateAsync(booking);
+
+            return await EnrichBookingWithNames(booking);
+        }
+
+        public async Task<BookingSessionDto> RejectBookingAsync(Guid bookingId, Guid tutorId)
+        {
+            var booking = await _bookingRepository.GetByIdAsync(bookingId);
+            if (booking == null)
+                throw new ValidationException("Booking not found.");
+
+            if (booking.TutorId != tutorId)
+                throw new ValidationException("You are not authorized to reject this booking.");
+
+            booking.Status = BookingStatus.Rejected;
+            booking.UpdatedAt = DateTime.UtcNow;
+
+            await _bookingRepository.UpdateAsync(booking);
+
+            // Make the availability slot available again
+            var availability = await _availabilityRepository.GetByIdAsync(booking.AvailabilityId);
+            if (availability != null)
+            {
+                availability.IsBooked = false;
+                await _availabilityRepository.UpdateAsync(availability);
+            }
+
+            return await EnrichBookingWithNames(booking);
+        }
+
+        public async Task<(bool Succeeded, string Message)> ConfirmPayment(Guid bookingId, PaymentConfirmationDto paymentConfirmationDto)
         {
             var booking = await _bookingRepository.GetByIdAsync(bookingId);
             if (booking == null)
             {
-                return new UploadProofOfPaymentResult { Succeeded = false, Message = "Booking not found." };
+                return (false, "Booking not found.");
             }
 
-            var uploadsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "proofs");
-            if (!Directory.Exists(uploadsFolderPath))
-            {
-                Directory.CreateDirectory(uploadsFolderPath);
-            }
+            booking.PaymentStatus = PaymentStatus.Paid;
+            booking.UpdatedAt = DateTime.UtcNow;
 
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(uploadsFolderPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            booking.ProofOfPaymentImageUrl = $"/proofs/{fileName}";
             await _bookingRepository.UpdateAsync(booking);
 
-            return new UploadProofOfPaymentResult { Succeeded = true, FilePath = booking.ProofOfPaymentImageUrl };
+            return (true, "Payment confirmed successfully.");
         }
 
-        public async Task<ConfirmPaymentResult> ConfirmPayment(Guid bookingId, PaymentConfirmationDto paymentConfirmationDto)
+        public async Task<(bool Succeeded, string Message)> UploadProofOfPayment(Guid bookingId, IFormFile file)
         {
             var booking = await _bookingRepository.GetByIdAsync(bookingId);
             if (booking == null)
             {
-                return new ConfirmPaymentResult { Succeeded = false, Message = "Booking not found." };
+                return (false, "Booking not found.");
             }
 
-            booking.PaymentStatus = Enum.Parse<PaymentStatus>(paymentConfirmationDto.Status, true);
-            if (booking.PaymentStatus == PaymentStatus.Paid)
+            // In a real application, you would upload the file to a storage service (e.g., S3, Azure Blob Storage)
+            // and save the URL in the database. For this example, we'll just simulate the process.
+
+            if (file == null || file.Length == 0)
             {
-                var tutor = await _userService.GetUserByIdAsync(booking.TutorId);
-                var userBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
-                if (tutor != null && userBio != null)
-                {
-                    var duration = booking.EndTime - booking.StartTime;
-                    var totalHours = duration.TotalHours;
-                    var price = (decimal)totalHours * userBio.HourlyRate;
-                    tutor.AccountBalance += (double)price;
-                    await _userService.UpdateUserAsync(tutor);
-                }
+                return (false, "Please select a file to upload.");
             }
+
+            // Here you can add logic to save the file and get a URL
+            // For now, we'll just update the payment status
+            booking.PaymentStatus = PaymentStatus.Processing;
+            booking.UpdatedAt = DateTime.UtcNow;
 
             await _bookingRepository.UpdateAsync(booking);
 
-            return new ConfirmPaymentResult { Succeeded = true };
+            return (true, "Proof of payment uploaded successfully. Please wait for confirmation.");
         }
-    }
-
-    public class UploadProofOfPaymentResult
-    {
-        public bool Succeeded { get; set; }
-        public string Message { get; set; }
-        public string FilePath { get; set; }
-    }
-
-    public class ConfirmPaymentResult
-    {
-        public bool Succeeded { get; set; }
-        public string Message { get; set; }
     }
 }

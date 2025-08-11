@@ -3,17 +3,20 @@ using PeerTutoringSystem.Application.DTOs.Payment;
 using Microsoft.AspNetCore.Authorization;
 using PeerTutoringSystem.Application.Interfaces.Booking;
 
+using System;
+
 namespace PeerTutoringSystem.Api.Controllers.Payment
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PaymentController : ControllerBase
+    [Obsolete("This payment controller is deprecated. Use PayOSController instead.")]
+    public class DeprecatedPaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
         private readonly IBookingService _bookingService;
         private readonly IConfiguration _configuration;
 
-        public PaymentController(IPaymentService paymentService, IBookingService bookingService, IConfiguration configuration)
+        public DeprecatedPaymentController(IPaymentService paymentService, IBookingService bookingService, IConfiguration configuration)
         {
             _paymentService = paymentService;
             _bookingService = bookingService;
@@ -28,7 +31,7 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
                 var result = await _paymentService.CreatePayment(request);
                 return Ok(result);
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
                 // In a real app, log this exception
                 return StatusCode(500, "An error occurred while creating the payment.");

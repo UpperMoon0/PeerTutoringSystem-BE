@@ -12,8 +12,8 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public Guid? SkillId { get; set; }
-        public string Topic { get; set; }
-        public string Description { get; set; }
+        public string? Topic { get; set; }
+        public string? Description { get; set; }
         public BookingStatus Status { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public string? ProofOfPaymentImageUrl { get; set; }
@@ -32,6 +32,7 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
     public enum PaymentStatus
     {
         Unpaid,
+        Processing,
         Paid
     }
 }

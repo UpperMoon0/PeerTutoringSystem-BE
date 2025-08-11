@@ -182,7 +182,7 @@ namespace PeerTutoringSystem.Tests.Integration
             var responseContent = await response.Content.ReadAsStringAsync();
             var tokenData = JsonConvert.DeserializeAnonymousType(responseContent, new { token = "" });
 
-            return tokenData.token;
+            return tokenData?.token ?? string.Empty;
         }
 
         [Test]

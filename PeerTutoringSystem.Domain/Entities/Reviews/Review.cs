@@ -15,8 +15,8 @@ namespace PeerTutoringSystem.Domain.Entities.Reviews
         public DateTime ReviewDate { get; set; }
 
         // Navigation properties
-        public BookingSession Booking { get; set; }
-        public User Student { get; set; }
-        public User Tutor { get; set; }
+        public BookingSession? Booking { get; set; }
+        public User? Student { get; set; }
+        public User? Tutor { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
+using PeerTutoringSystem.Domain.Entities.Booking;
 
 namespace PeerTutoringSystem.Domain.Entities.PaymentEntities;
 
@@ -8,22 +9,22 @@ public class SePayWebhookData
     public long Id { get; set; } // Changed from TransactionId (string) to long, matching SePay's 'id'
 
     [JsonPropertyName("gateway")]
-    public string Gateway { get; set; }
+    public string? Gateway { get; set; }
 
     [JsonPropertyName("transactionDate")]
     public DateTime TransactionDate { get; set; } // Changed from Timestamp, maps to 'transactionDate'
 
     [JsonPropertyName("accountNumber")]
-    public string AccountNumber { get; set; }
+    public string? AccountNumber { get; set; }
 
     [JsonPropertyName("code")]
     public string? Code { get; set; } // Nullable if 'code' can be null
 
     [JsonPropertyName("content")]
-    public string Content { get; set; }
+    public string? Content { get; set; }
 
     [JsonPropertyName("transferType")]
-    public string TransferType { get; set; } // "in" or "out"
+    public string? TransferType { get; set; } // "in" or "out"
 
     [JsonPropertyName("transferAmount")]
     public decimal TransferAmount { get; set; } // Changed from Amount, maps to 'transferAmount'
@@ -38,7 +39,7 @@ public class SePayWebhookData
     public string? ReferenceCode { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     // Existing PaymentStatus property. This is not directly from the SePay payload
     // but might be used internally by your application after processing the webhook.

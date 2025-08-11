@@ -37,7 +37,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
             _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
 
-            var inMemorySettings = new Dictionary<string, string>
+            var inMemorySettings = new Dictionary<string, string?>
             {
             };
             IConfiguration configuration = new ConfigurationBuilder()
@@ -105,10 +105,10 @@ namespace PeerTutoringSystem.Tests.Application.Services
 
       // Assert
       _mockPaymentRepository.Verify(r => r.GetPaymentByTransactionIdAsync(webhookData.Id.ToString()), Times.Once);
-      NUnit.Framework.Assert.AreEqual(PaymentStatus.Success, paymentEntity.Status);
+      NUnit.Framework.Assert.AreEqual(PaymentStatus.Paid, paymentEntity.Status);
       Assert.NotNull(paymentEntity.UpdatedAt);
       _mockPaymentRepository.Verify(r => r.UpdatePaymentAsync(
-          It.Is<PaymentEntity>(p => p.TransactionId == webhookData.Id.ToString() && p.Status == PaymentStatus.Success)),
+          It.Is<PaymentEntity>(p => p.TransactionId == webhookData.Id.ToString() && p.Status == PaymentStatus.Paid)),
           Times.Once);
     }
 
@@ -136,7 +136,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
     {
       // Arrange
       var webhookData = CreateWebhookData(3, "in");
-      var paymentEntity = CreatePaymentEntity(webhookData.Id.ToString(), PaymentStatus.Success); // Already success
+      var paymentEntity = CreatePaymentEntity(webhookData.Id.ToString(), PaymentStatus.Paid); // Already success
       _mockPaymentRepository.Setup(r => r.GetPaymentByTransactionIdAsync(webhookData.Id.ToString()))
          .ReturnsAsync(paymentEntity);
 
@@ -146,7 +146,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
       await _paymentService.ProcessPaymentWebhook(webhookData);
 
       // Assert
-      NUnit.Framework.Assert.AreEqual(PaymentStatus.Success, paymentEntity.Status);
+      NUnit.Framework.Assert.AreEqual(PaymentStatus.Paid, paymentEntity.Status);
       NUnit.Framework.Assert.AreEqual(originalUpdatedAt, paymentEntity.UpdatedAt); // Should not change if no update
       _mockPaymentRepository.Verify(r => r.UpdatePaymentAsync(It.IsAny<PaymentEntity>()), Times.Never);
     }
@@ -164,9 +164,9 @@ namespace PeerTutoringSystem.Tests.Application.Services
       await _paymentService.ProcessPaymentWebhook(webhookData);
 
       // Assert
-      NUnit.Framework.Assert.AreEqual(PaymentStatus.Success, paymentEntity.Status);
+      NUnit.Framework.Assert.AreEqual(PaymentStatus.Paid, paymentEntity.Status);
       _mockPaymentRepository.Verify(r => r.UpdatePaymentAsync(
-          It.Is<PaymentEntity>(p => p.Status == PaymentStatus.Success)),
+          It.Is<PaymentEntity>(p => p.Status == PaymentStatus.Paid)),
           Times.Once);
     }
 

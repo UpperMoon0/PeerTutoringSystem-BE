@@ -16,7 +16,9 @@ namespace PeerTutoringSystem.Application.Interfaces.Booking
         Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetUpcomingBookingsAsync(Guid userId, bool isTutor, BookingFilterDto filter);
         Task<(IEnumerable<BookingSessionDto> Bookings, int TotalCount)> GetAllBookingsForAdminAsync(BookingFilterDto filter);
         Task<TutorDashboardStatsDto> GetTutorDashboardStatsAsync(Guid tutorId);
-        Task<UploadProofOfPaymentResult> UploadProofOfPayment(Guid bookingId, IFormFile file);
-        Task<ConfirmPaymentResult> ConfirmPayment(Guid bookingId, PaymentConfirmationDto paymentConfirmationDto);
+        Task<BookingSessionDto> AcceptBookingAsync(Guid bookingId, Guid tutorId);
+        Task<BookingSessionDto> RejectBookingAsync(Guid bookingId, Guid tutorId);
+        Task<(bool Succeeded, string Message)> ConfirmPayment(Guid bookingId, PaymentConfirmationDto paymentConfirmationDto);
+        Task<(bool Succeeded, string Message)> UploadProofOfPayment(Guid bookingId, IFormFile file);
     }
 }

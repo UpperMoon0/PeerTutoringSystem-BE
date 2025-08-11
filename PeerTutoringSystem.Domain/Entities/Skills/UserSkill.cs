@@ -15,7 +15,7 @@ namespace PeerTutoringSystem.Domain.Entities.Skills
         public bool IsTutor { get; set; }
 
         // Navigation properties
-        public User User { get; set; }
-        public Skill Skill { get; set; }
+        public User? User { get; set; }
+        public Skill? Skill { get; set; }
     }
 }

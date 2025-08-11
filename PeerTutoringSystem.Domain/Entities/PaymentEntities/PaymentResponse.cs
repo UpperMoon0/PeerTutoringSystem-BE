@@ -8,16 +8,16 @@ namespace PeerTutoringSystem.Domain.Entities.PaymentEntities
         public bool Success { get; set; }
         
         [JsonPropertyName("message")]
-        public string Message { get; set; }
+        public string? Message { get; set; }
         
         [JsonPropertyName("paymentId")]
-        public string PaymentId { get; set; }
+        public string? PaymentId { get; set; }
         
         [JsonPropertyName("paymentUrl")]
-        public string PaymentUrl { get; set; }
+        public string? PaymentUrl { get; set; }
         
         [JsonPropertyName("transactionId")]
-        public string TransactionId { get; set; }
+        public string? TransactionId { get; set; }
         
         [JsonPropertyName("amount")]
         public decimal Amount { get; set; }

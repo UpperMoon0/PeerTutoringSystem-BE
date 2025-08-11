@@ -132,7 +132,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 return false;
             }
 
-            payment.Status = PaymentStatus.Success;
+            payment.Status = PaymentStatus.Paid;
             payment.UpdatedAt = DateTime.UtcNow;
 
             await _paymentRepository.UpdatePaymentAsync(payment);
@@ -149,7 +149,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
         public async Task<AdminFinanceDto> GetAdminFinanceDetails()
         {
             var payments = await _paymentRepository.GetAllAsync();
-            var successfulPayments = payments.Where(p => p.Status == PaymentStatus.Success).ToList();
+            var successfulPayments = payments.Where(p => p.Status == PaymentStatus.Paid).ToList();
 
             var totalRevenue = successfulPayments.Sum(p => (double)p.Amount);
             var totalTransactions = successfulPayments.Count;

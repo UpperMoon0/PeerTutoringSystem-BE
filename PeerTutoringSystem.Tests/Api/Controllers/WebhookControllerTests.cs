@@ -57,7 +57,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
       Assert.NotNull(returnValue);
       var successProperty = returnValue.GetType().GetProperty("success");
       Assert.NotNull(successProperty);
-      Assert.AreEqual(true, successProperty.GetValue(returnValue, null));
+      Assert.That(successProperty.GetValue(returnValue, null), Is.EqualTo(true));
       _mockPaymentService.Verify(s => s.ProcessPaymentWebhook(webhookData), Times.Once);
     }
 
@@ -65,10 +65,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
     public async Task HandleSePayWebhook_NullData_ReturnsBadRequest()
     {
       // Arrange
-      SePayWebhookData webhookData = null;
+      SePayWebhookData? webhookData = null;
 
       // Act
-      var result = await _controller.HandleSePayWebhook(webhookData);
+      var result = await _controller.HandleSePayWebhook(webhookData!);
 
       // Assert
       Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
@@ -77,10 +77,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
       Assert.NotNull(returnValue);
       var successProperty = returnValue.GetType().GetProperty("success");
       Assert.NotNull(successProperty);
-      Assert.AreEqual(false, successProperty.GetValue(returnValue, null));
+      Assert.That(successProperty.GetValue(returnValue, null), Is.EqualTo(false));
       var messageProperty = returnValue.GetType().GetProperty("message");
       Assert.NotNull(messageProperty);
-      Assert.AreEqual("Invalid payload.", messageProperty.GetValue(returnValue, null));
+      Assert.That(messageProperty.GetValue(returnValue, null), Is.EqualTo("Invalid payload."));
     }
 
 
@@ -103,10 +103,10 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
       Assert.NotNull(returnValue);
       var successProperty = returnValue.GetType().GetProperty("success");
       Assert.NotNull(successProperty);
-      Assert.AreEqual(false, successProperty.GetValue(returnValue, null));
+      Assert.That(successProperty.GetValue(returnValue, null), Is.EqualTo(false));
       var messageProperty = returnValue.GetType().GetProperty("message");
       Assert.NotNull(messageProperty);
-      Assert.AreEqual("An unexpected error occurred.", messageProperty.GetValue(returnValue, null));
+      Assert.That(messageProperty.GetValue(returnValue, null), Is.EqualTo("An unexpected error occurred."));
     }
   }
 }

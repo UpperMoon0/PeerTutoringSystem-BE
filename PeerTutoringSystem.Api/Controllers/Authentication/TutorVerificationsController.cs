@@ -137,6 +137,10 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
                     return NotFound(new { error = "Document not found." });
                 }
 
+                if (string.IsNullOrEmpty(document.DocumentPath))
+                {
+                    return NotFound(new { error = "Document path not found." });
+                }
                 var documentDto = await _documentService.GetDocumentAsync(document.DocumentPath);
                 return File(documentDto.Content, documentDto.ContentType, documentDto.FileName);
             }

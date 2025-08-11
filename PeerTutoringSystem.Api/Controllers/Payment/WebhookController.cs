@@ -19,5 +19,23 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             _paymentService = paymentService;
         }
 
+        [HttpPost("sepay")]
+        public async Task<IActionResult> HandleSePayWebhook([FromBody] SePayWebhookData webhookData)
+        {
+            if (webhookData == null)
+            {
+                return BadRequest(new { success = false, message = "Invalid payload." });
+            }
+
+            try
+            {
+                await _paymentService.ProcessPaymentWebhook(webhookData);
+                return Ok(new { success = true });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { success = false, message = "An unexpected error occurred." });
+            }
+        }
     }
 }
