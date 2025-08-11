@@ -8,6 +8,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Booking
         Task<(IEnumerable<TutorAvailabilityDto> Availabilities, int TotalCount)> GetByTutorIdAsync(Guid tutorId, BookingFilterDto filter);
         Task<TutorAvailabilityDto> GetByIdAsync(Guid availabilityId);
         Task<bool> DeleteAsync(Guid availabilityId);
-        Task<(IEnumerable<TutorAvailabilityDto> Availabilities, int TotalCount)> GetAvailableSlotsAsync(Guid tutorId, DateTime startDate, DateTime endDate, BookingFilterDto filter);
+        Task<(IEnumerable<TutorAvailabilityDto> Availabilities, int TotalCount)> GetAvailableSlotsAsync(Guid tutorId, DateTime startDate, DateTime endDate, string? status, BookingFilterDto filter);
     }
 }

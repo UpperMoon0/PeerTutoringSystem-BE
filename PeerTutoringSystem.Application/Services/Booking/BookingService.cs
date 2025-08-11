@@ -54,7 +54,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 throw new ValidationException("This time slot has already been booked.");
 
             if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, availability.StartTime, availability.EndTime))
-                throw new ValidationException("This time slot is no longer available.");
+                throw new ValidationException("This time slot is no longer available as it has been booked by another user.");
 
             // Validate skill if provided
             if (dto.SkillId.HasValue)

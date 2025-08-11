@@ -91,6 +91,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
         public async Task<IActionResult> GetAvailableSlots([FromQuery] Guid tutorId,
                                                          [FromQuery] DateTime startDate,
                                                          [FromQuery] DateTime endDate,
+                                                         [FromQuery] string? status,
                                                          [FromQuery] BookingFilterDto filter)
         {
             try
@@ -102,7 +103,7 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                 if (endDate <= startDate)
                     return BadRequest(new { error = "End date must be after the start date.", timestamp = DateTime.UtcNow });
 
-                var (availabilities, totalCount) = await _availabilityService.GetAvailableSlotsAsync(tutorId, startDate, endDate, filter);
+                var (availabilities, totalCount) = await _availabilityService.GetAvailableSlotsAsync(tutorId, startDate, endDate, status, filter);
                 return Ok(new
                 {
                     data = availabilities,

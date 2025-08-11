@@ -131,6 +131,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
             Guid tutorId,
             DateTime startDate,
             DateTime endDate,
+            string? status,
             BookingFilterDto filter
         )
         {
@@ -143,6 +144,11 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
             var availabilities = await _availabilityRepository.GetAvailableSlotsByTutorIdAsync(tutorId, startDate, endDate);
             var query = availabilities.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(status) && status.Equals("Available", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(a => !a.IsBooked);
+            }
 
             if (filter.StartDate.HasValue)
             {
