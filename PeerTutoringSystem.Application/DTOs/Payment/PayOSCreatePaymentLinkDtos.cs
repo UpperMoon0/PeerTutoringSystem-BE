@@ -4,13 +4,9 @@ namespace PeerTutoringSystem.Application.DTOs.Payment
 {
     public class PayOSCreatePaymentLinkRequestDto
     {
-        public int orderCode { get; set; }
-        public int amount { get; set; }
-        public string description { get; set; }
+        public Guid BookingId { get; set; }
         public string cancelUrl { get; set; }
         public string returnUrl { get; set; }
-        public string signature { get; set; }
-        public List<PayOSItemDto> items { get; set; }
     }
 
     public class PayOSItemDto
@@ -35,7 +31,7 @@ namespace PeerTutoringSystem.Application.DTOs.Payment
         public string accountName { get; set; }
         public int amount { get; set; }
         public string description { get; set; }
-        public int orderCode { get; set; }
+        public long orderCode { get; set; }
         public string paymentLinkId { get; set; }
         public string status { get; set; }
         public string checkoutUrl { get; set; }

@@ -19,12 +19,15 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
         [HttpPost("create-payment-link")]
         public async Task<IActionResult> CreatePaymentLink([FromBody] PayOSCreatePaymentLinkRequestDto request)
         {
-            var result = await _payOSService.CreatePaymentLink(request);
-            if (result != null)
+            try
             {
+                var result = await _payOSService.CreatePaymentLink(request, request.returnUrl, request.cancelUrl);
                 return Ok(result);
             }
-            return BadRequest("Failed to create payment link.");
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

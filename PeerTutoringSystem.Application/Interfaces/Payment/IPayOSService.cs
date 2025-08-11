@@ -5,6 +5,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Payment
 {
     public interface IPayOSService
     {
-        Task<PayOSCreatePaymentLinkResponseDto> CreatePaymentLink(PayOSCreatePaymentLinkRequestDto request);
+        Task<PayOSCreatePaymentLinkResponseDto> CreatePaymentLink(PayOSCreatePaymentLinkRequestDto request, string successUrl, string cancelUrl);
     }
 }
