@@ -87,8 +87,15 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 throw new Exception("PayOS Checksum Key is not configured in .env file.");
             }
             
-            var dataToSign = $"amount={amount}&cancelUrl={cancelUrl}&description={description}&orderCode={orderCode}&returnUrl={successUrl}";
-            var signature = CreateSignature(dataToSign, checksumKey);
+            var signatureData = new Dictionary<string, string>
+            {
+                { "amount", amount.ToString() },
+                { "cancelUrl", cancelUrl },
+                { "description", description },
+                { "orderCode", orderCode.ToString() },
+                { "returnUrl", successUrl }
+            };
+            var signature = GenerateSignature(signatureData, checksumKey);
 
             var payOSRequest = new
             {
@@ -151,6 +158,12 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 return BitConverter.ToString(hash).Replace("-", "").ToLower();
             }
         }
+        private string GenerateSignature(Dictionary<string, string> data, string key)
+        {
+            var sortedData = new SortedDictionary<string, string>(data);
+            var dataToSign = string.Join("&", sortedData.Select(kv => $"{kv.Key}={kv.Value}"));
+            return CreateSignature(dataToSign, key);
+        }
 
         public async Task ProcessPayOSWebhook(PayOSWebhookData webhookData)
         {
@@ -160,20 +173,8 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 throw new Exception("PayOS Checksum Key is not configured in .env file.");
             }
 
-            var sortedData = new SortedDictionary<string, string>();
-            var dataJson = JsonSerializer.Serialize(webhookData.Data);
-            var dataDict = JsonSerializer.Deserialize<Dictionary<string, object>>(dataJson);
-
-            foreach (var item in dataDict)
-            {
-                if (item.Value != null)
-                {
-                    sortedData.Add(item.Key, item.Value.ToString());
-                }
-            }
-            
-            var dataToSign = string.Join("&", sortedData.Select(kv => $"{kv.Key}={kv.Value}"));
-            var signature = CreateSignature(dataToSign, checksumKey);
+            var dataDict = JsonSerializer.Deserialize<Dictionary<string, string>>(JsonSerializer.Serialize(webhookData.Data));
+            var signature = GenerateSignature(dataDict, checksumKey);
 
             if (signature != webhookData.Signature)
             {
