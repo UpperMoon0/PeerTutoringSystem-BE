@@ -1,4 +1,5 @@
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -180,10 +181,21 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 throw new Exception("PayOS Checksum Key is not configured in .env file.");
             }
 
-            var dataJson = JsonSerializer.Serialize(webhookData.Data);
-            var dataDict = JsonSerializer.Deserialize<Dictionary<string, object>>(dataJson);
-            var stringDataDict = dataDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
-            var signature = GenerateSignature(stringDataDict, checksumKey);
+            var dataDict = new Dictionary<string, string>();
+            var properties = webhookData.Data.GetType().GetProperties();
+            foreach (var prop in properties)
+            {
+                var jsonPropertyName = prop.GetCustomAttributes(typeof(System.Text.Json.Serialization.JsonPropertyNameAttribute), false)
+                                            .OfType<System.Text.Json.Serialization.JsonPropertyNameAttribute>()
+                                            .FirstOrDefault();
+                var key = jsonPropertyName != null ? jsonPropertyName.Name : prop.Name;
+                var value = prop.GetValue(webhookData.Data)?.ToString();
+                if (value != null)
+                {
+                    dataDict.Add(key, value);
+                }
+            }
+            var signature = GenerateSignature(dataDict, checksumKey);
 
             if (signature != webhookData.Signature)
             {

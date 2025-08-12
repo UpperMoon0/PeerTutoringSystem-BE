@@ -45,5 +45,26 @@ namespace PeerTutoringSystem.Application.DTOs.Payment
 
         [JsonPropertyName("desc")]
         public string Desc { get; set; }
+
+        [JsonPropertyName("currency")]
+        public string Currency { get; set; }
+
+        [JsonPropertyName("counterAccountBankId")]
+        public string CounterAccountBankId { get; set; }
+
+        [JsonPropertyName("counterAccountBankName")]
+        public string CounterAccountBankName { get; set; }
+
+        [JsonPropertyName("counterAccountName")]
+        public string CounterAccountName { get; set; }
+
+        [JsonPropertyName("counterAccountNumber")]
+        public string CounterAccountNumber { get; set; }
+
+        [JsonPropertyName("virtualAccountName")]
+        public string VirtualAccountName { get; set; }
+
+        [JsonPropertyName("virtualAccountNumber")]
+        public string VirtualAccountNumber { get; set; }
     }
 }
