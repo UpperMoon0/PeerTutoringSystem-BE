@@ -38,6 +38,7 @@ using PeerTutoringSystem.Application.Services.Payment;
 using PeerTutoringSystem.Application.Interfaces.Payment;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using PeerTutoringSystem.Application.Services.Payment;
 
 DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "../etc/secrets/.env"));
 
@@ -126,6 +127,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPayOSService, PayOSService>();
+builder.Services.AddScoped<PayOSWebhookService>();
 builder.Services.AddScoped(provider =>
 {
     var configuration = provider.GetRequiredService<IConfiguration>();
@@ -215,5 +217,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<PeerTutoringSystem.Api.Hubs.ChatHub>("/chatHub");
+
+// Confirm PayOS webhook on startup
+using (var scope = app.Services.CreateScope())
+{
+    var payOSWebhookService = scope.ServiceProvider.GetRequiredService<PayOSWebhookService>();
+    await payOSWebhookService.ConfirmWebhook();
+}
 
 app.Run();

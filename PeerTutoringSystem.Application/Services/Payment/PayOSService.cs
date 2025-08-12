@@ -81,10 +81,10 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 }
             };
 
-            var checksumKey = _configuration["PayOS_Checksum_Key"];
+            var checksumKey = Environment.GetEnvironmentVariable("PayOS_Checksum_Key");
             if (string.IsNullOrEmpty(checksumKey))
             {
-                throw new Exception("PayOS Checksum Key is not configured.");
+                throw new Exception("PayOS Checksum Key is not configured in .env file.");
             }
             
             var dataToSign = $"amount={amount}&cancelUrl={cancelUrl}&description={description}&orderCode={orderCode}&returnUrl={successUrl}";
@@ -102,8 +102,13 @@ namespace PeerTutoringSystem.Application.Services.Payment
             };
 
             var client = _httpClientFactory.CreateClient();
-            var clientId = _configuration["PayOS_Client_ID"];
-            var apiKey = _configuration["PayOS_API_Key"];
+            var clientId = Environment.GetEnvironmentVariable("PayOS_Client_ID");
+            var apiKey = Environment.GetEnvironmentVariable("PayOS_API_Key");
+
+            if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(apiKey))
+            {
+                throw new Exception("PayOS ClientId or ApiKey is not configured in .env file.");
+            }
 
             var jsonRequest = JsonSerializer.Serialize(payOSRequest);
             var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
@@ -149,10 +154,10 @@ namespace PeerTutoringSystem.Application.Services.Payment
 
         public async Task ProcessPayOSWebhook(PayOSWebhookData webhookData)
         {
-            var checksumKey = _configuration["PayOS_Checksum_Key"];
+            var checksumKey = Environment.GetEnvironmentVariable("PayOS_Checksum_Key");
             if (string.IsNullOrEmpty(checksumKey))
             {
-                throw new Exception("PayOS Checksum Key is not configured.");
+                throw new Exception("PayOS Checksum Key is not configured in .env file.");
             }
 
             var sortedData = new SortedDictionary<string, string>();
