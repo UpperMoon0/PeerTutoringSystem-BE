@@ -173,8 +173,10 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 throw new Exception("PayOS Checksum Key is not configured in .env file.");
             }
 
-            var dataDict = JsonSerializer.Deserialize<Dictionary<string, string>>(JsonSerializer.Serialize(webhookData.Data));
-            var signature = GenerateSignature(dataDict, checksumKey);
+            var dataJson = JsonSerializer.Serialize(webhookData.Data);
+            var dataDict = JsonSerializer.Deserialize<Dictionary<string, object>>(dataJson);
+            var stringDataDict = dataDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+            var signature = GenerateSignature(stringDataDict, checksumKey);
 
             if (signature != webhookData.Signature)
             {
