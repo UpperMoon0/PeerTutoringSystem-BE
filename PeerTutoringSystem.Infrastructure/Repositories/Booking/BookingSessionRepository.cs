@@ -28,6 +28,8 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
         public async Task<BookingSession?> GetByIdAsync(Guid bookingId)
         {
             return await _context.BookingSessions
+                .Include(b => b.Tutor)
+                .Include(b => b.Student)
                 .FirstOrDefaultAsync(b => b.BookingId == bookingId);
         }
 
