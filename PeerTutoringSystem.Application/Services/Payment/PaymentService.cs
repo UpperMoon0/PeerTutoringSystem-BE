@@ -10,6 +10,7 @@ using PeerTutoringSystem.Application.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Domain.Interfaces.Payment;
+using PeerTutoringSystem.Domain.Interfaces.Authentication;
 
 namespace PeerTutoringSystem.Application.Services.Payment
 {
@@ -20,19 +21,28 @@ namespace PeerTutoringSystem.Application.Services.Payment
         private readonly IConfiguration _configuration;
         private readonly IBookingSessionRepository _bookingRepository;
         private readonly ILogger<PaymentService> _logger;
+        private readonly IUserBioRepository _userBioRepository;
+        private readonly ISessionRepository _sessionRepository;
+        private readonly IUserRepository _userRepository;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IBookingSessionRepository bookingRepository,
-            ILogger<PaymentService> logger)
+            ILogger<PaymentService> logger,
+            IUserBioRepository userBioRepository,
+            ISessionRepository sessionRepository,
+            IUserRepository userRepository)
         {
             _paymentRepository = paymentRepository;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _bookingRepository = bookingRepository;
             _logger = logger;
+            _userBioRepository = userBioRepository;
+            _sessionRepository = sessionRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<IEnumerable<PaymentHistoryDto>> GetPaymentHistory(string userId)
@@ -223,6 +233,35 @@ namespace PeerTutoringSystem.Application.Services.Payment
                     booking.PaymentStatus = PaymentStatus.Paid;
                     await _bookingRepository.UpdateAsync(booking);
                     _logger.LogInformation("[PAYOS WEBHOOK] Booking status updated to Paid for OrderCode {OrderCode}", webhookData.Data.OrderCode);
+
+                    var payment = new PaymentEntity
+                    {
+                        BookingId = booking.BookingId,
+                        Amount = booking.basePrice + booking.serviceFee,
+                        Status = PaymentStatus.Paid,
+                        TransactionId = webhookData.Data.Reference,
+                        Description = webhookData.Data.Description,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    await _paymentRepository.AddAsync(payment);
+
+                    var session = await _sessionRepository.GetByBookingIdAsync(booking.BookingId);
+                    if (session != null)
+                    {
+                        var tutor = await _userRepository.GetByIdAsync(booking.TutorId);
+                        if (tutor != null)
+                        {
+                            var tutorBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
+                            if (tutorBio != null)
+                            {
+                                var duration = (decimal)(booking.EndTime - booking.StartTime).TotalHours;
+                                var amountToPay = duration * tutorBio.HourlyRate;
+                                tutor.AccountBalance += (double)amountToPay;
+                                await _userRepository.UpdateAsync(tutor);
+                            }
+                        }
+                    }
                 }
                 else
                 {

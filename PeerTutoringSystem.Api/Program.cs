@@ -38,7 +38,6 @@ using PeerTutoringSystem.Application.Services.Payment;
 using PeerTutoringSystem.Application.Interfaces.Payment;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
-using PeerTutoringSystem.Application.Services.Payment;
 
 DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "../etc/secrets/.env"));
 
@@ -126,17 +125,6 @@ builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IPayOSWebhookService, PayOSWebhookService>(provider =>
-    new PayOSWebhookService(
-        provider.GetRequiredService<IHttpClientFactory>(),
-        provider.GetRequiredService<IConfiguration>(),
-        provider.GetRequiredService<IBookingSessionRepository>(),
-        provider.GetRequiredService<IUserBioRepository>(),
-        provider.GetRequiredService<ISessionRepository>(),
-        provider.GetRequiredService<IUserRepository>(),
-        provider.GetRequiredService<IPaymentRepository>(),
-        provider.GetRequiredService<ILogger<PayOSWebhookService>>()
-    ));
 builder.Services.AddScoped(provider =>
 {
     var configuration = provider.GetRequiredService<IConfiguration>();
