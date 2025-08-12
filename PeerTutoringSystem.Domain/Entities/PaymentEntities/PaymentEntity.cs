@@ -7,7 +7,7 @@ namespace PeerTutoringSystem.Domain.Entities.PaymentEntities
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public Guid BookingId { get; set; }
-        public string? TransactionId { get; set; }  // External transaction ID from SePay
+        public string? TransactionId { get; set; }  // External transaction ID from PayOS
         public decimal Amount { get; set; }
         public string Currency { get; set; } = "VND";
         public string? Description { get; set; }

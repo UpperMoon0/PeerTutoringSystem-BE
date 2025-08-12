@@ -10,5 +10,6 @@ namespace PeerTutoringSystem.Domain.Interfaces.Payment
     public interface IPaymentRepository
     {
         Task<IEnumerable<PaymentEntity>> GetPaymentHistory(string userId);
+        Task AddAsync(PaymentEntity payment);
     }
 }

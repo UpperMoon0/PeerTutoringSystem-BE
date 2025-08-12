@@ -29,5 +29,11 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Payment
                 .Where(p => p.Booking.Student.UserID.ToString() == userId || p.Booking.Tutor.UserID.ToString() == userId)
                 .ToListAsync();
         }
+
+        public async Task AddAsync(PaymentEntity payment)
+        {
+            await _context.Payments.AddAsync(payment);
+            await _context.SaveChangesAsync();
+        }
     }
 }

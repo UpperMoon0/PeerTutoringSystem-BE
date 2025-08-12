@@ -7,6 +7,7 @@ using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using PeerTutoringSystem.Domain.Interfaces.Authentication;
+using PeerTutoringSystem.Domain.Interfaces.Payment;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -21,9 +22,10 @@ namespace PeerTutoringSystem.Application.Services.Payment
         private readonly IUserBioRepository _userBioRepository;
         private readonly ISessionRepository _sessionRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IPaymentRepository _paymentRepository;
         private readonly ILogger<PayOSWebhookService> _logger;
 
-        public PayOSWebhookService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IBookingSessionRepository bookingRepository, IUserBioRepository userBioRepository, ISessionRepository sessionRepository, IUserRepository userRepository, ILogger<PayOSWebhookService> logger)
+        public PayOSWebhookService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IBookingSessionRepository bookingRepository, IUserBioRepository userBioRepository, ISessionRepository sessionRepository, IUserRepository userRepository, IPaymentRepository paymentRepository, ILogger<PayOSWebhookService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
@@ -31,6 +33,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
             _userBioRepository = userBioRepository;
             _sessionRepository = sessionRepository;
             _userRepository = userRepository;
+            _paymentRepository = paymentRepository;
             _logger = logger;
         }
 
@@ -118,6 +121,18 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 {
                     booking.PaymentStatus = PaymentStatus.Paid;
                     await _bookingRepository.UpdateAsync(booking);
+
+                    var payment = new PaymentEntity
+                    {
+                        BookingId = booking.BookingId,
+                        Amount = booking.basePrice + booking.serviceFee,
+                        Status = PaymentStatus.Paid,
+                        TransactionId = webhookData.Data.Reference,
+                        Description = webhookData.Data.Description,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    await _paymentRepository.AddAsync(payment);
 
                     var session = await _sessionRepository.GetByBookingIdAsync(booking.BookingId);
                     if (session != null)
