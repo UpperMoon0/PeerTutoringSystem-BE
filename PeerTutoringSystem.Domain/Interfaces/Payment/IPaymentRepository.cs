@@ -9,6 +9,6 @@ namespace PeerTutoringSystem.Domain.Interfaces.Payment
 {
     public interface IPaymentRepository
     {
-        Task<IEnumerable<PaymentEntity>> GetPaymentHistory();
+        Task<IEnumerable<PaymentEntity>> GetPaymentHistory(string userId);
     }
 }

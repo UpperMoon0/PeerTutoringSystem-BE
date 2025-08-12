@@ -18,7 +18,13 @@ namespace PeerTutoringSystem.Api.Controllers
         [HttpGet("history")]
         public async Task<IActionResult> GetPaymentHistory()
         {
-            var result = await _paymentService.GetPaymentHistory();
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await _paymentService.GetPaymentHistory(userId);
             if (!result.Any())
             {
                 return NotFound();

@@ -222,7 +222,8 @@ app.MapHub<PeerTutoringSystem.Api.Hubs.ChatHub>("/chatHub");
 using (var scope = app.Services.CreateScope())
 {
     var payOSWebhookService = scope.ServiceProvider.GetRequiredService<PayOSWebhookService>();
-    await payOSWebhookService.ConfirmWebhook();
+    var result = await payOSWebhookService.ConfirmWebhook();
+    Console.WriteLine(result);
 }
 
 app.Run();

@@ -18,9 +18,9 @@ namespace PeerTutoringSystem.Application.Services.Payment
             _paymentRepository = paymentRepository;
         }
 
-        public async Task<IEnumerable<PaymentHistoryDto>> GetPaymentHistory()
+        public async Task<IEnumerable<PaymentHistoryDto>> GetPaymentHistory(string userId)
         {
-            var paymentHistory = await _paymentRepository.GetPaymentHistory();
+            var paymentHistory = await _paymentRepository.GetPaymentHistory(userId);
             return paymentHistory.Select(p => new PaymentHistoryDto
             {
                 Id = p.Id,
