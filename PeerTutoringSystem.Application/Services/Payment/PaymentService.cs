@@ -165,33 +165,6 @@ namespace PeerTutoringSystem.Application.Services.Payment
             return signature;
         }
 
-        public async Task<IEnumerable<TransactionHistoryDto>> GetTransactionHistory(string userId)
-        {
-            var studentBookings = await _bookingRepository.GetByStudentIdAsync(Guid.Parse(userId));
-            var tutorBookings = await _bookingRepository.GetByTutorIdAsync(Guid.Parse(userId));
-
-            var allBookings = studentBookings.Concat(tutorBookings).Distinct();
-
-            var transactionHistory = new List<TransactionHistoryDto>();
-
-            foreach (var booking in allBookings)
-            {
-                if (booking.basePrice > 0)
-                {
-                    var amount = (decimal)(booking.basePrice + booking.serviceFee);
-                    transactionHistory.Add(new TransactionHistoryDto
-                    {
-                        Id = booking.BookingId,
-                        TransactionDate = booking.SessionDate,
-                        Amount = amount,
-                        Description = $"Booking with {booking.Tutor.FullName}",
-                        Status = booking.PaymentStatus.ToString()
-                    });
-                }
-            }
-
-            return transactionHistory;
-        }
         public async Task<bool> ConfirmPayment(Guid bookingId)
         {
             var booking = await _bookingRepository.GetByIdAsync(bookingId);

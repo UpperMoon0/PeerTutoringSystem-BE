@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using PeerTutoringSystem.Application.Interfaces.Payment;
 using PeerTutoringSystem.Application.DTOs.Payment;
 using PeerTutoringSystem.Application.DTOs.Booking;
@@ -18,10 +19,11 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             _configuration = configuration;
         }
 
+        [Authorize]
         [HttpGet("history")]
         public async Task<IActionResult> GetPaymentHistory()
         {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized();
@@ -30,7 +32,7 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             var result = await _paymentService.GetPaymentHistory(userId);
             if (!result.Any())
             {
-                return NotFound();
+                return Ok(new List<object>());
             }
             return Ok(result);
         }
@@ -47,19 +49,6 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             {
                 return BadRequest(new { message = ex.Message });
             }
-        }
-
-        [HttpGet("transaction-history")]
-        public async Task<IActionResult> GetTransactionHistory()
-        {
-            var userId = User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized();
-            }
-
-            var result = await _paymentService.GetTransactionHistory(userId);
-            return Ok(result);
         }
 
         [HttpGet("confirm-payment")]
