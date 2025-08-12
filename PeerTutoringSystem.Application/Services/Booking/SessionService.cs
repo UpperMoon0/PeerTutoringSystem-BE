@@ -55,8 +55,8 @@ namespace PeerTutoringSystem.Application.Services.Booking
             var basePrice = (decimal)durationHours * tutorBio.HourlyRate;
             var serviceFee = basePrice * 0.3m;
 
-            booking.basePrice = (double)basePrice;
-            booking.serviceFee = (double)serviceFee;
+            booking.basePrice = basePrice;
+            booking.serviceFee = serviceFee;
             await _bookingRepository.UpdateAsync(booking);
 
             var session = new Session

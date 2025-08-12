@@ -19,8 +19,8 @@ namespace PeerTutoringSystem.Domain.Entities.Booking
         public string? Topic { get; set; }
         public string? Description { get; set; }
         public BookingStatus Status { get; set; }
-        public double basePrice { get; set; }
-        public double serviceFee { get; set; }
+        public decimal basePrice { get; set; }
+        public decimal serviceFee { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

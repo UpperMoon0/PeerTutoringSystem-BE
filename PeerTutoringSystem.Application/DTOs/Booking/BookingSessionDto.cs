@@ -17,7 +17,7 @@ namespace PeerTutoringSystem.Application.DTOs.Booking
         public string? Description { get; set; }
         public BookingStatus Status { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
-        public int OrderCode { get; set; }
+        public long OrderCode { get; set; }
         public DateTime CreatedAt { get; set; }
         public string StudentName { get; set; }
         public string TutorName { get; set; }
