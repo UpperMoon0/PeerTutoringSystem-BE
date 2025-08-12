@@ -175,9 +175,13 @@ namespace PeerTutoringSystem.Application.Services.Payment
 
         public async Task HandlePayOSWebhook(PayOSWebhookData webhookData)
         {
+            _logger.LogInformation("==============================================");
+            _logger.LogInformation("[PAYOS WEBHOOK] Handling webhook...");
+            _logger.LogInformation("==============================================");
             var checksumKey = Environment.GetEnvironmentVariable("PayOS_Checksum_Key");
             if (string.IsNullOrEmpty(checksumKey))
             {
+                _logger.LogError("[PAYOS WEBHOOK] Checksum Key is not configured.");
                 throw new Exception("PayOS Checksum Key is not configured in .env file.");
             }
 
@@ -204,17 +208,30 @@ namespace PeerTutoringSystem.Application.Services.Payment
 
             if (signature != webhookData.Signature)
             {
+                _logger.LogWarning("[PAYOS WEBHOOK] Invalid signature.");
                 throw new Exception("Invalid signature");
             }
 
+            _logger.LogInformation("[PAYOS WEBHOOK] Signature verified.");
+
             if (webhookData.Code == "00")
             {
+                _logger.LogInformation("[PAYOS WEBHOOK] Payment successful, updating booking status.");
                 var booking = await _bookingRepository.GetByOrderCode(webhookData.Data.OrderCode);
                 if (booking != null)
                 {
                     booking.PaymentStatus = PaymentStatus.Paid;
                     await _bookingRepository.UpdateAsync(booking);
+                    _logger.LogInformation("[PAYOS WEBHOOK] Booking status updated to Paid for OrderCode {OrderCode}", webhookData.Data.OrderCode);
                 }
+                else
+                {
+                    _logger.LogWarning("[PAYOS WEBHOOK] Booking not found for OrderCode {OrderCode}", webhookData.Data.OrderCode);
+                }
+            }
+            else
+            {
+                _logger.LogInformation("[PAYOS WEBHOOK] Payment not successful. Code: {Code}", webhookData.Code);
             }
         }
 

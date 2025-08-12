@@ -63,11 +63,17 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
         {
             try
             {
+                Console.WriteLine("==============================================");
+                Console.WriteLine("[PAYOS WEBHOOK] Received a request.");
+                Console.WriteLine("==============================================");
                 await _paymentService.HandlePayOSWebhook(webhookData);
                 return Ok();
             }
             catch (Exception ex)
             {
+                Console.WriteLine("==============================================");
+                Console.WriteLine($"[PAYOS WEBHOOK] Error: {ex.Message}");
+                Console.WriteLine("==============================================");
                 return BadRequest(new { message = ex.Message });
             }
         }
