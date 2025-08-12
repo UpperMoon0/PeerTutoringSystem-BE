@@ -126,7 +126,15 @@ builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IPayOSWebhookService, PayOSWebhookService>();
+builder.Services.AddScoped<IPayOSWebhookService, PayOSWebhookService>(provider =>
+    new PayOSWebhookService(
+        provider.GetRequiredService<IHttpClientFactory>(),
+        provider.GetRequiredService<IConfiguration>(),
+        provider.GetRequiredService<IBookingSessionRepository>(),
+        provider.GetRequiredService<IUserBioRepository>(),
+        provider.GetRequiredService<ISessionRepository>(),
+        provider.GetRequiredService<ILogger<PayOSWebhookService>>()
+    ));
 builder.Services.AddScoped(provider =>
 {
     var configuration = provider.GetRequiredService<IConfiguration>();

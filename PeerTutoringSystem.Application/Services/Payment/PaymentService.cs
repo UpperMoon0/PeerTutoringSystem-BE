@@ -19,8 +19,6 @@ namespace PeerTutoringSystem.Application.Services.Payment
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IBookingSessionRepository _bookingRepository;
-        private readonly IUserBioRepository _userBioRepository;
-        private readonly ISessionRepository _sessionRepository;
         private readonly ILogger<PaymentService> _logger;
 
         public PaymentService(
@@ -28,16 +26,12 @@ namespace PeerTutoringSystem.Application.Services.Payment
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IBookingSessionRepository bookingRepository,
-            IUserBioRepository userBioRepository,
-            ISessionRepository sessionRepository,
             ILogger<PaymentService> logger)
         {
             _paymentRepository = paymentRepository;
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _bookingRepository = bookingRepository;
-            _userBioRepository = userBioRepository;
-            _sessionRepository = sessionRepository;
             _logger = logger;
         }
 
@@ -63,22 +57,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 throw new Exception("Booking not found");
             }
 
-            var tutorBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
-            if (tutorBio == null)
-            {
-                throw new Exception("Tutor not found");
-            }
-
-            var session = await _sessionRepository.GetByBookingIdAsync(request.BookingId);
-            if (session == null)
-            {
-                throw new Exception("Session not found");
-            }
-
-            var durationHours = (session.EndTime - session.StartTime).TotalHours;
-            var basePrice = (decimal)durationHours * tutorBio.HourlyRate;
-            var serviceFee = basePrice * 0.3m;
-            var amount = (int)(basePrice + serviceFee);
+            var amount = (int)(booking.basePrice + booking.serviceFee);
             var description = $"Booking {request.BookingId}";
             if (description.Length > 25)
             {
@@ -93,7 +72,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
             {
                 new PayOSItemDto
                 {
-                    name = $"Tutoring session with {tutorBio.User.FullName}",
+                    name = $"Tutoring session with {booking.Tutor.FullName}",
                     quantity = 1,
                     price = amount
                 }
@@ -197,26 +176,17 @@ namespace PeerTutoringSystem.Application.Services.Payment
 
             foreach (var booking in allBookings)
             {
-                var session = await _sessionRepository.GetByBookingIdAsync(booking.BookingId);
-                if (session != null)
+                if (booking.basePrice > 0)
                 {
-                    var durationHours = (session.EndTime - session.StartTime).TotalHours;
-                    var tutorBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
-                    if (tutorBio != null)
+                    var amount = (decimal)(booking.basePrice + booking.serviceFee);
+                    transactionHistory.Add(new TransactionHistoryDto
                     {
-                        var basePrice = (decimal)durationHours * tutorBio.HourlyRate;
-                        var serviceFee = basePrice * 0.3m;
-                        var amount = basePrice + serviceFee;
-
-                        transactionHistory.Add(new TransactionHistoryDto
-                        {
-                            Id = booking.BookingId,
-                            TransactionDate = booking.SessionDate,
-                            Amount = amount,
-                            Description = $"Booking with {tutorBio.User.FullName}",
-                            Status = booking.PaymentStatus.ToString()
-                        });
-                    }
+                        Id = booking.BookingId,
+                        TransactionDate = booking.SessionDate,
+                        Amount = amount,
+                        Description = $"Booking with {booking.Tutor.FullName}",
+                        Status = booking.PaymentStatus.ToString()
+                    });
                 }
             }
 

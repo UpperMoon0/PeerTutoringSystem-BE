@@ -3,6 +3,7 @@ using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.Interfaces.Booking;
 using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
+using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -18,15 +19,18 @@ namespace PeerTutoringSystem.Application.Services.Booking
         private readonly ISessionRepository _sessionRepository;
         private readonly IBookingSessionRepository _bookingRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUserBioRepository _userBioRepository;
 
         public SessionService(
             ISessionRepository sessionRepository,
             IBookingSessionRepository bookingRepository,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IUserBioRepository userBioRepository)
         {
             _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
             _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _userBioRepository = userBioRepository ?? throw new ArgumentNullException(nameof(userBioRepository));
         }
 
         public async Task<SessionDto> CreateSessionAsync(Guid userId, Guid bookingId, string videoCallLink, string sessionNotes, DateTimeOffset startTime, DateTimeOffset endTime)
@@ -40,6 +44,20 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
             if (booking.Status != BookingStatus.Confirmed)
                 throw new ValidationException("Only confirmed bookings can have a session created.");
+
+            var tutorBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
+            if (tutorBio == null)
+            {
+                throw new Exception("Tutor not found");
+            }
+
+            var durationHours = (endTime - startTime).TotalHours;
+            var basePrice = (decimal)durationHours * tutorBio.HourlyRate;
+            var serviceFee = basePrice * 0.3m;
+
+            booking.basePrice = (double)basePrice;
+            booking.serviceFee = (double)serviceFee;
+            await _bookingRepository.UpdateAsync(booking);
 
             var session = new Session
             {

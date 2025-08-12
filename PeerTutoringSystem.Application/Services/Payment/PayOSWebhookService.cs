@@ -5,6 +5,7 @@ using PeerTutoringSystem.Application.DTOs.Payment;
 using PeerTutoringSystem.Application.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using PeerTutoringSystem.Domain.Interfaces.Booking;
+using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -16,13 +17,17 @@ namespace PeerTutoringSystem.Application.Services.Payment
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
         private readonly IBookingSessionRepository _bookingRepository;
+        private readonly IUserBioRepository _userBioRepository;
+        private readonly ISessionRepository _sessionRepository;
         private readonly ILogger<PayOSWebhookService> _logger;
 
-        public PayOSWebhookService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IBookingSessionRepository bookingRepository, ILogger<PayOSWebhookService> logger)
+        public PayOSWebhookService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IBookingSessionRepository bookingRepository, IUserBioRepository userBioRepository, ISessionRepository sessionRepository, ILogger<PayOSWebhookService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _bookingRepository = bookingRepository;
+            _userBioRepository = userBioRepository;
+            _sessionRepository = sessionRepository;
             _logger = logger;
         }
 
@@ -110,6 +115,17 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 {
                     booking.PaymentStatus = PaymentStatus.Paid;
                     await _bookingRepository.UpdateAsync(booking);
+
+                    var session = await _sessionRepository.GetByBookingIdAsync(booking.BookingId);
+                    if (session != null)
+                    {
+                        var tutorBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
+                        if (tutorBio != null)
+                        {
+                            tutorBio.Balance += (decimal)booking.basePrice;
+                            await _userBioRepository.UpdateAsync(tutorBio);
+                        }
+                    }
                 }
             }
         }
