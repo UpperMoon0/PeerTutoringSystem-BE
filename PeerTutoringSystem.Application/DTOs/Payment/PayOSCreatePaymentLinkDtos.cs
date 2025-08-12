@@ -5,8 +5,6 @@ namespace PeerTutoringSystem.Application.DTOs.Payment
     public class PayOSCreatePaymentLinkRequestDto
     {
         public Guid BookingId { get; set; }
-        public string cancelUrl { get; set; }
-        public string returnUrl { get; set; }
     }
 
     public class PayOSItemDto

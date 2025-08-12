@@ -49,8 +49,10 @@ namespace PeerTutoringSystem.Application.Services.Payment
             });
         }
 
-        public async Task<PayOSCreatePaymentLinkResponseDto> CreatePaymentLink(PayOSCreatePaymentLinkRequestDto request, string successUrl, string cancelUrl)
+        public async Task<PayOSCreatePaymentLinkResponseDto> CreatePaymentLink(PayOSCreatePaymentLinkRequestDto request)
         {
+            var successUrl = _configuration["PayOS:SuccessUrl"];
+            var cancelUrl = _configuration["PayOS:CancelUrl"];
             var booking = await _bookingRepository.GetByIdAsync(request.BookingId);
             if (booking == null)
             {

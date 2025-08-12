@@ -42,7 +42,7 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
         {
             try
             {
-                var result = await _paymentService.CreatePaymentLink(request, request.returnUrl, request.cancelUrl);
+                var result = await _paymentService.CreatePaymentLink(request);
                 return Ok(result);
             }
             catch (Exception ex)
