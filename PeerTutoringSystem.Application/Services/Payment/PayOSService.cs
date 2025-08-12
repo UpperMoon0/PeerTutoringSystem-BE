@@ -1,4 +1,5 @@
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -22,19 +23,22 @@ namespace PeerTutoringSystem.Application.Services.Payment
         private readonly IBookingSessionRepository _bookingRepository;
         private readonly IUserBioRepository _userBioRepository;
         private readonly ISessionRepository _sessionRepository;
+        private readonly ILogger<PayOSService> _logger;
 
         public PayOSService(
             IHttpClientFactory httpClientFactory,
             IConfiguration configuration,
             IBookingSessionRepository bookingRepository,
             IUserBioRepository userBioRepository,
-            ISessionRepository sessionRepository)
+            ISessionRepository sessionRepository,
+            ILogger<PayOSService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
             _bookingRepository = bookingRepository;
             _userBioRepository = userBioRepository;
             _sessionRepository = sessionRepository;
+            _logger = logger;
         }
 
         public async Task<PayOSCreatePaymentLinkResponseDto> CreatePaymentLink(PayOSCreatePaymentLinkRequestDto request, string successUrl, string cancelUrl)
@@ -162,7 +166,10 @@ namespace PeerTutoringSystem.Application.Services.Payment
         {
             var sortedData = new SortedDictionary<string, string>(data);
             var dataToSign = string.Join("&", sortedData.Select(kv => $"{kv.Key}={kv.Value}"));
-            return CreateSignature(dataToSign, key);
+            var signature = CreateSignature(dataToSign, key);
+            _logger.LogInformation("Data to sign: {dataToSign}", dataToSign);
+            _logger.LogInformation("Generated Signature: {signature}", signature);
+            return signature;
         }
 
         public async Task ProcessPayOSWebhook(PayOSWebhookData webhookData)
@@ -180,6 +187,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
 
             if (signature != webhookData.Signature)
             {
+                _logger.LogError("Signature mismatch. Received: {receivedSignature}, Generated: {generatedSignature}", webhookData.Signature, signature);
                 throw new Exception("Invalid signature");
             }
 
