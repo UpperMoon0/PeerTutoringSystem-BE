@@ -30,7 +30,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
         {
             var clientId = Environment.GetEnvironmentVariable("PayOS_Client_ID");
             var apiKey = Environment.GetEnvironmentVariable("PayOS_API_Key");
-            var webhookUrl = "https://peertutoringsystem-be.onrender.com/api/webhook/payos";
+            var webhookUrl = "https://peertutoringsystem-be.onrender.com/api/Payment/payos-webhook";
 
             if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(apiKey))
             {

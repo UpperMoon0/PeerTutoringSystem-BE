@@ -262,7 +262,7 @@ namespace PeerTutoringSystem.Tests.Integration
 
             var bookingData = JsonConvert.DeserializeObject<BookingSessionDto>(responseContent);
             Assert.IsNotNull(bookingData);
-            Assert.AreEqual("Confirmed", bookingData.Status);
+            Assert.AreEqual(BookingStatus.Confirmed, bookingData.Status);
         }
 
         [Test]

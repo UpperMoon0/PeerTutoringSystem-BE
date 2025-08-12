@@ -1,14 +1,9 @@
+using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
-using System.Reflection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using PeerTutoringSystem.Application.DTOs.Payment;
 using PeerTutoringSystem.Application.Interfaces.Payment;
@@ -231,6 +226,103 @@ namespace PeerTutoringSystem.Application.Services.Payment
         {
             var booking = await _bookingRepository.GetByIdAsync(bookingId);
             return booking != null && booking.PaymentStatus == PaymentStatus.Paid;
+        }
+
+        public async Task HandlePayOSWebhook(PayOSWebhookData webhookData)
+        {
+            var checksumKey = Environment.GetEnvironmentVariable("PayOS_Checksum_Key");
+            if (string.IsNullOrEmpty(checksumKey))
+            {
+                throw new Exception("PayOS Checksum Key is not configured in .env file.");
+            }
+
+            var signatureData = new Dictionary<string, string>
+            {
+                { "orderCode", webhookData.Data.OrderCode.ToString() },
+                { "amount", webhookData.Data.Amount.ToString() },
+                { "description", webhookData.Data.Description },
+                { "accountNumber", webhookData.Data.AccountNumber },
+                { "reference", webhookData.Data.Reference },
+                { "transactionDateTime", webhookData.Data.TransactionDateTime },
+                { "paymentLinkId", webhookData.Data.PaymentLinkId },
+                { "code", webhookData.Data.Code },
+                { "desc", webhookData.Data.Desc },
+                { "currency", webhookData.Data.Currency },
+                { "counterAccountBankId", webhookData.Data.CounterAccountBankId },
+                { "counterAccountBankName", webhookData.Data.CounterAccountBankName },
+                { "counterAccountName", webhookData.Data.CounterAccountName },
+                { "counterAccountNumber", webhookData.Data.CounterAccountNumber },
+                { "virtualAccountName", webhookData.Data.VirtualAccountName },
+                { "virtualAccountNumber", webhookData.Data.VirtualAccountNumber }
+            };
+            var signature = GenerateSignature(signatureData, checksumKey);
+
+            if (signature != webhookData.Signature)
+            {
+                throw new Exception("Invalid signature");
+            }
+
+            if (webhookData.Code == "00")
+            {
+                var booking = await _bookingRepository.GetByOrderCode(webhookData.Data.OrderCode);
+                if (booking != null)
+                {
+                    booking.PaymentStatus = PaymentStatus.Paid;
+                    await _bookingRepository.UpdateAsync(booking);
+                }
+            }
+        }
+
+        public async Task<BookingSessionDto> HandlePayOSReturn(long orderCode)
+        {
+            var booking = await _bookingRepository.GetByOrderCode(orderCode);
+            if (booking != null)
+            {
+                booking.PaymentStatus = PaymentStatus.Success;
+                await _bookingRepository.UpdateAsync(booking);
+                return new BookingSessionDto
+                {
+                    BookingId = booking.BookingId,
+                    StudentId = booking.StudentId,
+                    TutorId = booking.TutorId,
+                    SessionDate = booking.SessionDate,
+                    StartTime = booking.StartTime,
+                    EndTime = booking.EndTime,
+                    SkillId = booking.SkillId,
+                    Topic = booking.Topic,
+                    Description = booking.Description,
+                    Status = booking.Status,
+                    PaymentStatus = booking.PaymentStatus,
+                    OrderCode = (int)booking.OrderCode
+                };
+            }
+            return null;
+        }
+
+        public async Task<BookingSessionDto> HandlePayOSCancel(long orderCode)
+        {
+            var booking = await _bookingRepository.GetByOrderCode(orderCode);
+            if (booking != null)
+            {
+                booking.PaymentStatus = PaymentStatus.Cancelled;
+                await _bookingRepository.UpdateAsync(booking);
+                return new BookingSessionDto
+                {
+                    BookingId = booking.BookingId,
+                    StudentId = booking.StudentId,
+                    TutorId = booking.TutorId,
+                    SessionDate = booking.SessionDate,
+                    StartTime = booking.StartTime,
+                    EndTime = booking.EndTime,
+                    SkillId = booking.SkillId,
+                    Topic = booking.Topic,
+                    Description = booking.Description,
+                    Status = booking.Status,
+                    PaymentStatus = booking.PaymentStatus,
+                    OrderCode = (int)booking.OrderCode
+                };
+            }
+            return null;
         }
     }
 }

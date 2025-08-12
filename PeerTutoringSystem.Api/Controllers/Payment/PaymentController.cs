@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Application.Interfaces.Payment;
 using PeerTutoringSystem.Application.DTOs.Payment;
+using PeerTutoringSystem.Application.DTOs.Booking;
 
 namespace PeerTutoringSystem.Api.Controllers.Payment
 {
@@ -68,6 +69,42 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
         {
             var result = await _paymentService.ConfirmPayment(bookingId);
             return Ok(new { success = result });
+        }
+
+        [HttpPost("payos-webhook")]
+        public async Task<IActionResult> PayOSWebhook([FromBody] PayOSWebhookData webhookData)
+        {
+            try
+            {
+                await _paymentService.HandlePayOSWebhook(webhookData);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("payment-return")]
+        public async Task<ActionResult<BookingSessionDto>> PaymentReturn([FromQuery] long orderCode)
+        {
+            var result = await _paymentService.HandlePayOSReturn(orderCode);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+
+        [HttpGet("payment-cancel")]
+        public async Task<ActionResult<BookingSessionDto>> PaymentCancel([FromQuery] long orderCode)
+        {
+            var result = await _paymentService.HandlePayOSCancel(orderCode);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
         }
     }
 }

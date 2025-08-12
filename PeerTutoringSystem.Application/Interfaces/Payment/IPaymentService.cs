@@ -1,3 +1,4 @@
+using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.DTOs.Payment;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,8 @@ namespace PeerTutoringSystem.Application.Interfaces.Payment
         Task<PayOSCreatePaymentLinkResponseDto> CreatePaymentLink(PayOSCreatePaymentLinkRequestDto request, string successUrl, string cancelUrl);
         Task<IEnumerable<TransactionHistoryDto>> GetTransactionHistory(string userId);
         Task<bool> ConfirmPayment(Guid bookingId);
+        Task HandlePayOSWebhook(PayOSWebhookData webhookData);
+        Task<BookingSessionDto> HandlePayOSReturn(long orderCode);
+        Task<BookingSessionDto> HandlePayOSCancel(long orderCode);
     }
 }

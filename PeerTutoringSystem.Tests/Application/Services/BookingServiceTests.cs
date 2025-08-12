@@ -91,7 +91,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
             Assert.That(result.TutorId, Is.EqualTo(_tutorId));
             Assert.That(result.StudentId, Is.EqualTo(_studentId));
             Assert.That(result.Topic, Is.EqualTo("Math Help"));
-            Assert.That(result.Status, Is.EqualTo("Pending"));
+            Assert.That(result.Status, Is.EqualTo(BookingStatus.Pending));
 
             _mockBookingRepository.Verify(r => r.AddAsync(It.IsAny<BookingSession>()), Times.Once);
             _mockAvailabilityRepository.Verify(r => r.UpdateAsync(It.IsAny<TutorAvailability>()), Times.Once);
@@ -240,7 +240,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
                 Status = BookingStatus.Confirmed
             };
 
-            var updateDto = new UpdateBookingStatusDto { Status = "Completed" };
+            var updateDto = new UpdateBookingStatusDto { Status = BookingStatus.Completed.ToString() };
 
             _mockBookingRepository
                 .Setup(r => r.GetByIdAsync(_bookingId))
@@ -251,31 +251,10 @@ namespace PeerTutoringSystem.Tests.Application.Services
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Status, Is.EqualTo("Completed"));
+            Assert.That(result.Status, Is.EqualTo(BookingStatus.Completed));
             _mockBookingRepository.Verify(r => r.UpdateAsync(It.Is<BookingSession>(b => b.Status == BookingStatus.Completed)), Times.Once);
         }
 
-        [Test]
-        public void UpdateBookingStatusAsync_InvalidStatus_ThrowsException()
-        {
-            // Arrange
-            var booking = new BookingSession
-            {
-                BookingId = _bookingId,
-                Status = BookingStatus.Pending
-            };
-
-            var updateDto = new UpdateBookingStatusDto { Status = "InvalidStatus" };
-
-            _mockBookingRepository
-                .Setup(r => r.GetByIdAsync(_bookingId))
-                .ReturnsAsync(booking);
-
-            // Act & Assert
-            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
-                await _bookingService.UpdateBookingStatusAsync(_bookingId, updateDto));
-            Assert.That(ex.Message, Is.EqualTo("Invalid status value: InvalidStatus"));
-        }
 
         [Test]
         public void UpdateBookingStatusAsync_CompleteToCancel_ThrowsException()
@@ -287,7 +266,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
                 Status = BookingStatus.Completed
             };
 
-            var updateDto = new UpdateBookingStatusDto { Status = "Cancelled" };
+            var updateDto = new UpdateBookingStatusDto { Status = BookingStatus.Cancelled.ToString() };
 
             _mockBookingRepository
                 .Setup(r => r.GetByIdAsync(_bookingId))

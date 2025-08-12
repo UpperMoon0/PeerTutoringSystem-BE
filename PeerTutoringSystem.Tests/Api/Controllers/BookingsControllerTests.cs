@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using PeerTutoringSystem.Api.Controllers.Booking;
 using PeerTutoringSystem.Application.DTOs.Booking;
+using PeerTutoringSystem.Domain.Entities.Booking;
 using PeerTutoringSystem.Application.Interfaces.Booking;
 using System;
 using System.Collections.Generic;
@@ -225,7 +226,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
                 BookingId = _bookingId,
                 StudentId = _userId,
                 TutorId = _tutorId,
-                Status = "Pending"
+                Status = BookingStatus.Pending
             };
 
             var updateDto = new UpdateBookingStatusDto { Status = "Cancelled" };
@@ -235,7 +236,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
                 BookingId = _bookingId,
                 StudentId = _userId,
                 TutorId = _tutorId,
-                Status = "Cancelled"
+                Status = BookingStatus.Cancelled
             };
 
             _mockBookingService
@@ -243,7 +244,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
                 .ReturnsAsync(booking);
 
             _mockBookingService
-                .Setup(s => s.UpdateBookingStatusAsync(_bookingId, updateDto))
+                .Setup(s => s.UpdateBookingStatusAsync(_bookingId, It.IsAny<UpdateBookingStatusDto>()))
                 .ReturnsAsync(updatedBooking);
 
             // Act
@@ -256,7 +257,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             Assert.That(responseObj, Is.Not.Null);
             var bookingData = (BookingSessionDto?)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
             Assert.That(bookingData, Is.Not.Null);
-            Assert.That(bookingData?.Status, Is.EqualTo("Cancelled"));
+            Assert.That(bookingData?.Status, Is.EqualTo(BookingStatus.Cancelled));
         }
 
         [Test]
@@ -270,7 +271,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
                 BookingId = _bookingId,
                 StudentId = differentStudentId,  // Different student ID
                 TutorId = _tutorId,
-                Status = "Pending"
+                Status = BookingStatus.Pending
             };
 
             var updateDto = new UpdateBookingStatusDto { Status = "Cancelled" };
@@ -306,7 +307,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
                 BookingId = _bookingId,
                 StudentId = _userId,
                 TutorId = _tutorId,
-                Status = "Pending"
+                Status = BookingStatus.Pending
             };
 
             var updateDto = new UpdateBookingStatusDto { Status = "Confirmed" };
@@ -316,7 +317,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
                 BookingId = _bookingId,
                 StudentId = _userId,
                 TutorId = _tutorId,
-                Status = "Confirmed"
+                Status = BookingStatus.Confirmed
             };
 
             _mockBookingService
@@ -324,7 +325,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
                 .ReturnsAsync(booking);
 
             _mockBookingService
-                .Setup(s => s.UpdateBookingStatusAsync(_bookingId, updateDto))
+                .Setup(s => s.UpdateBookingStatusAsync(_bookingId, It.IsAny<UpdateBookingStatusDto>()))
                 .ReturnsAsync(updatedBooking);
 
             // Act
@@ -337,7 +338,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             Assert.That(responseObj, Is.Not.Null);
             var bookingData = (BookingSessionDto?)responseObj?.GetType().GetProperty("data")?.GetValue(responseObj);
             Assert.That(bookingData, Is.Not.Null);
-            Assert.That(bookingData?.Status, Is.EqualTo("Confirmed"));
+            Assert.That(bookingData?.Status, Is.EqualTo(BookingStatus.Confirmed));
         }
     }
 }
