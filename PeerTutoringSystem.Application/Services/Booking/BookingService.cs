@@ -10,6 +10,8 @@ using PeerTutoringSystem.Domain.Interfaces.Skills;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using PeerTutoringSystem.Application.DTOs.Authentication;
+using PeerTutoringSystem.Domain.Interfaces.Authentication;
 
 namespace PeerTutoringSystem.Application.Services.Booking
 {
@@ -20,16 +22,18 @@ namespace PeerTutoringSystem.Application.Services.Booking
         private readonly ITutorAvailabilityService _tutorAvailabilityService;
         private readonly IUserService _userService;
         private readonly ISkillRepository _skillRepository;
-       private readonly Domain.Interfaces.Profile_Bio.IUserBioRepository _userBioRepository;
-       private readonly ILogger<BookingService> _logger;
+        private readonly Domain.Interfaces.Profile_Bio.IUserBioRepository _userBioRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly ILogger<BookingService> _logger;
 
-       public BookingService(
+        public BookingService(
             IBookingSessionRepository bookingRepository,
             ITutorAvailabilityRepository availabilityRepository,
             ITutorAvailabilityService tutorAvailabilityService,
             IUserService userService,
             ISkillRepository skillRepository,
             Domain.Interfaces.Profile_Bio.IUserBioRepository userBioRepository,
+            IUserRepository userRepository,
             ILogger<BookingService> logger)
         {
             _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
@@ -38,6 +42,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _skillRepository = skillRepository ?? throw new ArgumentNullException(nameof(skillRepository));
             _userBioRepository = userBioRepository ?? throw new ArgumentNullException(nameof(userBioRepository));
+            _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -436,7 +441,9 @@ namespace PeerTutoringSystem.Application.Services.Booking
             
             var availableSlots = allAvailabilities.Availabilities.Count(a => !a.IsBooked && a.StartTime > DateTime.UtcNow);
             
-            var totalEarnings = completedSessions * 50m;
+            var totalEarnings = allBookings
+                .Where(b => b.Status == BookingStatus.Completed)
+                .Sum(b => (decimal)(b.EndTime - b.StartTime).TotalHours * (_userBioRepository.GetByUserIdAsync(b.TutorId).Result?.HourlyRate ?? 0));
 
             return new TutorDashboardStatsDto
             {
@@ -497,6 +504,29 @@ namespace PeerTutoringSystem.Application.Services.Booking
             {
                 return (false, "Booking not found.");
             }
+
+            var student = await _userRepository.GetByIdAsync(booking.StudentId);
+            var tutor = await _userRepository.GetByIdAsync(booking.TutorId);
+            var tutorBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
+
+            if (student == null || tutor == null || tutorBio == null)
+            {
+                return (false, "User information not found.");
+            }
+
+            var duration = (decimal)(booking.EndTime - booking.StartTime).TotalHours;
+            var amountToPay = duration * tutorBio.HourlyRate;
+
+            if (student.AccountBalance < (double)amountToPay)
+            {
+                return (false, "Insufficient balance.");
+            }
+
+            student.AccountBalance -= (double)amountToPay;
+            tutor.AccountBalance += (double)amountToPay;
+
+            await _userService.UpdateUserBalanceAsync(student.UserID, new UpdateUserBalanceDto { AccountBalance = student.AccountBalance });
+            await _userService.UpdateUserBalanceAsync(tutor.UserID, new UpdateUserBalanceDto { AccountBalance = tutor.AccountBalance });
 
             booking.PaymentStatus = PaymentStatus.Paid;
             booking.UpdatedAt = DateTime.UtcNow;

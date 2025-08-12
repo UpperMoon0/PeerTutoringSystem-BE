@@ -133,6 +133,7 @@ builder.Services.AddScoped<IPayOSWebhookService, PayOSWebhookService>(provider =
         provider.GetRequiredService<IBookingSessionRepository>(),
         provider.GetRequiredService<IUserBioRepository>(),
         provider.GetRequiredService<ISessionRepository>(),
+        provider.GetRequiredService<IUserRepository>(),
         provider.GetRequiredService<ILogger<PayOSWebhookService>>()
     ));
 builder.Services.AddScoped(provider =>

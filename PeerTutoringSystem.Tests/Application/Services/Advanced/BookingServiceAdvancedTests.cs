@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using PeerTutoringSystem.Domain.Interfaces.Skills;
 using PeerTutoringSystem.Domain.Interfaces.Profile_Bio;
 using Microsoft.Extensions.Logging;
+using PeerTutoringSystem.Domain.Interfaces.Authentication;
 
 namespace PeerTutoringSystem.Tests.Application.Services.Advanced
 {
@@ -182,6 +183,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
             public Mock<ISkillRepository> MockSkillRepository { get; }
             public Mock<ITutorAvailabilityService> MockTutorAvailabilityService { get; }
             public Mock<IUserBioRepository> MockUserBioRepository { get; }
+            public Mock<IUserRepository> MockUserRepository { get; }
             public Mock<ILogger<BookingService>> MockLogger { get; }
             public BookingService BookingService { get; }
 
@@ -193,6 +195,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
                 MockSkillRepository = new Mock<ISkillRepository>();
                 MockTutorAvailabilityService = new Mock<ITutorAvailabilityService>();
                 MockUserBioRepository = new Mock<IUserBioRepository>();
+                MockUserRepository = new Mock<IUserRepository>();
                 MockLogger = new Mock<ILogger<BookingService>>();
 
                 BookingService = new BookingService(
@@ -202,6 +205,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
                     MockUserService.Object,
                     MockSkillRepository.Object,
                     MockUserBioRepository.Object,
+                    MockUserRepository.Object,
                     MockLogger.Object);
             }
         }

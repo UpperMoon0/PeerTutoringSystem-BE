@@ -9,7 +9,6 @@ namespace PeerTutoringSystem.Domain.Entities.Profile_Bio
         public string Bio { get; set; } = string.Empty;
         public string Experience { get; set; } = string.Empty;
         public decimal HourlyRate { get; set; }
-        public decimal Balance { get; set; } = 0;
         public string Availability { get; set; } = string.Empty;
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }

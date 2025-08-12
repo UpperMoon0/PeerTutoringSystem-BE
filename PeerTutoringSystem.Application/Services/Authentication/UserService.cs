@@ -171,6 +171,18 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             await _userRepository.UpdateAsync(user);
         }
 
+        public async Task UpdateUserBalanceAsync(Guid userId, UpdateUserBalanceDto dto)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new ValidationException("User not found.");
+            }
+
+            user.AccountBalance = dto.AccountBalance;
+            await _userRepository.UpdateAsync(user);
+        }
+
         private void ValidateDto<T>(T dto)
         {
             var validationContext = new ValidationContext(dto);
