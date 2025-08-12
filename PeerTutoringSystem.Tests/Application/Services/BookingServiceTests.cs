@@ -18,6 +18,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
     public class BookingServiceTests
     {
         private Mock<IBookingSessionRepository> _mockBookingRepository;
+        private Mock<ISessionRepository> _mockSessionRepository;
         private Mock<ITutorAvailabilityRepository> _mockAvailabilityRepository;
         private Mock<IUserService> _mockUserService;
         private Mock<ISkillRepository> _mockSkillRepository;
@@ -36,6 +37,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
         public void Setup()
         {
             _mockBookingRepository = new Mock<IBookingSessionRepository>();
+            _mockSessionRepository = new Mock<ISessionRepository>();
             _mockAvailabilityRepository = new Mock<ITutorAvailabilityRepository>();
             _mockUserService = new Mock<IUserService>();
             _mockSkillRepository = new Mock<ISkillRepository>();
@@ -46,6 +48,7 @@ namespace PeerTutoringSystem.Tests.Application.Services
 
             _bookingService = new BookingService(
                 _mockBookingRepository.Object,
+                _mockSessionRepository.Object,
                 _mockAvailabilityRepository.Object,
                 _mockTutorAvailabilityService.Object,
                 _mockUserService.Object,

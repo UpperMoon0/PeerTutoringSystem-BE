@@ -1,5 +1,6 @@
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using Microsoft.AspNetCore.Http;
+using PeerTutoringSystem.Application.DTOs;
 using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.DTOs.Payment;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
@@ -18,6 +19,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
     public class BookingService : IBookingService
     {
         private readonly IBookingSessionRepository _bookingRepository;
+        private readonly ISessionRepository _sessionRepository;
         private readonly ITutorAvailabilityRepository _availabilityRepository;
         private readonly ITutorAvailabilityService _tutorAvailabilityService;
         private readonly IUserService _userService;
@@ -28,6 +30,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
 
         public BookingService(
             IBookingSessionRepository bookingRepository,
+            ISessionRepository sessionRepository,
             ITutorAvailabilityRepository availabilityRepository,
             ITutorAvailabilityService tutorAvailabilityService,
             IUserService userService,
@@ -37,6 +40,7 @@ namespace PeerTutoringSystem.Application.Services.Booking
             ILogger<BookingService> logger)
         {
             _bookingRepository = bookingRepository ?? throw new ArgumentNullException(nameof(bookingRepository));
+            _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
             _availabilityRepository = availabilityRepository ?? throw new ArgumentNullException(nameof(availabilityRepository));
             _tutorAvailabilityService = tutorAvailabilityService ?? throw new ArgumentNullException(nameof(tutorAvailabilityService));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
@@ -332,6 +336,30 @@ namespace PeerTutoringSystem.Application.Services.Booking
             var tutorName = "Unknown Tutor";
             decimal? basePrice = null;
             decimal? serviceFee = null;
+            SessionDto sessionDto = null;
+
+            try
+            {
+                var session = await _sessionRepository.GetByBookingIdAsync(booking.BookingId);
+                if (session != null)
+                {
+                    sessionDto = new SessionDto
+                    {
+                        SessionId = session.SessionId,
+                        BookingId = session.BookingId,
+                        VideoCallLink = session.VideoCallLink,
+                        SessionNotes = session.SessionNotes,
+                        StartTime = session.StartTime,
+                        EndTime = session.EndTime,
+                        CreatedAt = session.CreatedAt,
+                        UpdatedAt = session.UpdatedAt
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching session for booking ID {BookingId}", booking.BookingId);
+            }
 
             try
             {
@@ -403,7 +431,8 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 StudentName = studentName,
                 TutorName = tutorName,
                 BasePrice = basePrice,
-                ServiceFee = serviceFee
+                ServiceFee = serviceFee,
+                Session = sessionDto
             };
 
             _logger.LogInformation("Returning booking DTO: {BookingDto}", JsonSerializer.Serialize(bookingDto));

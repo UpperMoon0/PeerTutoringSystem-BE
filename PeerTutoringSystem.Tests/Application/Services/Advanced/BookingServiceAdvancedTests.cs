@@ -178,6 +178,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
         private class BookingServiceTestFixture
         {
             public Mock<IBookingSessionRepository> MockBookingRepository { get; }
+            public Mock<ISessionRepository> MockSessionRepository { get; }
             public Mock<ITutorAvailabilityRepository> MockAvailabilityRepository { get; }
             public Mock<IUserService> MockUserService { get; }
             public Mock<ISkillRepository> MockSkillRepository { get; }
@@ -190,6 +191,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
             public BookingServiceTestFixture()
             {
                 MockBookingRepository = new Mock<IBookingSessionRepository>();
+                MockSessionRepository = new Mock<ISessionRepository>();
                 MockAvailabilityRepository = new Mock<ITutorAvailabilityRepository>();
                 MockUserService = new Mock<IUserService>();
                 MockSkillRepository = new Mock<ISkillRepository>();
@@ -200,6 +202,7 @@ namespace PeerTutoringSystem.Tests.Application.Services.Advanced
 
                 BookingService = new BookingService(
                     MockBookingRepository.Object,
+                    MockSessionRepository.Object,
                     MockAvailabilityRepository.Object,
                     MockTutorAvailabilityService.Object,
                     MockUserService.Object,

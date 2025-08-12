@@ -23,5 +23,6 @@ namespace PeerTutoringSystem.Application.DTOs.Booking
         public string TutorName { get; set; }
         public decimal? BasePrice { get; set; }
         public decimal? ServiceFee { get; set; }
+        public SessionDto Session { get; set; }
     }
 }
