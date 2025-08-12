@@ -1,23 +1,28 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Net.Http;
+using PeerTutoringSystem.Application.DTOs.Payment;
+using PeerTutoringSystem.Application.Interfaces.Payment;
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
+using PeerTutoringSystem.Domain.Interfaces.Booking;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Services.Payment
 {
-    public class PayOSWebhookService
+    public class PayOSWebhookService : IPayOSWebhookService
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
+        private readonly IBookingSessionRepository _bookingRepository;
         private readonly ILogger<PayOSWebhookService> _logger;
 
-        public PayOSWebhookService(IHttpClientFactory httpClientFactory, IConfiguration configuration, ILogger<PayOSWebhookService> logger)
+        public PayOSWebhookService(IHttpClientFactory httpClientFactory, IConfiguration configuration, IBookingSessionRepository bookingRepository, ILogger<PayOSWebhookService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
+            _bookingRepository = bookingRepository;
             _logger = logger;
         }
 
@@ -65,6 +70,101 @@ namespace PeerTutoringSystem.Application.Services.Payment
             {
                 _logger.LogError(ex, "An error occurred while confirming the PayOS webhook.");
                 return $"An error occurred while confirming the PayOS webhook: {ex.Message}";
+            }
+        }
+
+        public async Task ProcessPayOSWebhook(PayOSWebhookData webhookData)
+        {
+            var checksumKey = Environment.GetEnvironmentVariable("PayOS_Checksum_Key");
+            if (string.IsNullOrEmpty(checksumKey))
+            {
+                throw new Exception("PayOS Checksum Key is not configured in .env file.");
+            }
+
+            var dataDict = new Dictionary<string, string>();
+            var properties = webhookData.Data.GetType().GetProperties();
+            foreach (var prop in properties)
+            {
+                var jsonPropertyName = prop.GetCustomAttributes(typeof(System.Text.Json.Serialization.JsonPropertyNameAttribute), false)
+                                            .OfType<System.Text.Json.Serialization.JsonPropertyNameAttribute>()
+                                            .FirstOrDefault();
+                var key = jsonPropertyName != null ? jsonPropertyName.Name : prop.Name;
+                var value = prop.GetValue(webhookData.Data)?.ToString();
+                if (value != null)
+                {
+                    dataDict.Add(key, value);
+                }
+            }
+            var signature = GenerateSignature(dataDict, checksumKey);
+
+            if (signature != webhookData.Signature)
+            {
+                _logger.LogError("Signature mismatch. Received: {receivedSignature}, Generated: {generatedSignature}", webhookData.Signature, signature);
+                throw new Exception("Invalid signature");
+            }
+
+            if (webhookData.Code == "00")
+            {
+                var booking = await _bookingRepository.GetByOrderCode(webhookData.Data.OrderCode);
+                if (booking != null)
+                {
+                    booking.PaymentStatus = PaymentStatus.Paid;
+                    await _bookingRepository.UpdateAsync(booking);
+                }
+            }
+        }
+
+        private string CreateSignature(string data, string key)
+        {
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key)))
+            {
+                var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+                return BitConverter.ToString(hash).Replace("-", "").ToLower();
+            }
+        }
+        private string GenerateSignature(Dictionary<string, string> data, string key)
+        {
+            var sortedData = new SortedDictionary<string, string>(data);
+            var dataToSign = string.Join("&", sortedData.Select(kv => $"{kv.Key}={kv.Value}"));
+            var signature = CreateSignature(dataToSign, key);
+            _logger.LogInformation("Data to sign: {dataToSign}", dataToSign);
+            _logger.LogInformation("Generated Signature: {signature}", signature);
+            return signature;
+        }
+
+        public async Task<string> ProcessWebhook(HttpRequest request)
+        {
+            using var reader = new System.IO.StreamReader(request.Body);
+            var body = await reader.ReadToEndAsync();
+            _logger.LogInformation("Received webhook: {body}", body);
+
+            try
+            {
+                var webhookData = JsonSerializer.Deserialize<PayOSWebhookData>(body, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (webhookData != null)
+                {
+                    await ProcessPayOSWebhook(webhookData);
+                    return "Webhook processed successfully.";
+                }
+                else
+                {
+                    _logger.LogWarning("Webhook data is null after deserialization.");
+                    return "Webhook data is null.";
+                }
+            }
+            catch (JsonException jsonEx)
+            {
+                _logger.LogError(jsonEx, "Error deserializing webhook JSON.");
+                return "Error deserializing webhook JSON.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing webhook.");
+                return "Error processing webhook.";
             }
         }
     }

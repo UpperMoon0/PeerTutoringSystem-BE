@@ -13,15 +13,16 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 {
   public class WebhookControllerTests
   {
-    private readonly Mock<IPayOSService> _mockPayOSService;
-    private readonly Mock<ILogger<WebhookController>> _mockLogger;
-    private readonly WebhookController _controller;
+    private Mock<IPayOSWebhookService> _mockPayOSWebhookService;
+    private Mock<ILogger<WebhookController>> _mockLogger;
+    private WebhookController _controller;
 
-    public WebhookControllerTests()
+    [SetUp]
+    public void Setup()
     {
-      _mockPayOSService = new Mock<IPayOSService>();
-      _mockLogger = new Mock<ILogger<WebhookController>>();
-      _controller = new WebhookController(_mockPayOSService.Object, _mockLogger.Object);
+        _mockPayOSWebhookService = new Mock<IPayOSWebhookService>();
+        _mockLogger = new Mock<ILogger<WebhookController>>();
+        _controller = new WebhookController(_mockPayOSWebhookService.Object, _mockLogger.Object);
     }
 
     private PayOSWebhookData CreateValidWebhookData()
@@ -51,7 +52,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
     {
       // Arrange
       var webhookData = CreateValidWebhookData();
-      _mockPayOSService.Setup(s => s.ProcessPayOSWebhook(It.IsAny<PayOSWebhookData>()))
+      _mockPayOSWebhookService.Setup(s => s.ProcessPayOSWebhook(It.IsAny<PayOSWebhookData>()))
           .Returns(Task.CompletedTask);
 
       // Act
@@ -65,7 +66,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
       var successProperty = returnValue.GetType().GetProperty("success");
       Assert.NotNull(successProperty);
       Assert.That(successProperty.GetValue(returnValue, null), Is.EqualTo(true));
-      _mockPayOSService.Verify(s => s.ProcessPayOSWebhook(webhookData), Times.Once);
+      _mockPayOSWebhookService.Verify(s => s.ProcessPayOSWebhook(webhookData), Times.Once);
     }
 
     [Test]
@@ -96,7 +97,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
     {
       // Arrange
       var webhookData = CreateValidWebhookData();
-      _mockPayOSService.Setup(s => s.ProcessPayOSWebhook(It.IsAny<PayOSWebhookData>()))
+      _mockPayOSWebhookService.Setup(s => s.ProcessPayOSWebhook(It.IsAny<PayOSWebhookData>()))
           .ThrowsAsync(new System.Exception("Service error"));
 
       // Act

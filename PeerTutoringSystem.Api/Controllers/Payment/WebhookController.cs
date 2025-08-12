@@ -10,12 +10,12 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
     [Route("api/[controller]")]
     public class WebhookController : ControllerBase
     {
-        private readonly IPayOSService _payOSService;
+        private readonly IPayOSWebhookService _payOSWebhookService;
         private readonly ILogger<WebhookController> _logger;
 
-        public WebhookController(IPayOSService payOSService, ILogger<WebhookController> logger)
+        public WebhookController(IPayOSWebhookService payOSWebhookService, ILogger<WebhookController> logger)
         {
-            _payOSService = payOSService;
+            _payOSWebhookService = payOSWebhookService;
             _logger = logger;
         }
 
@@ -29,7 +29,7 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
 
             try
             {
-                await _payOSService.ProcessPayOSWebhook(data);
+                await _payOSWebhookService.ProcessPayOSWebhook(data);
                 return Ok(new { success = true });
             }
             catch (System.Exception ex)

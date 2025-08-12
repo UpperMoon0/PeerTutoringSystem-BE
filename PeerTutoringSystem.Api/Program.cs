@@ -126,17 +126,7 @@ builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<IPayOSService, PayOSService>(provider =>
-{
-    var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-    var configuration = provider.GetRequiredService<IConfiguration>();
-    var bookingRepository = provider.GetRequiredService<IBookingSessionRepository>();
-    var userBioRepository = provider.GetRequiredService<IUserBioRepository>();
-    var sessionRepository = provider.GetRequiredService<ISessionRepository>();
-    var logger = provider.GetRequiredService<ILogger<PayOSService>>();
-    return new PayOSService(httpClientFactory, configuration, bookingRepository, userBioRepository, sessionRepository, logger);
-});
-builder.Services.AddScoped<PayOSWebhookService>();
+builder.Services.AddScoped<IPayOSWebhookService, PayOSWebhookService>();
 builder.Services.AddScoped(provider =>
 {
     var configuration = provider.GetRequiredService<IConfiguration>();
@@ -227,12 +217,5 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<PeerTutoringSystem.Api.Hubs.ChatHub>("/chatHub");
 
-// Confirm PayOS webhook on startup
-using (var scope = app.Services.CreateScope())
-{
-    var payOSWebhookService = scope.ServiceProvider.GetRequiredService<PayOSWebhookService>();
-    var result = await payOSWebhookService.ConfirmWebhook();
-    Console.WriteLine(result);
-}
 
 app.Run();
