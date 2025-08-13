@@ -121,6 +121,7 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<IWithdrawRequestRepository, WithdrawRequestRepository>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
