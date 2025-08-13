@@ -33,7 +33,7 @@ namespace PeerTutoringSystem.Domain.Entities.Authentication
         public bool IsOnline { get; set; }
         public UserStatus Status { get; set; } = UserStatus.Active;
         public int RoleID { get; set; }
-        public double AccountBalance { get; set; } = 0;
+        public decimal AccountBalance { get; set; } = 0;
         public Role? Role { get; set; }
     }
 }

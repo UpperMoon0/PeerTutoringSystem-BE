@@ -179,7 +179,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new ValidationException("User not found.");
             }
 
-            user.AccountBalance = dto.AccountBalance;
+            user.AccountBalance = (decimal)dto.AccountBalance;
             await _userRepository.UpdateAsync(user);
         }
 
@@ -194,7 +194,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             }
         }
 
-        public async Task<double> GetUserBalance(Guid userId)
+        public async Task<decimal> GetUserBalance(Guid userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)

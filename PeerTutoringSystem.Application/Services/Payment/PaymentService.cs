@@ -258,7 +258,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
                             {
                                 var duration = (decimal)(booking.EndTime - booking.StartTime).TotalHours;
                                 var amountToPay = duration * tutorBio.HourlyRate;
-                                tutor.AccountBalance += (double)amountToPay;
+                                tutor.AccountBalance += amountToPay;
                                 await _userRepository.UpdateAsync(tutor);
                             }
                         }

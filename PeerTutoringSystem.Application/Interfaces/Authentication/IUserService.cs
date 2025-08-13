@@ -14,6 +14,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Authentication
         Task UnbanUserAsync(Guid userId);
         Task<List<UserDto>> GetAllUsersAsync();
         Task<List<UserDto>> GetAllTutorsAsync();
-        Task<double> GetUserBalance(Guid userId);
+        Task<decimal> GetUserBalance(Guid userId);
     }
 }

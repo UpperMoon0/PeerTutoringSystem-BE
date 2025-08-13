@@ -265,7 +265,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 entity.Property(e => e.Amount).HasColumnType("DECIMAL(18,2)");
                 entity.Property(e => e.BankName).HasMaxLength(100);
                 entity.Property(e => e.AccountNumber).HasMaxLength(100);
-                entity.Property(e => e.Status).HasConversion<string>();
+                entity.Property(e => e.Status);
                 entity.HasOne(e => e.Tutor)
                     .WithMany()
                     .HasForeignKey(e => e.TutorId)

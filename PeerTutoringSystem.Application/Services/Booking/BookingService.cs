@@ -541,13 +541,13 @@ namespace PeerTutoringSystem.Application.Services.Booking
             var duration = (decimal)(booking.EndTime - booking.StartTime).TotalHours;
             var amountToPay = duration * tutorBio.HourlyRate;
 
-            if (student.AccountBalance < (double)amountToPay)
+            if (student.AccountBalance < amountToPay)
             {
                 return (false, "Insufficient balance.");
             }
 
-            student.AccountBalance -= (double)amountToPay;
-            tutor.AccountBalance += (double)amountToPay;
+            student.AccountBalance -= amountToPay;
+            tutor.AccountBalance += amountToPay;
 
             await _userService.UpdateUserBalanceAsync(student.UserID, new UpdateUserBalanceDto { AccountBalance = student.AccountBalance });
             await _userService.UpdateUserBalanceAsync(tutor.UserID, new UpdateUserBalanceDto { AccountBalance = tutor.AccountBalance });

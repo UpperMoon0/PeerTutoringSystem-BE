@@ -6,7 +6,7 @@ namespace PeerTutoringSystem.Application.DTOs.Payment
     {
         public Guid Id { get; set; }
         public Guid TutorId { get; set; }
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
         public string BankName { get; set; }
         public string AccountNumber { get; set; }
         public DateTime RequestDate { get; set; }
@@ -15,7 +15,7 @@ namespace PeerTutoringSystem.Application.DTOs.Payment
 
     public class CreateWithdrawRequestDto
     {
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
         public string BankName { get; set; }
         public string AccountNumber { get; set; }
     }

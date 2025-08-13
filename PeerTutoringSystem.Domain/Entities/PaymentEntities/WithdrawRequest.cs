@@ -16,7 +16,7 @@ namespace PeerTutoringSystem.Domain.Entities.PaymentEntities
     {
         [ForeignKey(nameof(User))]
         public Guid TutorId { get; set; }
-        public double Amount { get; set; }
+        public decimal Amount { get; set; }
         public string BankName { get; set; }
         public string AccountNumber { get; set; }
         public DateTime RequestDate { get; set; } = DateTime.UtcNow;
