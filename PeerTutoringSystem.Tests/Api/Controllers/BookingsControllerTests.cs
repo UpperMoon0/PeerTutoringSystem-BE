@@ -67,7 +67,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockBookingService
                 .Setup(s => s.CreateBookingAsync(_userId, createDto))
-                .ReturnsAsync(bookingResult);
+                .ReturnsAsync(bookingResult!);
 
             // Act
             var result = await _controller.CreateBooking(createDto);
@@ -121,7 +121,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockBookingService
                 .Setup(s => s.GetBookingsByStudentAsync(_userId, It.IsAny<BookingFilterDto>()))
-                .ReturnsAsync(serviceResult);
+                .ReturnsAsync(serviceResult!);
 
             // Act
             var result = await _controller.GetStudentBookings(filterDto);
@@ -152,7 +152,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockBookingService
                 .Setup(s => s.GetBookingByIdAsync(_bookingId))
-                .ReturnsAsync(booking);
+                .ReturnsAsync(booking!);
 
             // Act
             var result = await _controller.GetBooking(_bookingId);
@@ -173,7 +173,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
             // Arrange
             _mockBookingService
                 .Setup(s => s.GetBookingByIdAsync(_bookingId))
-                .ReturnsAsync((BookingSessionDto)null);
+                .ReturnsAsync((BookingSessionDto?)null);
 
             // Act
             var result = await _controller.GetBooking(_bookingId);
@@ -197,7 +197,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockBookingService
                 .Setup(s => s.GetBookingByIdAsync(_bookingId))
-                .ReturnsAsync(booking);
+                .ReturnsAsync(booking!);
 
             // Act
             var result = await _controller.GetBooking(_bookingId);
@@ -241,11 +241,11 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockBookingService
                 .Setup(s => s.GetBookingByIdAsync(_bookingId))
-                .ReturnsAsync(booking);
+                .ReturnsAsync(booking!);
 
             _mockBookingService
                 .Setup(s => s.UpdateBookingStatusAsync(_bookingId, It.IsAny<UpdateBookingStatusDto>()))
-                .ReturnsAsync(updatedBooking);
+                .ReturnsAsync(updatedBooking!);
 
             // Act
             var result = await _controller.UpdateBookingStatus(_bookingId, updateDto);
@@ -278,7 +278,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockBookingService
                 .Setup(s => s.GetBookingByIdAsync(_bookingId))
-                .ReturnsAsync(booking);
+                .ReturnsAsync(booking!);
 
             // Act
             var result = await _controller.UpdateBookingStatus(_bookingId, updateDto);
@@ -322,11 +322,11 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockBookingService
                 .Setup(s => s.GetBookingByIdAsync(_bookingId))
-                .ReturnsAsync(booking);
+                .ReturnsAsync(booking!);
 
             _mockBookingService
                 .Setup(s => s.UpdateBookingStatusAsync(_bookingId, It.IsAny<UpdateBookingStatusDto>()))
-                .ReturnsAsync(updatedBooking);
+                .ReturnsAsync(updatedBooking!);
 
             // Act
             var result = await _controller.UpdateBookingStatus(_bookingId, updateDto);

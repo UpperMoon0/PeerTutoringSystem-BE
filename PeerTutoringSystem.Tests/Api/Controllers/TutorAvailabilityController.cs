@@ -71,7 +71,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockService
                 .Setup(s => s.AddAsync(_tutorId, createDto))
-                .ReturnsAsync(availabilityDto);
+                .ReturnsAsync(availabilityDto!);
 
             // Act
             var result = await _controller.AddAvailability(createDto);
@@ -116,7 +116,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockService
                 .Setup(s => s.GetByTutorIdAsync(_tutorId, It.IsAny<BookingFilterDto>()))
-                .ReturnsAsync(serviceResult);
+                .ReturnsAsync(serviceResult!);
 
             // Act
             var result = await _controller.GetTutorAvailability(_tutorId, filterDto);
@@ -167,7 +167,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockService
                 .Setup(s => s.GetAvailableSlotsAsync(_tutorId, startDate, endDate, null, It.IsAny<BookingFilterDto>()))
-                .ReturnsAsync(serviceResult);
+                .ReturnsAsync(serviceResult!);
 
             // Act
             var result = await _controller.GetAvailableSlots(_tutorId, startDate, endDate, null, filterDto);
@@ -200,7 +200,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockService
                 .Setup(s => s.GetByIdAsync(_availabilityId))
-                .ReturnsAsync(availability);
+                .ReturnsAsync(availability!);
 
             _mockService
                 .Setup(s => s.DeleteAsync(_availabilityId))
@@ -235,7 +235,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockService
                 .Setup(s => s.GetByIdAsync(_availabilityId))
-                .ReturnsAsync(availability);
+                .ReturnsAsync(availability!);
 
             // Act
             var result = await _controller.DeleteAvailability(_availabilityId);
@@ -255,7 +255,7 @@ namespace PeerTutoringSystem.Tests.Api.Controllers
 
             _mockService
                 .Setup(s => s.GetByIdAsync(nonexistentId))
-                .ReturnsAsync((TutorAvailabilityDto)null);
+                .ReturnsAsync((TutorAvailabilityDto?)null);
 
             // Act
             var result = await _controller.DeleteAvailability(nonexistentId);

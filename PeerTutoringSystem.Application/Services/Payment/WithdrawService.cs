@@ -65,6 +65,9 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 throw new Exception("Insufficient balance");
             }
 
+            tutor.AccountBalance -= createWithdrawRequestDto.Amount;
+            await _userRepository.UpdateAsync(tutor);
+
             var withdrawRequest = new WithdrawRequest
             {
                 TutorId = tutorId,
@@ -109,6 +112,10 @@ namespace PeerTutoringSystem.Application.Services.Payment
             withdrawRequest.Status = WithdrawRequestStatus.Canceled;
             await _withdrawRequestRepository.UpdateAsync(withdrawRequest);
 
+            var tutor = await _userRepository.GetByIdAsync(withdrawRequest.TutorId);
+            tutor.AccountBalance += withdrawRequest.Amount;
+            await _userRepository.UpdateAsync(tutor);
+
             return new WithdrawRequestDto
             {
                 Id = withdrawRequest.Id,
@@ -133,15 +140,6 @@ namespace PeerTutoringSystem.Application.Services.Payment
             {
                 throw new Exception("Only pending withdraw requests can be approved");
             }
-
-            var tutor = await _userRepository.GetByIdAsync(withdrawRequest.TutorId);
-            if (tutor.AccountBalance < withdrawRequest.Amount)
-            {
-                throw new Exception("Tutor has insufficient balance");
-            }
-
-            tutor.AccountBalance -= withdrawRequest.Amount;
-            await _userRepository.UpdateAsync(tutor);
 
             withdrawRequest.Status = WithdrawRequestStatus.Approved;
             await _withdrawRequestRepository.UpdateAsync(withdrawRequest);
@@ -173,6 +171,10 @@ namespace PeerTutoringSystem.Application.Services.Payment
 
             withdrawRequest.Status = WithdrawRequestStatus.Rejected;
             await _withdrawRequestRepository.UpdateAsync(withdrawRequest);
+
+            var tutor = await _userRepository.GetByIdAsync(withdrawRequest.TutorId);
+            tutor.AccountBalance += withdrawRequest.Amount;
+            await _userRepository.UpdateAsync(tutor);
 
             return new WithdrawRequestDto
             {
