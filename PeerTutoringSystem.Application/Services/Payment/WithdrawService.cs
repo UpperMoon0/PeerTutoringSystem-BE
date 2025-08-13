@@ -5,6 +5,7 @@ using PeerTutoringSystem.Domain.Interfaces.Payment;
 using PeerTutoringSystem.Domain.Interfaces.Authentication;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using System.Linq;
 
 namespace PeerTutoringSystem.Application.Services.Payment
 {
@@ -19,6 +20,23 @@ namespace PeerTutoringSystem.Application.Services.Payment
             _withdrawRequestRepository = withdrawRequestRepository;
             _userRepository = userRepository;
             _httpContextAccessor = httpContextAccessor;
+        }
+
+        public async Task<IEnumerable<WithdrawRequestDto>> GetMyWithdrawRequests()
+        {
+            var tutorId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var withdrawRequests = await _withdrawRequestRepository.FindAsync(x => x.TutorId == tutorId);
+
+            return withdrawRequests.Select(withdrawRequest => new WithdrawRequestDto
+            {
+                Id = withdrawRequest.Id,
+                TutorId = withdrawRequest.TutorId,
+                Amount = withdrawRequest.Amount,
+                BankName = withdrawRequest.BankName,
+                AccountNumber = withdrawRequest.AccountNumber,
+                RequestDate = withdrawRequest.RequestDate,
+                Status = withdrawRequest.Status
+            });
         }
 
         public async Task<WithdrawRequestDto> CreateWithdrawRequest(CreateWithdrawRequestDto createWithdrawRequestDto)

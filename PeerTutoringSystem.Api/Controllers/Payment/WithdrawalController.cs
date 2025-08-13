@@ -17,6 +17,13 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             _withdrawService = withdrawService;
         }
 
+        [HttpGet("my-requests")]
+        public async Task<IActionResult> GetMyWithdrawRequests()
+        {
+            var result = await _withdrawService.GetMyWithdrawRequests();
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateWithdrawRequest([FromBody] CreateWithdrawRequestDto createWithdrawRequestDto)
         {
