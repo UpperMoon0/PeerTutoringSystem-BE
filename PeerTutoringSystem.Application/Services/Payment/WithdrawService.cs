@@ -1,0 +1,155 @@
+using PeerTutoringSystem.Application.DTOs.Payment;
+using PeerTutoringSystem.Application.Interfaces.Payment;
+using PeerTutoringSystem.Domain.Entities.PaymentEntities;
+using PeerTutoringSystem.Domain.Interfaces.Payment;
+using PeerTutoringSystem.Domain.Interfaces.Authentication;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+
+namespace PeerTutoringSystem.Application.Services.Payment
+{
+    public class WithdrawService : IWithdrawService
+    {
+        private readonly IWithdrawRequestRepository _withdrawRequestRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public WithdrawService(IWithdrawRequestRepository withdrawRequestRepository, IUserRepository userRepository, IHttpContextAccessor httpContextAccessor)
+        {
+            _withdrawRequestRepository = withdrawRequestRepository;
+            _userRepository = userRepository;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public async Task<WithdrawRequestDto> CreateWithdrawRequest(CreateWithdrawRequestDto createWithdrawRequestDto)
+        {
+            var tutorId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var tutor = await _userRepository.GetByIdAsync(tutorId);
+
+            if (tutor.Balance < createWithdrawRequestDto.Amount)
+            {
+                throw new Exception("Insufficient balance");
+            }
+
+            var withdrawRequest = new WithdrawRequest
+            {
+                TutorId = tutorId,
+                Amount = createWithdrawRequestDto.Amount,
+                BankName = createWithdrawRequestDto.BankName,
+                AccountNumber = createWithdrawRequestDto.AccountNumber,
+            };
+
+            await _withdrawRequestRepository.AddAsync(withdrawRequest);
+
+            return new WithdrawRequestDto
+            {
+                Id = withdrawRequest.Id,
+                TutorId = withdrawRequest.TutorId,
+                Amount = withdrawRequest.Amount,
+                BankName = withdrawRequest.BankName,
+                AccountNumber = withdrawRequest.AccountNumber,
+                RequestDate = withdrawRequest.RequestDate,
+                Status = withdrawRequest.Status
+            };
+        }
+
+        public async Task<WithdrawRequestDto> CancelWithdrawRequest(Guid id)
+        {
+            var withdrawRequest = await _withdrawRequestRepository.GetByIdAsync(id);
+            if (withdrawRequest == null)
+            {
+                throw new Exception("Withdraw request not found");
+            }
+
+            var currentUserId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            if (withdrawRequest.TutorId != currentUserId)
+            {
+                throw new Exception("You are not authorized to cancel this withdraw request");
+            }
+
+            if (withdrawRequest.Status != WithdrawRequestStatus.Pending)
+            {
+                throw new Exception("Only pending withdraw requests can be canceled");
+            }
+
+            withdrawRequest.Status = WithdrawRequestStatus.Canceled;
+            await _withdrawRequestRepository.UpdateAsync(withdrawRequest);
+
+            return new WithdrawRequestDto
+            {
+                Id = withdrawRequest.Id,
+                TutorId = withdrawRequest.TutorId,
+                Amount = withdrawRequest.Amount,
+                BankName = withdrawRequest.BankName,
+                AccountNumber = withdrawRequest.AccountNumber,
+                RequestDate = withdrawRequest.RequestDate,
+                Status = withdrawRequest.Status
+            };
+        }
+
+        public async Task<WithdrawRequestDto> ApproveWithdrawRequest(Guid id)
+        {
+            var withdrawRequest = await _withdrawRequestRepository.GetByIdAsync(id);
+            if (withdrawRequest == null)
+            {
+                throw new Exception("Withdraw request not found");
+            }
+
+            if (withdrawRequest.Status != WithdrawRequestStatus.Pending)
+            {
+                throw new Exception("Only pending withdraw requests can be approved");
+            }
+
+            var tutor = await _userRepository.GetByIdAsync(withdrawRequest.TutorId);
+            if (tutor.Balance < withdrawRequest.Amount)
+            {
+                throw new Exception("Tutor has insufficient balance");
+            }
+
+            tutor.Balance -= withdrawRequest.Amount;
+            await _userRepository.UpdateAsync(tutor);
+
+            withdrawRequest.Status = WithdrawRequestStatus.Approved;
+            await _withdrawRequestRepository.UpdateAsync(withdrawRequest);
+
+            return new WithdrawRequestDto
+            {
+                Id = withdrawRequest.Id,
+                TutorId = withdrawRequest.TutorId,
+                Amount = withdrawRequest.Amount,
+                BankName = withdrawRequest.BankName,
+                AccountNumber = withdrawRequest.AccountNumber,
+                RequestDate = withdrawRequest.RequestDate,
+                Status = withdrawRequest.Status
+            };
+        }
+
+        public async Task<WithdrawRequestDto> RejectWithdrawRequest(Guid id)
+        {
+            var withdrawRequest = await _withdrawRequestRepository.GetByIdAsync(id);
+            if (withdrawRequest == null)
+            {
+                throw new Exception("Withdraw request not found");
+            }
+
+            if (withdrawRequest.Status != WithdrawRequestStatus.Pending)
+            {
+                throw new Exception("Only pending withdraw requests can be rejected");
+            }
+
+            withdrawRequest.Status = WithdrawRequestStatus.Rejected;
+            await _withdrawRequestRepository.UpdateAsync(withdrawRequest);
+
+            return new WithdrawRequestDto
+            {
+                Id = withdrawRequest.Id,
+                TutorId = withdrawRequest.TutorId,
+                Amount = withdrawRequest.Amount,
+                BankName = withdrawRequest.BankName,
+                AccountNumber = withdrawRequest.AccountNumber,
+                RequestDate = withdrawRequest.RequestDate,
+                Status = withdrawRequest.Status
+            };
+        }
+    }
+}

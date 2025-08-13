@@ -27,6 +27,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<PaymentEntity> Payments { get; set; }
+        public DbSet<WithdrawRequest> WithdrawRequests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -59,6 +60,10 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .HasOne(u => u.Role)
                 .WithMany()
                 .HasForeignKey(u => u.RoleID);
+            modelBuilder.Entity<User>()
+                .Property(u => u.Balance)
+                .HasColumnType("DECIMAL(18,2)")
+                .HasDefaultValue(0.00);
 
             // Roles
             modelBuilder.Entity<Role>()
@@ -252,6 +257,19 @@ namespace PeerTutoringSystem.Infrastructure.Data
                       .WithMany()
                       .HasForeignKey(e => e.BookingId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<WithdrawRequest>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Amount).HasColumnType("DECIMAL(18,2)");
+                entity.Property(e => e.BankName).HasMaxLength(100);
+                entity.Property(e => e.AccountNumber).HasMaxLength(100);
+                entity.Property(e => e.Status).HasConversion<string>();
+                entity.HasOne(e => e.Tutor)
+                    .WithMany()
+                    .HasForeignKey(e => e.TutorId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

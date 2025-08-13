@@ -122,10 +122,12 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<IWithdrawRequestRepository, WithdrawRequestRepository>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IWithdrawService, WithdrawService>();
 builder.Services.AddScoped<IPayOSWebhookService, PayOSWebhookService>(provider =>
     new PayOSWebhookService(
         provider.GetRequiredService<IHttpClientFactory>(),
