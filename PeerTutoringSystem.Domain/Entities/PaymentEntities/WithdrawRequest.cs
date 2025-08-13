@@ -1,3 +1,4 @@
+using PeerTutoringSystem.Domain.Common;
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using System.ComponentModel.DataAnnotations.Schema;
 

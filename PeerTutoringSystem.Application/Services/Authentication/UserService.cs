@@ -179,7 +179,7 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new ValidationException("User not found.");
             }
 
-            user.AccountBalance = dto.AccountBalance;
+            user.Balance = dto.Balance;
             await _userRepository.UpdateAsync(user);
         }
 
