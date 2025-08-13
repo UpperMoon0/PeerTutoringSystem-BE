@@ -1,3 +1,4 @@
+using PeerTutoringSystem.Application.DTOs.Booking;
 using System;
 using System.Collections.Generic;
 
@@ -5,6 +6,8 @@ namespace PeerTutoringSystem.Application.DTOs.Tutor
 {
     public class TutorFinanceDetailsDto
     {
+        public IEnumerable<BookingSessionDto> Bookings { get; set; }
+        public double TotalProfit { get; set; }
         public List<TransactionDto> RecentTransactions { get; set; }
         public List<ChartDataPointDto> EarningsOverTime { get; set; }
         public double CurrentMonthEarnings { get; set; }

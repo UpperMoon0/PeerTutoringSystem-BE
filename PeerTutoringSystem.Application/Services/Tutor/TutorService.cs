@@ -201,37 +201,32 @@ namespace PeerTutoringSystem.Application.Services.Tutor
                     return Result<TutorFinanceDetailsDto>.Failure("Tutor not found.");
                 }
 
-                var tutorBio = await _userBioRepository.GetByUserIdAsync(tutorId);
-                var hourlyRate = tutorBio?.HourlyRate ?? 0;
-
                 var bookings = await _bookingSessionRepository.GetByTutorIdAsync(tutorId);
+
+                var paidBookings = bookings.Where(b => b.PaymentStatus == Domain.Entities.PaymentEntities.PaymentStatus.Paid).ToList();
+
+                var totalProfit = paidBookings.Sum(b => b.basePrice);
 
                 var now = DateTime.UtcNow;
                 var firstDayOfCurrentMonth = new DateTime(now.Year, now.Month, 1);
                 var firstDayOfLastMonth = firstDayOfCurrentMonth.AddMonths(-1);
-                var firstDayOfThisMonth = new DateTime(now.Year, now.Month, 1);
 
-                var currentMonthEarnings = bookings
-                    .Where(b => b.Status == BookingStatus.Completed && b.SessionDate >= firstDayOfThisMonth)
-                    .Sum(b => hourlyRate);
+                var currentMonthEarnings = paidBookings
+                    .Where(b => b.SessionDate >= firstDayOfCurrentMonth)
+                    .Sum(b => b.basePrice);
 
-                var lastMonthEarnings = bookings
-                    .Where(b => b.Status == BookingStatus.Completed && b.SessionDate >= firstDayOfLastMonth && b.SessionDate < firstDayOfCurrentMonth)
-                    .Sum(b => hourlyRate);
+                var lastMonthEarnings = paidBookings
+                    .Where(b => b.SessionDate >= firstDayOfLastMonth && b.SessionDate < firstDayOfCurrentMonth)
+                    .Sum(b => b.basePrice);
 
-                var lifetimeEarnings = bookings
-                    .Where(b => b.Status == BookingStatus.Completed)
-                    .Sum(b => hourlyRate);
-
-                var recentTransactions = bookings
-                    .Where(b => b.Status == BookingStatus.Completed)
+                var recentTransactions = paidBookings
                     .OrderByDescending(b => b.SessionDate)
                     .Take(10)
                     .Select(b => new TransactionDto
                     {
                         Date = b.SessionDate,
                         Description = $"Session with student",
-                        Amount = (double)hourlyRate
+                        Amount = (double)b.basePrice
                     }).ToList();
 
                 var earningsOverTime = new List<ChartDataPointDto>();
@@ -241,9 +236,9 @@ namespace PeerTutoringSystem.Application.Services.Tutor
                     var firstDayOfMonth = new DateTime(month.Year, month.Month, 1);
                     var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
 
-                    var monthlyEarnings = bookings
-                        .Where(b => b.Status == BookingStatus.Completed && b.SessionDate >= firstDayOfMonth && b.SessionDate <= lastDayOfMonth)
-                        .Sum(b => hourlyRate);
+                    var monthlyEarnings = paidBookings
+                        .Where(b => b.SessionDate >= firstDayOfMonth && b.SessionDate <= lastDayOfMonth)
+                        .Sum(b => b.basePrice);
 
                     earningsOverTime.Add(new ChartDataPointDto
                     {
@@ -254,11 +249,25 @@ namespace PeerTutoringSystem.Application.Services.Tutor
 
                 var financeDetails = new TutorFinanceDetailsDto
                 {
+                    Bookings = paidBookings.Select(b => new DTOs.Booking.BookingSessionDto
+                    {
+                        BookingId = b.BookingId,
+                        StudentId = b.StudentId,
+                        TutorId = b.TutorId,
+                        StartTime = b.StartTime,
+                        EndTime = b.EndTime,
+                        Status = b.Status,
+                        BasePrice = b.basePrice,
+                        PaymentStatus = b.PaymentStatus,
+                        OrderCode = b.OrderCode,
+                        SessionDate = b.SessionDate
+                    }),
+                    TotalProfit = (double)totalProfit,
                     RecentTransactions = recentTransactions,
                     EarningsOverTime = earningsOverTime,
                     CurrentMonthEarnings = (double)currentMonthEarnings,
                     LastMonthEarnings = (double)lastMonthEarnings,
-                    LifetimeEarnings = (double)lifetimeEarnings
+                    LifetimeEarnings = (double)totalProfit
                 };
 
                 return Result<TutorFinanceDetailsDto>.Success(financeDetails);
