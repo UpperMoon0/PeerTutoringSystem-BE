@@ -213,5 +213,23 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
+        [HttpGet("balance")]
+        public async Task<IActionResult> GetBalance()
+        {
+            try
+            {
+                var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ValidationException("Invalid token."));
+                var balance = await _userService.GetUserBalance(currentUserId);
+                return Ok(new { balance });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+            }
+        }
     }
 }

@@ -193,5 +193,16 @@ namespace PeerTutoringSystem.Application.Services.Authentication
                 throw new ValidationException(errors);
             }
         }
+
+        public async Task<double> GetUserBalance(Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new ValidationException("User not found.");
+            }
+
+            return user.AccountBalance;
+        }
     }
 }
