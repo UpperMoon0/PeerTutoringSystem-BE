@@ -61,7 +61,7 @@ namespace PeerTutoringSystem.Infrastructure.Data
                 .WithMany()
                 .HasForeignKey(u => u.RoleID);
             modelBuilder.Entity<User>()
-                .Property(u => u.Balance)
+                .Property(u => u.AccountBalance)
                 .HasColumnType("DECIMAL(18,2)")
                 .HasDefaultValue(0.00);
 

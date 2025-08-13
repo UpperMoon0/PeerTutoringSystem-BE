@@ -26,7 +26,7 @@ namespace PeerTutoringSystem.Application.Services.Payment
             var tutorId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var tutor = await _userRepository.GetByIdAsync(tutorId);
 
-            if (tutor.Balance < createWithdrawRequestDto.Amount)
+            if (tutor.AccountBalance < createWithdrawRequestDto.Amount)
             {
                 throw new Exception("Insufficient balance");
             }
@@ -101,12 +101,12 @@ namespace PeerTutoringSystem.Application.Services.Payment
             }
 
             var tutor = await _userRepository.GetByIdAsync(withdrawRequest.TutorId);
-            if (tutor.Balance < withdrawRequest.Amount)
+            if (tutor.AccountBalance < withdrawRequest.Amount)
             {
                 throw new Exception("Tutor has insufficient balance");
             }
 
-            tutor.Balance -= withdrawRequest.Amount;
+            tutor.AccountBalance -= withdrawRequest.Amount;
             await _userRepository.UpdateAsync(tutor);
 
             withdrawRequest.Status = WithdrawRequestStatus.Approved;
