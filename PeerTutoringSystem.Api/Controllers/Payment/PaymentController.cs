@@ -93,5 +93,13 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             }
             return Ok(result);
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin/finance-details")]
+        public async Task<IActionResult> GetFinanceDetails()
+        {
+            var result = await _paymentService.GetFinanceDetails();
+            return Ok(result);
+        }
     }
 }

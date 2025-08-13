@@ -1,8 +1,5 @@
 using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Application.DTOs.Payment;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PeerTutoringSystem.Application.Interfaces.Payment
 {
@@ -14,5 +11,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Payment
         Task HandlePayOSWebhook(PayOSWebhookData webhookData);
         Task<BookingSessionDto> HandlePayOSReturn(long orderCode);
         Task<BookingSessionDto> HandlePayOSCancel(long orderCode);
+        Task<FinanceDetailsDto> GetFinanceDetails();
     }
 }
