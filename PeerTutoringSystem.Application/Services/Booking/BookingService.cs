@@ -271,11 +271,6 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 }
             }
 
-            if (booking.Status == BookingStatus.Completed)
-            {
-                if (booking.EndTime > DateTime.UtcNow)
-                    throw new ValidationException("Cannot mark a future booking as completed.");
-            }
 
             booking.UpdatedAt = DateTime.UtcNow;
             await _bookingRepository.UpdateAsync(booking);
