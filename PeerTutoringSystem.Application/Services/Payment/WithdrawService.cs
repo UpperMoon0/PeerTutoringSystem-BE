@@ -39,6 +39,22 @@ namespace PeerTutoringSystem.Application.Services.Payment
             });
         }
 
+        public async Task<IEnumerable<WithdrawRequestDto>> GetWithdrawRequests()
+        {
+            var withdrawRequests = await _withdrawRequestRepository.GetAllAsync();
+
+            return withdrawRequests.Select(withdrawRequest => new WithdrawRequestDto
+            {
+                Id = withdrawRequest.Id,
+                TutorId = withdrawRequest.TutorId,
+                Amount = withdrawRequest.Amount,
+                BankName = withdrawRequest.BankName,
+                AccountNumber = withdrawRequest.AccountNumber,
+                RequestDate = withdrawRequest.RequestDate,
+                Status = withdrawRequest.Status
+            });
+        }
+
         public async Task<WithdrawRequestDto> CreateWithdrawRequest(CreateWithdrawRequestDto createWithdrawRequestDto)
         {
             var tutorId = Guid.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
