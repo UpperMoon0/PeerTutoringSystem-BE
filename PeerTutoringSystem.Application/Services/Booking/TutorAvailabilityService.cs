@@ -190,5 +190,49 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 IsBooked = availability.IsBooked
             } : null;
         }
+        public async Task<TutorAvailabilityDto> UpdateAsync(Guid availabilityId, UpdateTutorAvailabilityDto dto)
+        {
+            var availability = await _availabilityRepository.GetByIdAsync(availabilityId);
+            if (availability == null)
+                throw new ValidationException("Availability not found.");
+
+            if (availability.IsBooked)
+                throw new ValidationException("Cannot edit a booked availability.");
+
+            var currentDateTimeUtc = DateTime.UtcNow;
+
+            if (dto.StartTime < currentDateTimeUtc)
+                throw new ValidationException("Start time cannot be in the past.");
+
+            if (dto.EndTime <= dto.StartTime)
+                throw new ValidationException("End time must be after start time.");
+
+            if (dto.EndTime.Subtract(dto.StartTime).TotalMinutes < 30)
+                throw new ValidationException("Session must be at least 30 minutes long.");
+
+            if (dto.IsRecurring && string.IsNullOrEmpty(dto.RecurringDay) && !dto.IsDailyRecurring)
+                throw new ValidationException("Recurring day must be specified for weekly recurring availability.");
+
+            if (dto.RecurrenceEndDate.HasValue && dto.RecurrenceEndDate.Value < currentDateTimeUtc.Date)
+                throw new ValidationException("Recurrence end date cannot be in the past.");
+
+            DayOfWeek? recurringDay = null;
+            if (dto.IsRecurring && !dto.IsDailyRecurring && !string.IsNullOrEmpty(dto.RecurringDay))
+            {
+                if (!Enum.TryParse<DayOfWeek>(dto.RecurringDay, true, out var day))
+                    throw new ValidationException("Invalid day of week specified.");
+                recurringDay = day;
+            }
+
+            availability.StartTime = dto.StartTime;
+            availability.EndTime = dto.EndTime;
+            availability.IsRecurring = dto.IsRecurring;
+            availability.IsDailyRecurring = dto.IsDailyRecurring;
+            availability.RecurringDay = recurringDay;
+            availability.RecurrenceEndDate = dto.RecurrenceEndDate;
+
+            await _availabilityRepository.UpdateAsync(availability);
+            return MapToDto(availability);
+        }
     }
 }

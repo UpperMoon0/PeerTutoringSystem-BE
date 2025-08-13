@@ -1,6 +1,7 @@
 using PeerTutoringSystem.Application.DTOs.Booking;
 using PeerTutoringSystem.Domain.Entities.PaymentEntities;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -324,6 +325,23 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 };
             }
             return null;
+        }
+
+        public async Task<FinanceDetailsDto> GetFinanceDetails()
+        {
+            var allBookings = await _bookingRepository.GetAllAsync();
+            var paidBookings = allBookings.Where(b => b.PaymentStatus == PaymentStatus.Paid);
+
+            var totalPayments = paidBookings.Count();
+            var totalIncome = paidBookings.Sum(b => b.basePrice + b.serviceFee);
+            var totalProfit = paidBookings.Sum(b => b.serviceFee);
+
+            return new FinanceDetailsDto
+            {
+                TotalPayments = totalPayments,
+                TotalIncome = totalIncome,
+                TotalProfit = totalProfit
+            };
         }
     }
 }

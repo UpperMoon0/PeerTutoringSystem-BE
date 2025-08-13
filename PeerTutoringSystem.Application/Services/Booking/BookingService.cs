@@ -260,8 +260,8 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 throw new ValidationException($"Invalid status value: {dto.Status}");
             }
 
-            // Update availability status for Cancelled or Rejected
-            if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Rejected)
+            // Update availability status for Cancelled, Rejected or Completed
+            if (booking.Status == BookingStatus.Cancelled || booking.Status == BookingStatus.Rejected || booking.Status == BookingStatus.Completed)
             {
                 var availability = await _availabilityRepository.GetByIdAsync(booking.AvailabilityId);
                 if (availability != null)
@@ -271,11 +271,6 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 }
             }
 
-            if (booking.Status == BookingStatus.Completed)
-            {
-                if (booking.EndTime > DateTime.UtcNow)
-                    throw new ValidationException("Cannot mark a future booking as completed.");
-            }
 
             booking.UpdatedAt = DateTime.UtcNow;
             await _bookingRepository.UpdateAsync(booking);
