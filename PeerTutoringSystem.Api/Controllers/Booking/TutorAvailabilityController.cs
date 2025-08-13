@@ -158,5 +158,44 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                 return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
+        
+        [HttpPut("{availabilityId:guid}")]
+        [Authorize(Roles = "Tutor")]
+        public async Task<IActionResult> UpdateAvailability(Guid availabilityId, [FromBody] UpdateTutorAvailabilityDto dto)
+        {
+            if (dto == null)
+                return BadRequest(new { error = "Request body is required.", timestamp = DateTime.UtcNow });
+
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+
+                var availability = await _availabilityService.GetByIdAsync(availabilityId);
+                if (availability == null)
+                    return NotFound(new { error = "Availability not found.", timestamp = DateTime.UtcNow });
+
+                if (availability.TutorId != userId)
+                    return StatusCode(403, new { error = "You can only edit your own availability slots.", timestamp = DateTime.UtcNow });
+
+                var updatedAvailability = await _availabilityService.UpdateAsync(availabilityId, dto);
+                return Ok(new
+                {
+                    data = updatedAvailability,
+                    message = "Availability updated successfully.",
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation error while updating availability {AvailabilityId}.", availabilityId);
+                return BadRequest(new { error = ex.Message, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while updating availability {AvailabilityId}.", availabilityId);
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
+        }
     }
 }
