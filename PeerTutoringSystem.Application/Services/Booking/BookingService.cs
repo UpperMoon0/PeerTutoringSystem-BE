@@ -95,7 +95,9 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 Description = dto.Description,
                 Status = BookingStatus.Pending,
                 PaymentStatus = PaymentStatus.Pending,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                basePrice = 0,
+                serviceFee = 0
             };
 
             // Save booking and update availability
@@ -155,7 +157,9 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 Description = dto.Description,
                 Status = BookingStatus.Pending,
                 PaymentStatus = PaymentStatus.Pending,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                basePrice = 0,
+                serviceFee = 0
             };
 
             await _bookingRepository.AddAsync(booking);
@@ -382,31 +386,41 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 _logger.LogError(ex, "Error fetching tutor details for tutor ID {TutorId}", booking.TutorId);
             }
 
-            try
+            if (booking.basePrice > 0 && booking.serviceFee > 0)
             {
-                _logger.LogInformation("Fetching tutor bio for TutorId: {TutorId}", booking.TutorId);
-                var userBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
-                _logger.LogInformation("Retrieved tutor bio: {UserBio}", JsonSerializer.Serialize(userBio));
-
-                if (userBio != null)
-                {
-                    _logger.LogInformation("Tutor HourlyRate: {HourlyRate}", userBio.HourlyRate);
-                    _logger.LogInformation("Booking StartTime: {StartTime}, EndTime: {EndTime}", booking.StartTime, booking.EndTime);
-                    var duration = booking.EndTime - booking.StartTime;
-                    var totalHours = duration.TotalHours;
-                    _logger.LogInformation("Calculated TotalHours: {TotalHours}", totalHours);
-                    basePrice = (decimal)totalHours * userBio.HourlyRate;
-                    serviceFee = basePrice * 0.3m;
-                    _logger.LogInformation("Calculated basePrice: {Price}", basePrice);
-                }
-                else
-                {
-                    _logger.LogWarning("Tutor bio not found for TutorId: {TutorId}", booking.TutorId);
-                }
+                basePrice = booking.basePrice;
+                serviceFee = booking.serviceFee;
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Error calculating price for booking ID {BookingId}", booking.BookingId);
+                try
+                {
+                    _logger.LogInformation("Fetching tutor bio for TutorId: {TutorId}", booking.TutorId);
+                    var userBio = await _userBioRepository.GetByUserIdAsync(booking.TutorId);
+                    _logger.LogInformation("Retrieved tutor bio: {UserBio}", JsonSerializer.Serialize(userBio));
+
+                    if (userBio != null)
+                    {
+                        _logger.LogInformation("Tutor HourlyRate: {HourlyRate}", userBio.HourlyRate);
+                        _logger.LogInformation("Booking StartTime: {StartTime}, EndTime: {EndTime}", booking.StartTime, booking.EndTime);
+                        var duration = booking.EndTime - booking.StartTime;
+                        var totalHours = duration.TotalHours;
+                        _logger.LogInformation("Calculated TotalHours: {TotalHours}", totalHours);
+                        basePrice = (decimal)totalHours * userBio.HourlyRate;
+                        serviceFee = basePrice * 0.3m;
+                        booking.basePrice = basePrice.Value;
+                        booking.serviceFee = serviceFee.Value;
+                        _logger.LogInformation("Calculated basePrice: {Price}", basePrice);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Tutor bio not found for TutorId: {TutorId}", booking.TutorId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error calculating price for booking ID {BookingId}", booking.BookingId);
+                }
             }
 
             var bookingDto = new BookingSessionDto
