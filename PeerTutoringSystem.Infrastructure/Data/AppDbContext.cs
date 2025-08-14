@@ -63,7 +63,8 @@ namespace PeerTutoringSystem.Infrastructure.Data
             modelBuilder.Entity<User>()
                 .Property(u => u.AccountBalance)
                 .HasColumnType("DECIMAL(18,2)")
-                .HasDefaultValue(0.00);
+                .IsRequired()
+                .HasDefaultValue(0.00m);
 
             // Roles
             modelBuilder.Entity<Role>()
