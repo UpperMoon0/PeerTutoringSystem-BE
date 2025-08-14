@@ -11,5 +11,7 @@ namespace PeerTutoringSystem.Application.DTOs.Reviews
         public int Rating { get; set; }
         public string? Comment { get; set; }
         public DateTime ReviewDate { get; set; }
+        public string StudentName { get; set; }
+        public string StudentAvatarUrl { get; set; }
     }
 }

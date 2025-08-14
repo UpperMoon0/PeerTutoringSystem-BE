@@ -101,16 +101,26 @@ namespace PeerTutoringSystem.Application.Services.Reviews
                 throw new ValidationException("Tutor not found.");
 
             var reviews = await _reviewRepository.GetByTutorIdAsync(tutorId);
-            return reviews.Select(review => new ReviewDto
+            var reviewDtos = new List<ReviewDto>();
+
+            foreach (var review in reviews)
             {
-                ReviewID = review.ReviewID,
-                BookingID = review.BookingID,
-                StudentID = review.StudentID,
-                TutorID = review.TutorID,
-                Rating = review.Rating,
-                Comment = review.Comment,
-                ReviewDate = review.ReviewDate
-            }).ToList();
+                var student = await _userRepository.GetByIdAsync(review.StudentID);
+                reviewDtos.Add(new ReviewDto
+                {
+                    ReviewID = review.ReviewID,
+                    BookingID = review.BookingID,
+                    StudentID = review.StudentID,
+                    TutorID = review.TutorID,
+                    Rating = review.Rating,
+                    Comment = review.Comment,
+                    ReviewDate = review.ReviewDate,
+                    StudentName = student?.FullName ?? "Unknown",
+                    StudentAvatarUrl = student?.AvatarUrl ?? string.Empty
+                });
+            }
+
+            return reviewDtos;
         }
 
         public async Task<double> GetAverageRatingByTutorIdAsync(Guid tutorId)
