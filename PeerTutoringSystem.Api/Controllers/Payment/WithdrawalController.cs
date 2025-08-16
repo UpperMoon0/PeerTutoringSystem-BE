@@ -35,8 +35,15 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
         [HttpPost]
         public async Task<IActionResult> CreateWithdrawRequest([FromBody] CreateWithdrawRequestDto createWithdrawRequestDto)
         {
-            var result = await _withdrawService.CreateWithdrawRequest(createWithdrawRequestDto);
-            return Ok(result);
+            try
+            {
+                var result = await _withdrawService.CreateWithdrawRequest(createWithdrawRequestDto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}/cancel")]
