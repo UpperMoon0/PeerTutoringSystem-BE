@@ -149,5 +149,22 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 UpdatedAt = session.UpdatedAt
             };
         }
+
+        public async Task<TutorSessionStatsDto> GetTutorSessionStatsAsync(Guid tutorId)
+        {
+            var bookings = await _bookingRepository.GetByTutorIdAsync(tutorId);
+
+            var stats = new TutorSessionStatsDto
+            {
+                TotalSessions = bookings.Count(),
+                CompletedSessions = bookings.Count(b => b.Status == BookingStatus.Completed),
+                CanceledSessions = bookings.Count(b => b.Status == BookingStatus.Cancelled),
+                TotalHours = bookings
+                    .Where(b => b.Status == BookingStatus.Completed)
+                    .Sum(b => (b.EndTime - b.StartTime).TotalHours)
+            };
+
+            return stats;
+        }
     }
 }
