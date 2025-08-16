@@ -107,5 +107,12 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             var result = await _paymentService.GetFinanceDetails();
             return Ok(result);
         }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("admin/all-payments")]
+        public async Task<IActionResult> GetAllPayments()
+        {
+            var result = await _paymentService.GetAllPayments();
+            return Ok(result);
+        }
     }
 }

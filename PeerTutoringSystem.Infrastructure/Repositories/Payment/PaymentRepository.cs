@@ -35,5 +35,15 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Payment
             await _context.Payments.AddAsync(payment);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<PaymentEntity>> GetAllAsync()
+        {
+            return await _context.Payments
+                .Include(p => p.Booking)
+                .ThenInclude(b => b.Tutor)
+                .Include(p => p.Booking)
+                .ThenInclude(b => b.Student)
+                .ToListAsync();
+        }
     }
 }

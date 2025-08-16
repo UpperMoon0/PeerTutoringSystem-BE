@@ -12,5 +12,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Payment
         Task<BookingSessionDto> HandlePayOSReturn(long orderCode);
         Task<BookingSessionDto> HandlePayOSCancel(long orderCode);
         Task<FinanceDetailsDto> GetFinanceDetails();
+        Task<IEnumerable<PaymentDto>> GetAllPayments();
     }
 }

@@ -343,5 +343,19 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 TotalProfit = totalProfit
             };
         }
+        public async Task<IEnumerable<PaymentDto>> GetAllPayments()
+        {
+            var payments = await _paymentRepository.GetAllAsync();
+            return payments.Select(p => new PaymentDto
+            {
+                Id = p.Id,
+                BookingId = p.BookingId,
+                Amount = p.Amount,
+                Status = p.Status.ToString(),
+                CreatedAt = p.CreatedAt,
+                TutorName = p.Booking?.Tutor?.FullName,
+                StudentName = p.Booking?.Student?.FullName
+            });
+        }
     }
 }

@@ -34,7 +34,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
             }
         }
 
-        public async Task<TutorAvailability?> GetByIdAsync(Guid availabilityId)
+        public async Task<TutorAvailability> GetByIdAsync(Guid availabilityId)
         {
             return await _context.TutorAvailabilities
                 .FirstOrDefaultAsync(a => a.AvailabilityId == availabilityId);
