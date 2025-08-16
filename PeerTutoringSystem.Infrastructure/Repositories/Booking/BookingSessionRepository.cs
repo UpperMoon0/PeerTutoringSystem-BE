@@ -94,18 +94,6 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
                 .ToListAsync();
         }
 
-        public async Task<bool> IsSlotAvailableAsync(Guid tutorId, DateTime startTime, DateTime endTime)
-        {
-            var overlappingBookings = await _context.BookingSessions
-                .Where(b => b.TutorId == tutorId &&
-                            b.Status != BookingStatus.Cancelled &&
-                            ((b.StartTime <= startTime && b.EndTime > startTime) ||
-                             (b.StartTime < endTime && b.EndTime >= endTime) ||
-                             (b.StartTime >= startTime && b.EndTime <= endTime)))
-                .AnyAsync();
-
-            return !overlappingBookings;
-        }
 
         public async Task<IEnumerable<BookingSession>> GetUpcomingBookingsByUserAsync(Guid userId, bool isTutor)
         {
@@ -183,6 +171,11 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
         {
             return await _context.BookingSessions
                 .FirstOrDefaultAsync(b => b.OrderCode == orderCode);
+        }
+        public async Task<bool> IsSlotAvailableAsync(Guid tutorId, DateTime startTime, DateTime endTime)
+        {
+            return !await _context.BookingSessions
+                .AnyAsync(b => b.TutorId == tutorId && b.StartTime < endTime && b.EndTime > startTime);
         }
     }
 }

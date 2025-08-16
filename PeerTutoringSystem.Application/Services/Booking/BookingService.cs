@@ -63,8 +63,6 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (availability.IsBooked)
                 throw new ValidationException("This time slot has already been booked.");
 
-            if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, availability.StartTime, availability.EndTime))
-                throw new ValidationException("This time slot is no longer available as it has been booked by another user.");
 
             // Validate skill if provided
             if (dto.SkillId.HasValue)
@@ -121,16 +119,6 @@ namespace PeerTutoringSystem.Application.Services.Booking
             if (dto.EndTime.Subtract(dto.StartTime).TotalMinutes < 30)
                 throw new ValidationException("Session must be at least 30 minutes long.");
 
-            if (!await _bookingRepository.IsSlotAvailableAsync(dto.TutorId, dto.StartTime, dto.EndTime))
-                throw new ValidationException("This time slot is not available.");
-
-            if (dto.SkillId.HasValue)
-            {
-                var skill = await _skillRepository.GetByIdAsync(dto.SkillId.Value);
-                if (skill == null)
-                    throw new ValidationException("The specified skill does not exist.");
-            }
-
             var availability = new TutorAvailability
             {
                 AvailabilityId = Guid.NewGuid(),
@@ -139,9 +127,17 @@ namespace PeerTutoringSystem.Application.Services.Booking
                 EndTime = dto.EndTime,
                 IsRecurring = false,
                 IsDailyRecurring = false,
-                IsBooked = true
+                IsBooked = true // Instantly booked
             };
             await _availabilityRepository.AddAsync(availability);
+
+            if (dto.SkillId.HasValue)
+            {
+                var skill = await _skillRepository.GetByIdAsync(dto.SkillId.Value);
+                if (skill == null)
+                    throw new ValidationException("The specified skill does not exist.");
+            }
+
 
             var booking = new BookingSession
             {
