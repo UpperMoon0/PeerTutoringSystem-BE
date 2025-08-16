@@ -27,9 +27,9 @@ namespace PeerTutoringSystem.Api.Controllers.Reviews
             try
             {
                 var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ValidationException("Invalid token."));
-                if (currentUserId != dto.StudentID)
+                if (currentUserId != dto.StudentId)
                     return StatusCode(403, new { error = "You can only create a review as the student who booked the session." });
-
+ 
                 var reviewId = await _reviewService.CreateReviewAsync(dto);
                 return Ok(new { ReviewID = reviewId, message = "Review created successfully." });
             }
@@ -73,6 +73,20 @@ namespace PeerTutoringSystem.Api.Controllers.Reviews
             catch (ValidationException ex)
             {
                 return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
+            }
+        }
+ 
+        [HttpGet("booking/{bookingId:guid}/exists")]
+        public async Task<IActionResult> CheckReviewExistsForBooking(Guid bookingId)
+        {
+            try
+            {
+                var exists = await _reviewService.CheckReviewExistsForBookingAsync(bookingId);
+                return Ok(exists);
             }
             catch (Exception ex)
             {

@@ -187,5 +187,26 @@ namespace PeerTutoringSystem.Api.Controllers
                 return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
         }
+
+        [HttpGet("tutor/stats")]
+        [Authorize(Roles = "Tutor")]
+        public async Task<IActionResult> GetTutorSessionStats()
+        {
+            try
+            {
+                if (!Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId))
+                {
+                    return BadRequest(new { error = "Invalid user token.", timestamp = DateTime.UtcNow });
+                }
+
+                var stats = await _sessionService.GetTutorSessionStatsAsync(userId);
+                return Ok(new { data = stats, timestamp = DateTime.UtcNow });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while retrieving tutor session stats.");
+                return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
+            }
+        }
     }
 }

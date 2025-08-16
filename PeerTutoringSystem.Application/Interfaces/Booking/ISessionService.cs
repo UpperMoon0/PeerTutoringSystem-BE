@@ -13,5 +13,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Booking
         Task<SessionDto> GetSessionByBookingIdAsync(Guid bookingId);
         Task<(IEnumerable<SessionDto> Sessions, int TotalCount)> GetSessionsByUserAsync(Guid userId, bool isTutor, BookingFilterDto filter);
         Task<SessionDto> UpdateSessionAsync(Guid sessionId, string videoCallLink, string sessionNotes, DateTimeOffset startTime, DateTimeOffset endTime);
+        Task<TutorSessionStatsDto> GetTutorSessionStatsAsync(Guid tutorId);
     }
 }

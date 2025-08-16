@@ -8,10 +8,11 @@ using System.Security.Claims;
 using Microsoft.Extensions.Logging;
 using PeerTutoringSystem.Domain.Entities.Booking;
 using System;
+using Microsoft.AspNetCore.Http;
 
 namespace PeerTutoringSystem.Api.Controllers.Booking
 {
-    [Route("api/[controller]")]
+    [Route("api/bookings")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class BookingsController : ControllerBase
@@ -418,6 +419,17 @@ namespace PeerTutoringSystem.Api.Controllers.Booking
                 _logger.LogError(ex, "Unexpected error while retrieving tutor dashboard stats.");
                 return StatusCode(500, new { error = "An unexpected error occurred.", timestamp = DateTime.UtcNow });
             }
+        }
+
+        [HttpPost("{bookingId}/upload-proof")]
+        public async Task<IActionResult> UploadProofOfPayment(Guid bookingId, IFormFile file)
+        {
+            var result = await _bookingService.UploadProofOfPayment(bookingId, file);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result);
         }
     }
 }

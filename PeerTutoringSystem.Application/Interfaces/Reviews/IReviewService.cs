@@ -10,5 +10,6 @@ namespace PeerTutoringSystem.Application.Interfaces.Reviews
         Task<IEnumerable<ReviewDto>> GetReviewsByTutorIdAsync(Guid tutorId);
         Task<double> GetAverageRatingByTutorIdAsync(Guid tutorId);
         Task<IEnumerable<TutorRatingDto>> GetTopTutorsByRatingAsync(int count);
+        Task<bool> CheckReviewExistsForBookingAsync(Guid bookingId);
     }
 }
