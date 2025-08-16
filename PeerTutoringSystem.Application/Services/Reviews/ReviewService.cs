@@ -35,38 +35,38 @@ namespace PeerTutoringSystem.Application.Services.Reviews
             ValidateDto(dto);
 
             // Validate Booking
-            var booking = await _bookingRepository.GetByIdAsync(dto.BookingID);
+            var booking = await _bookingRepository.GetByIdAsync(dto.BookingId);
             if (booking == null)
                 throw new ValidationException("Booking not found.");
-
+ 
             // Ensure the booking is completed
             if (booking.Status != BookingStatus.Completed)
                 throw new ValidationException("Cannot review a session that is not completed.");
-
+ 
             // Validate Student and Tutor
-            var student = await _userRepository.GetByIdAsync(dto.StudentID);
-            var tutor = await _userRepository.GetByIdAsync(dto.TutorID);
+            var student = await _userRepository.GetByIdAsync(dto.StudentId);
+            var tutor = await _userRepository.GetByIdAsync(dto.TutorId);
             if (student == null || tutor == null)
                 throw new ValidationException("Student or Tutor not found.");
-
+ 
             // Ensure the student is the one who booked the session
-            if (booking.StudentId != dto.StudentID)
+            if (booking.StudentId != dto.StudentId)
                 throw new ValidationException("Only the student who booked the session can leave a review.");
-
+ 
             // Ensure the tutor is the one assigned to the session
-            if (booking.TutorId != dto.TutorID)
+            if (booking.TutorId != dto.TutorId)
                 throw new ValidationException("The tutor ID does not match the session's tutor.");
-
+ 
             // Check if a review already exists for this booking
-            var existingReview = await _reviewRepository.GetByBookingIdAsync(dto.BookingID);
+            var existingReview = await _reviewRepository.GetByBookingIdAsync(dto.BookingId);
             if (existingReview != null)
                 throw new ValidationException("A review for this booking already exists.");
-
+ 
             var review = new Review
             {
-                BookingID = dto.BookingID,
-                StudentID = dto.StudentID,
-                TutorID = dto.TutorID,
+                BookingID = dto.BookingId,
+                StudentID = dto.StudentId,
+                TutorID = dto.TutorId,
                 Rating = dto.Rating,
                 Comment = dto.Comment,
                 ReviewDate = DateTime.UtcNow
@@ -172,6 +172,12 @@ namespace PeerTutoringSystem.Application.Services.Reviews
             var createReviewDto = dto as CreateReviewDto;
             if (createReviewDto != null && (createReviewDto.Rating < 1 || createReviewDto.Rating > 5))
                 throw new ValidationException("Rating must be between 1 and 5.");
+        }
+ 
+        public async Task<bool> CheckReviewExistsForBookingAsync(Guid bookingId)
+        {
+            var existingReview = await _reviewRepository.GetByBookingIdAsync(bookingId);
+            return existingReview != null;
         }
     }
 }
