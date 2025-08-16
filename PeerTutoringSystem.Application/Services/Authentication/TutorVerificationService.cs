@@ -242,12 +242,11 @@ namespace PeerTutoringSystem.Application.Services.Authentication
 
             if (dto.VerificationStatus == "Approved")
             {
-                var user = await _userRepository.GetByIdAsync(verification.UserID);
-                if (user != null)
+                if (verification.User != null)
                 {
-                    user.RoleID = 2; // Tutor
-                    await _userRepository.UpdateAsync(user);
-                    _logger.LogInformation("User ID: {UserId} role updated to Tutor", user.UserID);
+                    verification.User.RoleID = 2;
+                    await _userRepository.UpdateAsync(verification.User);
+                    _logger.LogInformation("User ID: {UserId} role updated to Tutor", verification.User.UserID);
                 }
                 else
                 {
