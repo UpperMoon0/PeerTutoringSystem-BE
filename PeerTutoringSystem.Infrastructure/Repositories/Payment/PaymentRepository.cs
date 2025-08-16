@@ -40,9 +40,9 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Payment
         {
             return await _context.Payments
                 .Include(p => p.Booking)
-                .ThenInclude(b => b.Tutor)
+                    .ThenInclude(b => b.Tutor)
                 .Include(p => p.Booking)
-                .ThenInclude(b => b.Student)
+                    .ThenInclude(b => b.Student)
                 .ToListAsync();
         }
     }

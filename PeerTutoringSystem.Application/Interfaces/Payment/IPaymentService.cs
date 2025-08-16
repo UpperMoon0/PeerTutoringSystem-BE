@@ -5,7 +5,7 @@ namespace PeerTutoringSystem.Application.Interfaces.Payment
 {
     public interface IPaymentService
     {
-        Task<IEnumerable<PaymentHistoryDto>> GetPaymentHistory(string userId);
+        Task<IEnumerable<PaymentDto>> GetPaymentHistory(string userId);
         Task<PayOSCreatePaymentLinkResponseDto> CreatePaymentLink(PayOSCreatePaymentLinkRequestDto request);
         Task<bool> ConfirmPayment(Guid bookingId);
         Task HandlePayOSWebhook(PayOSWebhookData webhookData);

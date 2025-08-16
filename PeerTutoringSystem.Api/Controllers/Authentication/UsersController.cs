@@ -95,7 +95,13 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         [HttpPut("{userId:guid}")]
         public async Task<IActionResult> UpdateUser(Guid userId, [FromForm] UpdateUserDto dto)
         {
-            _logger.LogInformation("Received request to update user with ID: {UserId}", userId);
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                Console.WriteLine("Model validation failed: " + string.Join(", ", errors));
+                Console.WriteLine($"Received DTO: FullName={dto.FullName}, Email={dto.Email}, Gender={dto.Gender}, Hometown={dto.Hometown}, PhoneNumber={dto.PhoneNumber}");
+                return BadRequest(ModelState);
+            }
             try
             {
                 var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ValidationException("Invalid token."));

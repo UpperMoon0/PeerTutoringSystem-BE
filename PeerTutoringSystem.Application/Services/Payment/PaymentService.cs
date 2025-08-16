@@ -46,14 +46,16 @@ namespace PeerTutoringSystem.Application.Services.Payment
             _userRepository = userRepository;
         }
 
-        public async Task<IEnumerable<PaymentHistoryDto>> GetPaymentHistory(string userId)
+        public async Task<IEnumerable<PaymentDto>> GetPaymentHistory(string userId)
         {
             var paymentHistory = await _paymentRepository.GetPaymentHistory(userId);
-            return paymentHistory.Select(p => new PaymentHistoryDto
+            return paymentHistory.Select(p => new PaymentDto
             {
                 Id = p.Id,
+                TransactionId = p.TransactionId,
+                BookingId = p.BookingId,
                 Amount = p.Amount,
-                Date = p.CreatedAt,
+                TransactionDate = p.CreatedAt,
                 Status = p.Status.ToString(),
                 TutorName = p.Booking.Tutor.FullName,
                 StudentName = p.Booking.Student.FullName
@@ -343,18 +345,20 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 TotalProfit = totalProfit
             };
         }
+
         public async Task<IEnumerable<PaymentDto>> GetAllPayments()
         {
             var payments = await _paymentRepository.GetAllAsync();
             return payments.Select(p => new PaymentDto
             {
                 Id = p.Id,
+                TransactionId = p.TransactionId,
                 BookingId = p.BookingId,
                 Amount = p.Amount,
+                TransactionDate = p.CreatedAt,
                 Status = p.Status.ToString(),
-                CreatedAt = p.CreatedAt,
-                TutorName = p.Booking?.Tutor?.FullName,
-                StudentName = p.Booking?.Student?.FullName
+                TutorName = p.Booking.Tutor.FullName,
+                StudentName = p.Booking.Student.FullName
             });
         }
     }
