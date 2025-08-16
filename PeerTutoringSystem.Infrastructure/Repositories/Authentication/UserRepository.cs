@@ -34,15 +34,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Authentication
 
         public async Task<User> UpdateAsync(User user)
         {
-            var existingUser = await _context.Users
-                .Include(u => u.Role) // Đảm bảo tải Role khi cập nhật
-                .FirstOrDefaultAsync(u => u.UserID == user.UserID);
-            if (existingUser == null)
-            {
-                throw new Exception("User not found.");
-            }
-
-            _context.Entry(existingUser).CurrentValues.SetValues(user);
+            _context.Users.Update(user);
             await _context.SaveChangesAsync();
             return user;
         }
