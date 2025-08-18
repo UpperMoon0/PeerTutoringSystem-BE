@@ -13,14 +13,20 @@ RUN dotnet restore "PeerTutoringSystem.sln"
 
 # Copy the rest of the source code
 COPY . .
-WORKDIR "/src/PeerTutoringSystem.Api"
-RUN dotnet publish "PeerTutoringSystem.Api.csproj" -c Release -o /app/publish
+WORKDIR "/src"
+RUN dotnet publish "PeerTutoringSystem.sln" -c Release -o /app/publish
 
 # Stage 2: Final image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
+COPY --from=build /src/etc /etc
+COPY https /https
 
-EXPOSE 8080
+ENV ASPNETCORE_URLS="https://+:7258"
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+ARG cert_password
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password=$cert_password
+EXPOSE 7258
 
 ENTRYPOINT ["dotnet", "PeerTutoringSystem.Api.dll"]
