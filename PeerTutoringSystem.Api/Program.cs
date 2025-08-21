@@ -197,6 +197,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -217,5 +219,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<PeerTutoringSystem.Api.Hubs.ChatHub>("/chatHub");
 
+app.MapHealthChecks("/health");
 
 app.Run();
