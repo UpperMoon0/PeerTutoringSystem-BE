@@ -20,7 +20,6 @@ RUN dotnet publish "PeerTutoringSystem.Api.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
-COPY --from=build /src/etc /app/etc
 COPY https /https
 
 ENV ASPNETCORE_URLS="https://+:7258"
