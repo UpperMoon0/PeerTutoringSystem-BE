@@ -1,5 +1,7 @@
 serviceAccountKey.json
 .env
+aspnetapp.key
+aspnetapp.pfx
 */bin/
 */obj/
 */.vs/

@@ -39,7 +39,7 @@ using PeerTutoringSystem.Application.Interfaces.Payment;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 
-DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "../etc/secrets/.env"));
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "etc/secrets/.env"));
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -196,6 +196,7 @@ builder.Services.AddSwaggerGen(c =>
         Required = new HashSet<string> { "skillName" }
     });
 });
+builder.Services.AddHealthChecks();
 
 builder.Services.AddHealthChecks();
 
@@ -217,8 +218,8 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 app.MapHub<PeerTutoringSystem.Api.Hubs.ChatHub>("/chatHub");
 
-app.MapHealthChecks("/health");
-
-app.Run();
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Run($"http://0.0.0.0:{port}");
