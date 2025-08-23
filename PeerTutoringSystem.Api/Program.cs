@@ -39,7 +39,7 @@ using PeerTutoringSystem.Application.Interfaces.Payment;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 
-DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "../etc/secrets/.env"));
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "etc/secrets/.env"));
 
 var builder = WebApplication.CreateBuilder(args);
 

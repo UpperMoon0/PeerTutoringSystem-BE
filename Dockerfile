@@ -21,6 +21,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
+COPY --from=build /src/etc /app/etc
+COPY https /https
+
 EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "PeerTutoringSystem.Api.dll"]
