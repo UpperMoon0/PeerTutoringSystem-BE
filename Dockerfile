@@ -20,10 +20,13 @@ RUN dotnet publish "PeerTutoringSystem.Api.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
-
 COPY --from=build /src/etc /app/etc
 COPY https /https
 
-EXPOSE 8080
+ENV ASPNETCORE_URLS="https://+:7258"
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+ARG cert_password
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password=$cert_password
+EXPOSE 7258
 
 ENTRYPOINT ["dotnet", "PeerTutoringSystem.Api.dll"]
