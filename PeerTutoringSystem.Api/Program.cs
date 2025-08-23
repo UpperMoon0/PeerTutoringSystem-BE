@@ -196,6 +196,7 @@ builder.Services.AddSwaggerGen(c =>
         Required = new HashSet<string> { "skillName" }
     });
 });
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -215,7 +216,8 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 app.MapHub<PeerTutoringSystem.Api.Hubs.ChatHub>("/chatHub");
 
-
-app.Run();
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Run($"http://0.0.0.0:{port}");
