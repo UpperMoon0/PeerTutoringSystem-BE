@@ -6,3 +6,8 @@ aspnetapp.pfx
 */obj/
 */.vs/
 reseed-db.sh
+
+# SSL certificate files
+https/aspnetapp.key
+https/aspnetapp.pfx
+.fake

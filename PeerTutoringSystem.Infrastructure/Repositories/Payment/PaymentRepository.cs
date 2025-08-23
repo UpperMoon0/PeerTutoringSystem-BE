@@ -26,7 +26,17 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Payment
                     .ThenInclude(b => b.Tutor)
                 .Include(p => p.Booking)
                     .ThenInclude(b => b.Student)
-                .Where(p => p.Booking.Student.UserID.ToString() == userId || p.Booking.Tutor.UserID.ToString() == userId)
+                .Where(p => p.Booking.Tutor.UserID.ToString() == userId)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<PaymentEntity>> GetStudentPaymentHistory(string userId)
+        {
+            return await _context.Payments
+                .Include(p => p.Booking)
+                    .ThenInclude(b => b.Tutor)
+                .Include(p => p.Booking)
+                    .ThenInclude(b => b.Student)
+                .Where(p => p.Booking.Student.UserID.ToString() == userId)
                 .ToListAsync();
         }
 

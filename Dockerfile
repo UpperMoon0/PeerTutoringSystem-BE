@@ -13,8 +13,8 @@ RUN dotnet restore "PeerTutoringSystem.sln"
 
 # Copy the rest of the source code
 COPY . .
-WORKDIR "/src/PeerTutoringSystem.Api"
-RUN dotnet publish "PeerTutoringSystem.Api.csproj" -c Release -o /app/publish
+WORKDIR "/src"
+RUN dotnet publish "PeerTutoringSystem.sln" -c Release -o /app/publish
 
 # Stage 2: Final image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0

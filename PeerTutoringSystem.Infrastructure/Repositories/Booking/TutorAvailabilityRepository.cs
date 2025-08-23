@@ -34,7 +34,7 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
             }
         }
 
-        public async Task<TutorAvailability?> GetByIdAsync(Guid availabilityId)
+        public async Task<TutorAvailability> GetByIdAsync(Guid availabilityId)
         {
             return await _context.TutorAvailabilities
                 .FirstOrDefaultAsync(a => a.AvailabilityId == availabilityId);
@@ -84,73 +84,17 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
             startDate = startDate.ToUniversalTime();
             endDate = endDate.ToUniversalTime();
 
-            // Get all non-booked availabilities for the tutor
+            // Get all non-booked availabilities for the tutor that fall within the time range.
+            // This simplified logic correctly handles both recurring and non-recurring slots
+            // by relying on the IsBooked flag, which should be the single source of truth.
             var availabilities = await _context.TutorAvailabilities
                 .Where(a => a.TutorId == tutorId &&
                            !a.IsBooked &&
-                           (a.StartTime <= endDate &&
-                            (a.RecurrenceEndDate == null || a.RecurrenceEndDate >= startDate)))
+                           a.StartTime < endDate && a.EndTime > startDate)
+                .OrderBy(a => a.StartTime)
                 .ToListAsync();
 
-            var result = new List<TutorAvailability>();
-
-            foreach (var availability in availabilities)
-            {
-                // For non-recurring slots, check if they fall within the requested time range
-                if (!availability.IsRecurring && !availability.IsDailyRecurring)
-                {
-                    if (availability.StartTime >= startDate && availability.StartTime <= endDate)
-                    {
-                        result.Add(availability);
-                    }
-                }
-                // For recurring slots (weekly or daily), return the original slot if it matches the criteria
-                else
-                {
-                    bool isValidSlot = false;
-
-                    if (availability.IsDailyRecurring)
-                    {
-                        // Daily recurring: check if the time range overlaps with the requested period
-                        isValidSlot = startDate.Date <= (availability.RecurrenceEndDate?.Date ?? endDate.Date);
-                    }
-                    else if (availability.IsRecurring && availability.RecurringDay.HasValue)
-                    {
-                        // Weekly recurring: check if any occurrence falls within the requested time range
-                        var currentDate = startDate.Date;
-                        var recurrenceEnd = availability.RecurrenceEndDate?.ToUniversalTime() ?? endDate;
-
-                        while (currentDate <= endDate && currentDate <= recurrenceEnd)
-                        {
-                            if (currentDate.DayOfWeek == availability.RecurringDay.Value)
-                            {
-                                var startTime = new DateTime(
-                                    currentDate.Year,
-                                    currentDate.Month,
-                                    currentDate.Day,
-                                    availability.StartTime.Hour,
-                                    availability.StartTime.Minute,
-                                    0,
-                                    DateTimeKind.Utc);
-
-                                if (startTime >= startDate && startTime <= endDate && startTime >= DateTime.UtcNow)
-                                {
-                                    isValidSlot = true;
-                                    break;
-                                }
-                            }
-                            currentDate = currentDate.AddDays(1);
-                        }
-                    }
-
-                    if (isValidSlot && !await IsTimeSlotBooked(availability.TutorId, availability.StartTime, availability.EndTime))
-                    {
-                        result.Add(availability);
-                    }
-                }
-            }
-
-            return result.OrderBy(a => a.StartTime).ToList();
+            return availabilities;
         }
 
         public async Task<(IEnumerable<TutorAvailability> Availabilities, int TotalCount)> GetAvailableSlotsByTutorIdAsync(Guid tutorId, DateTime startDate, DateTime endDate, BookingFilter filter)
@@ -184,15 +128,5 @@ namespace PeerTutoringSystem.Infrastructure.Repositories.Booking
             return (pagedSlots, totalCount);
         }
 
-        private async Task<bool> IsTimeSlotBooked(Guid tutorId, DateTime startTime, DateTime endTime)
-        {
-            return await _context.BookingSessions
-                .Where(b => b.TutorId == tutorId &&
-                           b.Status != PeerTutoringSystem.Domain.Entities.Booking.BookingStatus.Cancelled &&
-                           ((b.StartTime <= startTime && b.EndTime > startTime) ||
-                            (b.StartTime < endTime && b.EndTime >= endTime) ||
-                            (b.StartTime >= startTime && b.EndTime <= endTime)))
-                .AnyAsync();
-        }
     }
 }

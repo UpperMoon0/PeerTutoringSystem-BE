@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using PeerTutoringSystem.Application.DTOs.Authentication;
 using PeerTutoringSystem.Application.Interfaces.Authentication;
 using PeerTutoringSystem.Domain.Entities.Authentication;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.Extensions.Logging;
 
 namespace PeerTutoringSystem.Application.Services.Authentication
 {
@@ -13,14 +14,16 @@ namespace PeerTutoringSystem.Application.Services.Authentication
         private readonly FirebaseStorageService _firebaseStorageService;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ILogger<UserService> _logger;
 
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+        public UserService(IUserRepository userRepository, IConfiguration configuration, IWebHostEnvironment webHostEnvironment, ILogger<UserService> logger)
         {
             _userRepository = userRepository;
             _configuration = configuration;
             _webHostEnvironment = webHostEnvironment;
             _firebaseStorageService = new FirebaseStorageService(_configuration, _webHostEnvironment);
+            _logger = logger;
         }
 
         public async Task<UserDto> GetUserByIdAsync(Guid userId)
@@ -102,17 +105,24 @@ namespace PeerTutoringSystem.Application.Services.Authentication
 
         public async Task UpdateUserAsync(Guid userId, UpdateUserDto dto)
         {
+            _logger.LogInformation("Attempting to update user with ID: {UserId}", userId);
             ValidateDto(dto);
 
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null || user.Status != UserStatus.Active)
+            {
+                _logger.LogWarning("User with ID: {UserId} not found or inactive.", userId);
                 throw new ValidationException("User not found or inactive.");
+            }
 
             if (dto.Email != user.Email)
             {
                 var existingUser = await _userRepository.GetByEmailAsync(dto.Email);
                 if (existingUser != null)
+                {
+                    _logger.LogWarning("Email {Email} already exists for another user.", dto.Email);
                     throw new ValidationException("Email already exists.");
+                }
             }
 
             user.FullName = dto.FullName;
@@ -122,23 +132,49 @@ namespace PeerTutoringSystem.Application.Services.Authentication
             user.Gender = Enum.Parse<Gender>(dto.Gender, true);
             user.Hometown = dto.Hometown;
             user.School = dto.School;
+            _logger.LogInformation("User object before avatar update: {User}", user);
 
             if (dto.Avatar != null)
             {
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
                 var extension = Path.GetExtension(dto.Avatar.FileName).ToLower();
                 if (!allowedExtensions.Contains(extension))
+                {
+                    _logger.LogWarning("Invalid file format for avatar: {Extension}", extension);
                     throw new ValidationException($"Invalid file format for avatar. Only JPG and PNG files are allowed.");
+                }
 
                 var maxFileSize = 2 * 1024 * 1024; // 2MB
                 if (dto.Avatar.Length > maxFileSize)
+                {
+                    _logger.LogWarning("Avatar file size {FileSize} exceeds the maximum size of 2MB.", dto.Avatar.Length);
                     throw new ValidationException($"Avatar exceeds maximum size of 2MB.");
+                }
 
-                var avatarUrl = await _firebaseStorageService.UploadFileAsync(dto.Avatar, "avatars");
-                user.AvatarUrl = avatarUrl;
+                try
+                {
+                    var avatarUrl = await _firebaseStorageService.UploadFileAsync(dto.Avatar, "avatars");
+                    _logger.LogInformation("Firebase upload successful. Returned URL: {AvatarUrl}", avatarUrl);
+                    user.AvatarUrl = avatarUrl;
+                    _logger.LogInformation("User object after avatar URL assignment: {User}", user);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred during Firebase upload for user ID: {UserId}", userId);
+                    throw;
+                }
             }
 
-            await _userRepository.UpdateAsync(user);
+            try
+            {
+                await _userRepository.UpdateAsync(user);
+                _logger.LogInformation("Successfully updated user with ID: {UserId}", userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update user with ID: {UserId} in the database.", userId);
+                throw;
+            }
         }
 
         public async Task BanUserAsync(Guid userId)

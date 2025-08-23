@@ -198,6 +198,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddHealthChecks();
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -70,7 +70,8 @@ public class AuthService : IAuthService
                 IsOnline = true,
                 Status = UserStatus.Active,
                 RoleID = 1, // Student
-                FirebaseUid = null // Đặt null cho đăng ký email/mật khẩu
+                FirebaseUid = null, // Đặt null cho đăng ký email/mật khẩu
+                AccountBalance = 0
             };
 
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
@@ -185,8 +186,12 @@ public class AuthService : IAuthService
                 LastActive = DateTime.UtcNow,
                 IsOnline = true,
                 Status = UserStatus.Active,
-                RoleID = 1 // Student
+                RoleID = 1, // Student
+                AccountBalance = 0
             };
+
+            _logger.LogInformation("Attempting to create new user with UID {FirebaseUid}. User details: Email={Email}, FullName={FullName}, DOB={DateOfBirth}, Phone={PhoneNumber}, Gender={Gender}, Hometown={Hometown}, Balance={AccountBalance}",
+                user.FirebaseUid, user.Email, user.FullName, user.DateOfBirth, user.PhoneNumber, user.Gender, user.Hometown, user.AccountBalance);
 
             var createdUser = await _userRepository.AddAsync(user);
 

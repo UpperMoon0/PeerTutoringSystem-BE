@@ -61,6 +61,21 @@ namespace PeerTutoringSystem.Application.Services.Payment
                 StudentName = p.Booking.Student.FullName
             });
         }
+        public async Task<IEnumerable<PaymentDto>> GetStudentPaymentHistory(string userId)
+        {
+            var paymentHistory = await _paymentRepository.GetStudentPaymentHistory(userId);
+            return paymentHistory.Select(p => new PaymentDto
+            {
+                Id = p.Id,
+                TransactionId = p.TransactionId,
+                BookingId = p.BookingId,
+                Amount = p.Amount,
+                TransactionDate = p.CreatedAt,
+                Status = p.Status.ToString(),
+                TutorName = p.Booking.Tutor.FullName,
+                StudentName = p.Booking.Student.FullName
+            });
+        }
 
         public async Task<PayOSCreatePaymentLinkResponseDto> CreatePaymentLink(PayOSCreatePaymentLinkRequestDto request)
         {

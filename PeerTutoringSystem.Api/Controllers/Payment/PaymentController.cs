@@ -36,6 +36,23 @@ namespace PeerTutoringSystem.Api.Controllers.Payment
             }
             return Ok(result);
         }
+        [Authorize]
+        [HttpGet("student-history")]
+        public async Task<IActionResult> GetStudentPaymentHistory()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await _paymentService.GetStudentPaymentHistory(userId);
+            if (!result.Any())
+            {
+                return Ok(new List<object>());
+            }
+            return Ok(result);
+        }
 
         [HttpPost("create-payment-link")]
         public async Task<IActionResult> CreatePaymentLink([FromBody] PayOSCreatePaymentLinkRequestDto request)

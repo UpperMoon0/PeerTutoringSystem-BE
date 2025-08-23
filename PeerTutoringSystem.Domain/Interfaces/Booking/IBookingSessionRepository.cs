@@ -15,10 +15,10 @@ namespace PeerTutoringSystem.Domain.Interfaces.Booking
         Task AddAsync(BookingSession booking);
         Task UpdateAsync(BookingSession booking);
         Task<IEnumerable<BookingSession>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
-        Task<bool> IsSlotAvailableAsync(Guid tutorId, DateTime startTime, DateTime endTime);
         Task<IEnumerable<BookingSession>> GetUpcomingBookingsByUserAsync(Guid userId, bool isTutor);
         Task<(IEnumerable<BookingSession> Bookings, int TotalCount)> GetUpcomingBookingsByUserAsync(Guid userId, bool isTutor, BookingFilter filter);
         Task<IEnumerable<BookingSession>> GetAllAsync();// cho admin lấy all booking
         Task<BookingSession> GetByOrderCode(long orderCode);
+        Task<bool> IsSlotAvailableAsync(Guid tutorId, DateTime startTime, DateTime endTime);
     }
 }

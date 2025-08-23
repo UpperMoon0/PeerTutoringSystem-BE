@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PeerTutoringSystem.Api.Middleware;
@@ -9,6 +9,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace PeerTutoringSystem.Api.Controllers.Authentication
 {
@@ -20,12 +21,14 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
         private readonly IUserService _userService;
         private readonly ITutorVerificationService _tutorVerificationService;
         private readonly ISkillService _skillService;
+        private readonly ILogger<UsersController> _logger;
 
-        public UsersController(IUserService userService, ITutorVerificationService tutorVerificationService, ISkillService skillService)
+        public UsersController(IUserService userService, ITutorVerificationService tutorVerificationService, ISkillService skillService, ILogger<UsersController> logger)
         {
             _userService = userService;
             _tutorVerificationService = tutorVerificationService;
             _skillService = skillService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -104,17 +107,24 @@ namespace PeerTutoringSystem.Api.Controllers.Authentication
                 var currentUserId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new ValidationException("Invalid token."));
                 var isAdmin = User.IsInRole("Admin");
                 if (currentUserId != userId && !isAdmin)
+                {
+                    _logger.LogWarning("Permission denied for user {CurrentUserId} to update user {UserId}.", currentUserId, userId);
                     return StatusCode(403, new { error = "You do not have permission to update this user's information." });
+                }
 
+                _logger.LogInformation("Calling UserService.UpdateUserAsync for user ID: {UserId}", userId);
                 await _userService.UpdateUserAsync(userId, dto);
+                _logger.LogInformation("Successfully updated user with ID: {UserId}", userId);
                 return Ok(new { message = "User updated successfully." });
             }
             catch (ValidationException ex)
             {
+                _logger.LogError(ex, "A validation error occurred while updating user with ID: {UserId}", userId);
                 return BadRequest(new { error = ex.Message });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An unexpected error occurred while updating user with ID: {UserId}", userId);
                 return StatusCode(500, new { error = "An unexpected error occurred: " + ex.Message });
             }
         }
