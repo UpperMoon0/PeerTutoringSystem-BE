@@ -1,6 +1,7 @@
 serviceAccountKey.json
 .env
-*/https/
+aspnetapp.key
+aspnetapp.pfx
 */bin/
 */obj/
 */.vs/
